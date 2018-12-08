@@ -1,1 +1,1 @@
-# pup_gearswap
+# Puppet Gearswap for Windower
