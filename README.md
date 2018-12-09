@@ -34,13 +34,15 @@ This will change the mode of the pet and the style of the pet.
 Current Modes: TANK, DD, Mage
 
 #### Current Styles:
-Tank: Normal, PDT, MDT, RANGE
-DD: Normal, Bone, Spam, OD, ODACC
-Mage: Normal, Heal, Support, MB, DD
+| Modes | Styles |||||
+|-------|--------|-------|---------|-------|-------|
+| Tank  | Normal | PDT   | MDT     | Range | DD    |
+| DD    | Normal | Bone  | Spam    | OD    | ODACC |
+| MAGE  | Normal | Heal  | Support | MB    | DD    |
 
 - ALT+F7 Cycles forward on Pet Modes
 - CTRL+F7 Cycles back on Pet Modes 
-- ALT+F8 Cycles Forward on Pet Styles
+- ALT+F8 Cycles forward on Pet Styles
 - CTRL+F8 Cycles backward on Pet Styles
 
 # TODO
@@ -49,4 +51,6 @@ Mage: Normal, Heal, Support, MB, DD
 - [ ] Test Auto Maneuvers with new toggle feature
 - [ ] Create better gear sets with better variables
 - [ ] Improve the functionality of the Predict Function
+- [ ] Update gearsets with better naming convention
+- [ ] Set up gearsets for different Modes/Styles to offer more options for a puppet
 - [ ] Add a better list of planned functionality
