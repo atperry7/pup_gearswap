@@ -5,6 +5,7 @@ Please keep in mind that this **currently** a work in progress and any feed back
 - [Requirements](#requirements)
 - [Features](#features)
   - [Auto Maneuvers Toggle:](#auto-maneuvers-toggle)
+  - [Lock Pet DT Set](#lock-pet-dt-set)
   - [Predict:](#predict)
   - [Pet Mode:](#pet-mode)
       - [Current Styles:](#current-styles)
@@ -22,6 +23,10 @@ https://github.com/Kinematics/Mote-libs
 ## Auto Maneuvers Toggle:
 Currently, the way this works is it will simply recast the maneuver that wears off. This way you can cast any maneuvers you want and it will simply attempt to maintain what you have active.
 - ALT + E
+
+## Lock Pet DT Set
+This allows the user to lock the DT set for the pet in place and block all other gearswapping.
+- ALT + D
   
 ## Predict:
 This will attempt to determine the currently equipped puppet and adjust the Pet Mode and Pet Style.

@@ -26,6 +26,9 @@ local player = windower.ffxi.get_player()
 --ALT+F8 Cycles Forward on Pet Styles
 --CTRL+F8 Cycles backward on Pet Styles
  
+--Lock Pet DT Set
+--ALT+D Will disable all slots and lock your Pet DT set in place
+
 -- Initialization function for this job file.
 -- IMPORTANT: Make sure to also get the Mote-Include.lua file (and its supplementary files) to go with this.
 function get_sets()
@@ -47,22 +50,28 @@ function user_setup()
     state.PetModeCycle = M{"TANK", "DD", "MAGE"}
     state.PetStyleCycle = state.PetStyleCycleTank
 
+    ActualMode = state.PetModeCycle.value
+    ActualSubMode = state.PetStyleCycle.value
+ 
     state.AutoMan = M(false, "Auto Maneuver")
+    state.LockPetDT = M(false, "Lock Pet DT")
 
     send_command('bind !f7 gs c cycle PetModeCycle')
     send_command('bind ^f7 gs c cycleback PetModeCycle')
     send_command('bind !f8 gs c cycle PetStyleCycle')
     send_command('bind ^f8 gs c cycleback PetStyleCycle')
     send_command('bind !e gs c toggle AutoMan')
+    send_command('bind !d gs c toggle LockPetDT')
 
 end
 
-function user_unload()
+function file_unload()
     send_command('unbind !f7')
     send_command('unbind ^f7')
     send_command('unbind !f8')
     send_command('unbind ^f8')
     send_command('unbind !e')
+    send_command('unbind !d')
 end
 
 function job_setup()
@@ -406,7 +415,7 @@ function init_gear_sets()
         back = JSECAPEPetHaste,
         waist = "Incarnation Sash",
         legs = HercLegsPET,
-        feet = "Tali'ah Crackows +2"
+        feet = "Herculean Boots"
     }
 
     sets.idle.Pet.Engaged = sets.idle.Pet.EngagedO
@@ -499,6 +508,7 @@ function init_gear_sets()
 
     -- Normal melee group
     sets.aftercast = sets.idle
+
     sets.engaged = {
         head="Heyoka Cap",
         body="Tali'ah Manteel +2",
@@ -680,20 +690,21 @@ end
 --Determines Gear based on that Hybrid Set
 function determineGearSet()
     if ActualMode == "TANK" then
-        sets.aftercast = sets.petTank
+        equip(sets.petTank)
     elseif Hybrid_State == "Idle" then
-        sets.aftercast = sets.idle
+        equip(sets.idle)
     elseif Hybrid_State == "Master Only" then
-        sets.aftercast = sets.engagedMO
+        equip(sets.engagedMO)
     elseif Hybrid_State == "Pet Only" then
-        sets.aftercast = sets.engaged
+        equip(sets.idle.Pet.EngagedO)
     elseif Hybrid_State == "Pet+Master" then
-        sets.aftercast = sets.engagedN
+        equip(sets.engagedN)
     elseif Hybrid_State == "Overdrive" then
-        sets.aftercast = sets.engaged
+        equip(sets.engaged)
+    else
+        handle_equipping_gear(player.status)
     end
 
-    equip(sets.aftercast)
 end
 
 function refreshWindow()
@@ -717,7 +728,9 @@ function refreshWindow()
     textinbox = textinbox..textColor..'Hybrid : '..Hybrid_State..textColorNewLine
 
     textinbox = textinbox..drawTitle('  Options  ')
-    textinbox = textinbox..textColor..'Auto Maneuver : '..ternary(Auto_Maneuver, 'ON', 'OFF')..textColorNewLine
+    textinbox = textinbox..textColor..'Auto Maneuver : '..ternary(state.AutoMan.value, 'ON', 'OFF')..textColorNewLine
+    textinbox = textinbox..textColor..'Lock Pet DT Set: '..ternary(state.LockPetDT.value, 'ON', 'OFF')..textColorNewLine
+
 
     --Debug Variables that are used for testing
     if d_mode then
@@ -730,6 +743,7 @@ function refreshWindow()
     windower.text.set_text(tb_name, textinbox)
 end
 
+--This handles drawing the Pet Infor for the Text Box
 function drawPetInfo()
     textinbox = textinbox..drawTitle('Pet Info')
     textinbox = textinbox..'- \\cs(0, 0, 125)HP : '..pet.hp..'/'..pet.max_hp..textColorNewLine
@@ -737,6 +751,7 @@ function drawPetInfo()
     textinbox = textinbox..'- \\cs(255, 0, 0)TP : '..tostring(pet.tp)..textColorNewLine
 end
 
+--This handles drawing the Pet Skills for the text box
 function drawPetSkills()
     --- Recast for enmity gears
     if ActualMode == "TANK" then
@@ -777,82 +792,6 @@ end
 ------------------------------------
 ----------Utility Functions---------
 ------------------------------------
-
-Attach = {}
-
-NA=0
-NAttach = {}
-NAttach["Light"] = 14
-NAttach["Fire"] = 15
-NAttach["Wind"] = 14
-
-MAN = {"Light", "Fire", "Wind"}
-
---Light Attachments
-Attach["Light"] = {"Arcanic Cell", "Arcanic Cell II", "Auto-Repair Kit", "Auto-Repair Kit II", "Auto-Repair Kit III", "Auto-Repair Kit IV", "Damage Gauge", "Damage Gauge II", "Eraser", "Flashbulb", "Optic Fiber", "Optic Fiber II", "Vivi-Valve", "Vivi-Valve II"}
-Attach["Light"]["Arcanic Cell"] = {"Occult Acumen", 10, 20, 35, 50, "Int"}
-Attach["Light"]["Arcanic Cell II"] = {"Occult Acumen", 20, 40, 70, 100, "Int"}
-Attach["Light"]["Auto-Repair Kit"] = {"Regen", 0, 0.00125, 0.00225, 0.00375, "%"}
-Attach["Light"]["Auto-Repair Kit"].Special = {"Regen", 0, 1, 2, 3, "Int"}
-Attach["Light"]["Auto-Repair Kit II"] = {"Regen", 0, 0.006, 0.012, 0.018, "%"}
-Attach["Light"]["Auto-Repair Kit II"].Special = {"Regen", 0, 3, 6, 9, "Int"}
-Attach["Light"]["Auto-Repair Kit III"] = {"Regen", 0, 0.018, 0.024, 0.03, "%"}
-Attach["Light"]["Auto-Repair Kit III"].Special = {"Regen", 0, 9, 12, 15, "Int"}
-Attach["Light"]["Auto-Repair Kit II"] = {"Regen", 0, 0.03, 0.036, 0.042, "%"}
-Attach["Light"]["Auto-Repair Kit II"].Special = {"Regen", 0, 15, 18, 21, "Int"}
-Attach["Light"]["Damage Gauge"] = {"Inknown", 0, 0, 0, 0, "%"}
-Attach["Light"]["Damage Gauge II"] = {"Inknown", 0, 0, 0, 0, "%"}
-Attach["Light"]["Eraser"] = {"Erase", 0, 1, 2, 3, "Int"}
-Attach["Light"]["Flashbulb"] = {"Flash", "No effect", "Activable", "Activable", "Activable", "String"}
-Attach["Light"]["Optic Fiber"] = {"Awesomeness", 0.1, 0.2, 0.25, 0.30, "%"}
-Attach["Light"]["Optic Fiber II"] = {"Awesomeness", 0.15, 0.3, 0.375, 0.45, "%"}
-Attach["Light"]["Vivivalve"] = {"Cure Pot", 0.05, 0.15, 0.3, 0.45, "%"}
-Attach["Light"]["Vivivalve II"] = {"Cure Pot", 0.10, 0.20, 0.35, 0.50, "%"}
-
--- Fire Attachments
-Attach["Fire"] = {"Attuner", "Flame Holder", "Heat Capacitor", "Heat Capacitor II", "Inhibitor", "Inhibitor II", "Reactive Shield", "Speedloader", "Speedloader II", "Strobe", "Strobe II", "Tension Spring", "Tension Spring II", "Tension Spring III", "Tension Spring IV"}
-Attach["Fire"]["Attuner"] = {"Def Ignored", 0.05, 0.15, 0.3, 0.45, "%"}
-Attach["Fire"]["Flame Holder"] = {"TP Bonus", 0.25, 1, 1.75, 2.5, "%"}
-Attach["Fire"]["Heat Capacitor"] = {"Restore TP", 0, 400, 800, 1200, "Int"}
-Attach["Fire"]["Heat Capacitor II"] = {"Restore TP", 0, 600, 1200, 1800, "Int"}
-Attach["Fire"]["Inhibitor"] = {"Store TP", 5, 15, 25, 40, "Int"}
-Attach["Fire"]["Inhibitor II"] = {"Store TP", 10, 25, 40, 65, "Int"}
-Attach["Fire"]["Reactive Shield"] = {"Blaze Spike", "No effect", "Activable", "Activable", "Activable", "String"}
-Attach["Fire"]["Speedloader"] = {"Skillchain Dmg", 0.1, 0.3, 0.4, 0.6, "%"}
-Attach["Fire"]["Speedloader II"] = {"Skillchain Dmg", 0.15, 0.45, 0.6, 0.8, "%"}
-Attach["Fire"]["Strobe"] = {"Enmity", 10, 25, 40, 60, "Int"}
-Attach["Fire"]["Strobe II"] = {"Enmity", 20, 40, 65, 100, "Int"}
-Attach["Fire"]["Tension Spring"] = {"Attack", 0.03, 0.06, 0.09, 0.12, "%"}
-Attach["Fire"]["Tension Spring II"] = {"Attack", 0.06, 0.09, 0.12, 0.15, "%"}
-Attach["Fire"]["Tension Spring III"] = {"Attack", 0.12, 0.15, 0.18, 0.21, "%"}
-Attach["Fire"]["Tension Spring IV"] = {"Attack", 0.15, 0.18, 0.21, 0.24, "%"}
-
-
--- Wind Attachments
-Attach["Wind"] = {"Accelerator", "Accelerator II", "Accelerator III", "Accelerator IV", "Barrage Turbine", "Drum Magazine", "Pattern Reader", "Repeater", "Replicator", "Scope", "Scope II", "Scope III", "Turbo Charger", "Turbo Charger II"}
-Attach["Wind"]["Accelerator"] = {"Evasion", 5, 10, 15, 20, "Int"}
-Attach["Wind"]["Accelerator II"] = {"Evasion", 10, 15, 20, 25, "Int"}
-Attach["Wind"]["Accelerator III"] = {"Evasion", 20, 35, 40, 50, "Int"}
-Attach["Wind"]["Accelerator IV"] = {"Evasion", 30, 45, 60, 80, "Int"}
-Attach["Wind"]["Barrage Turbine"] = {"Barrage", 0, 2, 3, 4, "Int"}
-Attach["Wind"]["Drum Magazine"] = {"Snapshot", 3, 6, 9, 15, "Int"}
-Attach["Wind"]["Pattern Reader"] = {"Inknown", 0, 0, 0, 0, "Int"}
-Attach["Wind"]["Repeater"] = {"Double Shot", 0.1, 0.15, 0.35, 0.65, "%"}
-Attach["Wind"]["Replicator"] = {"Blink", 0, 3, 7, 10, "Int"}
-Attach["Wind"]["Scope"] = {"RAcc", 10, 20, 30, 40, "Int"}
-Attach["Wind"]["Scope II"] = {"RAcc", 20, 30, 40, 50, "Int"}
-Attach["Wind"]["Scope III"] = {"RAcc", 30, 40, 55, 70, "Int"}
-Attach["Wind"]["Turbo Charger"] = {"Haste", 0.05, 0.15, 0.20, 0.25, "%"}
-Attach["Wind"]["Turbo Charger II"] = {"Haste", 0.07, 0.17, 0.28, 0.4375, "%"}
-
-
-Effect = {"Haste", "Snashot", "Store TP", "Def Ignored", "Skillchain Dmg", "RAcc", "Evasion", "Double Shot", "Enmity", "TP Bonus"}
-NEffect = 10
-
-Mane = {"Wind","Fire", "Light"}
-ManeRound = 1
- 
-TypeM = S{"Fire", "Water", "Earth", "Wind", "Dark", "Light", "Ice", "Thunder" }
  
 --- SKILLCHAIN TABLE
 SC = {}
@@ -911,9 +850,7 @@ PetSubMode["MAGE"] = S{"NORMAL", "HEAL", "SUPPORT", "MB", "DD"}
 NSubMode = {}
 NSubMode["Tank"] = 3
 NSubMode["DD"] = 5
-ActualMode = "DD"
-ActualSubMode = "NORMAL"
- 
+
 --- Styles Maneuvers and autocontrol
 Style={}
 -- Tank Ones
@@ -1024,7 +961,7 @@ end
 --Various Timers that get reset when you zone
 function reset_timers()
     Current_Maneuver = 0
-    Auto_Maneuver = false
+    state.AutoMan.value = false
     refreshWindow()
 end
 
@@ -1035,12 +972,6 @@ end
 --Auto Boost on Certain WS
 function job_precast(spell,action)
 
-    --Not quite functioning correctly. Will add when ready.
-    -- if spell_control(spell) then
-    --     cancel_spell()
-    --     return
-    -- end
-
     if spell.english == "Deploy" and pet.tp >= 950 then
         if ActualMode == "TANK" then
             -- Nothing
@@ -1049,10 +980,13 @@ function job_precast(spell,action)
         end
     elseif string.find(spell.english,'Maneuver') then
         equip(sets.precast.JA.Maneuver)
+
     elseif sets.precast.JA[spell.english] then
         equip(sets.precast.JA[spell.english])
+
     elseif sets.precast.WS[spell.english] then
         equip(sets.precast.WS[spell.english])
+
         if Hybrid_State == "Pet+Master" then
             sets.aftercast = sets.midcast.Pet.WeaponSkill
         end
@@ -1068,7 +1002,7 @@ function job_aftercast(spell,action)
     enable("ear1")
     
     if spell.name == null then
-        return -- Cancel Aftercast for outofrange/unable to see.
+        return -- Cancel Aftercast for out of range/unable to see.
     end
    
     if (spell.english == "Shijin Spiral" or spell.english == "Victory Smite" or spell.english == "Stringing Pummel" or spell.english == "Howling Fist") and pet.tp >= 850 then
@@ -1139,7 +1073,7 @@ function job_buff_change(status,gain_or_loss, buff_table)
     end
 
     --Now we can turn on and off the functionailty of automatically maintaining manuevers
-    if Auto_Maneuver then
+    if state.AutoMan.value then
         if status:contains("Maneuver") and gain_or_loss == false and Current_Maneuver < 3 then
             send_command('input /ja "'..status..'" <me>')
         end
@@ -1207,7 +1141,7 @@ function job_self_command(command, eventArgs)
     end
     
     if command[1]:upper() == 'AUTOMAN' then
-        Auto_Maneuver = not Auto_Maneuver
+        state.AutoMan.value = not state.AutoMan.value
         refreshWindow()
     elseif command[1]:upper() == 'DEBUG' then
         d_mode = not d_mode
@@ -1248,27 +1182,17 @@ windower.register_event('prerender', function()
             Flashbulb_Recast = Flashbulb_Timer -(os.time() - Flashbulb_Time)
         end
 
-        TotalSCalc()
-       
-        if sets.aftercast == sets.idle then
-       
-        else
-            if Hybrid_State == "Idle" then
-            sets.aftercast = sets.idle
-            equip(sets.aftercast)
-            end
-        end
-       
-        if ActualMode == "TANK" then
+        if state.PetModeCycle.value == "TANK" then
             -- Nothing
         elseif Hybrid_State == "Pet Only" or Hybrid_State == "Overdrive" then
-            if pet.tp >= 850 then
+            if pet.tp >= 950 then
                 equip(sets.midcast.Pet.WeaponSkill)
-            else
-                equip(sets.aftercast)
             end
+        else
+            determineGearSet()
         end
 
+        TotalSCalc()
         refreshWindow()
     end
    
@@ -1356,7 +1280,16 @@ function job_state_change(stateField, newValue, oldValue)
         ActualSubMode = newValue
         refreshWindow()
     elseif stateField == 'Auto Maneuver' then
-        Auto_Maneuver = newValue
+        refreshWindow()
+    elseif stateField == 'Lock Pet DT' then
+        --If true the lock gearswap
+        if newValue == true then
+            equip(sets.petTank)
+            disable({'main','sub','range','ammo','head','neck','lear','rear','body','hands','lring','rring', 'ear1', 'ear2','back','waist','legs','feet'})
+        else
+            enable({'main','sub','range','ammo','head','neck','lear','rear','body','hands','lring','rring', 'ear1', 'ear2','back','waist','legs','feet'})
+            determineGearSet()
+        end
         refreshWindow()
     end
 
