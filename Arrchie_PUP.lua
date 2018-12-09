@@ -1,24 +1,21 @@
 --Created By: Faloun
 --Modified By: Arrchie
-
-include('organizer-lib')
- 
+--Contributions From: Kuroganashi, Xilkk
 local player = windower.ffxi.get_player()
 
---
---Auto Maneuvers:
---//gs c automan
- 
+--Auto Maneuvers Toggle:
 --Currently, the way this works is it will simply recast the maneuver that wears off. This way you can cast any maneuvers you want and it will simply attempt to maintain what you have active.
- 
+--ALT + E
+  
 --Predict:
+--This will attempt to determine the currently equipped puppet and adjust the Pet Mode and Pet Style.
 --//gs c predict
  
---This will attempt to determine the currently equipped puppet and adjust the Pet Mode and Pet Style.
- 
 --Pet Mode:
---//gs c mode tank pdt
- 
+--ALT+F7 Cycles forward on Pet Modes
+--CTRL+F7 Cycles back on Pet Modes
+
+--Pet Styles
 --This will change the mode of the pet and the style of the pet.
 --Current Modes: TANK, DD, Mage
 --Current Styles:
@@ -26,56 +23,57 @@ local player = windower.ffxi.get_player()
 --- DD: Normal, Bone, Spam, OD, ODACC
 --- Mage: Normal, Heal, Support, MB, DD
  
-    --F9
-    send_command('bind f9 gs c mode dd normal')
-    --CTRL + F9
-    send_command('bind ^f9 gs c mode dd bone')
-    --ALT + F9
-    send_command('bind !f9 gs c mode dd spam')
+--ALT+F8 Cycles Forward on Pet Styles
+--CTRL+F8 Cycles backward on Pet Styles
  
-    --F10
-    send_command('bind f10 gs c mode tank normal')
-    --CTRL + F10
-    send_command('bind ^f10 gs c mode tank pdt')
-    --ALT + F10
-    send_command('bind !f10 gs c mode tank range')
-    --Windows + F10
-    send_command('bind @f10 gs c mode tank mdt')
- 
-    --F11
-    send_command('bind f11 gs c mode mage normal')
-    --CTRL + F11   
-    send_command('bind ^f11 gs c mode mage Heal')
-    --ALT + F11
-    send_command('bind !f11 gs c mode mage Support')
-    --Windows + F11
-    send_command('bind @f11 gs c mode mage mb')
-   
-    --F12
-    send_command('bind f12 gs c mode dd od')
-    --CTRL + F12
-    send_command('bind ^f12 gs c mode dd odacc')
-    --ALT + F12
-    send_command('bind !f12 gs c mode mage dd')
- 
- 
-  function user_unload()
-    send_command('unbind ^f9')
-    send_command('unbind !f9')
-    send_command('unbind @f9')
-    send_command('unbind ^f10')
-    send_command('unbind !f10')
-    send_command('unbind @f10')
-    send_command('unbind ^f11')
-    send_command('unbind !f11')
-    send_command('unbind @f11')
-    send_command('unbind ^f12')
-    send_command('unbind !f12')
-    send_command('unbind @f12')
+-- Initialization function for this job file.
+-- IMPORTANT: Make sure to also get the Mote-Include.lua file (and its supplementary files) to go with this.
+function get_sets()
+    mote_include_version = 2
+
+    -- Load and initialize the include file.
+    include('Mote-Include.lua')
 end
 
-function get_sets()
-    user_setup()
+function user_setup()
+    select_default_macro_book()
+    --Predict Puppet on initial Load
+    --Then attempt to Set the Pet Mode Cycle
+    --Then attempt to Set the Pet Style Cycle
+    state.PetStyleCycleTank = M{"NORMAL", "DD", "PDT", "MDT", "RANGE"}
+    state.PetStyleCycleMage = M{"NORMAL", "HEAL", "SUPPORT", "MB", "DD"}
+    state.PetStyleCycleDD = M{"NORMAL", "BONE", "SPAM", "OD", "ODACC"}
+
+    state.PetModeCycle = M{"TANK", "DD", "MAGE"}
+    state.PetStyleCycle = state.PetStyleCycleTank
+
+    state.AutoMan = M(false, "Auto Maneuver")
+
+    send_command('bind !f7 gs c cycle PetModeCycle')
+    send_command('bind ^f7 gs c cycleback PetModeCycle')
+    send_command('bind !f8 gs c cycle PetStyleCycle')
+    send_command('bind ^f8 gs c cycleback PetStyleCycle')
+    send_command('bind !e gs c toggle AutoMan')
+
+end
+
+function user_unload()
+    send_command('unbind !f7')
+    send_command('unbind ^f7')
+    send_command('unbind !f8')
+    send_command('unbind ^f8')
+    send_command('unbind !e')
+end
+
+function job_setup()
+    -- Attempts to figure what puppet you may have equipped
+    -- determinePuppetType()
+
+    -- Adjust the X (horizontal) and Y (vertical) position here to adjust the window 
+    setupTextWindow(1400, 600)
+end
+
+function init_gear_sets()
 
     AF_Head = "Foire Taj +1"
     AF_Body = "Foire Tobe"
@@ -90,7 +88,7 @@ function get_sets()
     Relic_Feet = ""
 
     Empy_Head = "Karagoz Capello"
-    Empy_Body = "Cirque Farsetto +1"
+    Empy_Body = "Karagoz Farsetto"
     Empy_Hands = "Cirque Guanti +1"
     Empy_Legs = "Cirq. Pantaloni +1"
     Empy_Feet = ""
@@ -326,7 +324,7 @@ function get_sets()
         waist = "Incarnation Sash",
         hands = Empy_Hands,
         ring1 = "Thurandaut Ring",
-        ring2 = "Varar Ring",
+        ring2 = "Varar Ring +1",
         legs = "Kara. Pantaloni +1",
         feet = "Naga Kyahan",
         back = JSECAPEPetHaste
@@ -584,18 +582,18 @@ function get_sets()
     }
 end
 
-function user_setup()
-    set_macros(1, 1) --First Value is Sheet and second is Book
-    determinePuppetType()
-    setupTextWindow()
-end
-
-function set_macros(sheet,book)
-    if book then 
-        send_command('@input /macro book '..tostring(book)..';wait .1;input /macro set '..tostring(sheet))
-    else
-        send_command('@input /macro set '..tostring(sheet))
-    end
+-- Select default macro book on initial load or subjob change.
+function select_default_macro_book()
+	-- Default macro set/book
+	if player.sub_job == 'WAR' then
+		set_macro_page(3, 1)
+	elseif player.sub_job == 'NIN' then
+		set_macro_page(1, 20)
+	elseif player.sub_job == 'DNC' then
+		set_macro_page(2, 20)
+	else
+		set_macro_page(5, 20)
+	end
 end
  
 ------------------------------------------------------------------------------------------------------------------------
@@ -622,9 +620,6 @@ Flashbulb_Time = 0
 Strobe_Time = 0
 pdt = 0
 
-Pos_X = 1400
-Pos_Y = 600
-
 d_mode = false
 
 visible = true
@@ -632,14 +627,14 @@ visible = true
 time_start = os.time()
 
 --Default To Set Up the Text Window
-function setupTextWindow()
+function setupTextWindow(pos_x, pos_y)
     tb_name = "pup_gs_helper"
     bg_visible = true
     textinbox = ' '
 
     windower.text.create(tb_name)
     -- table_name, x, y
-    windower.text.set_location(tb_name, Pos_X, Pos_Y)
+    windower.text.set_location(tb_name, pos_x, pos_y)
     -- transparency, rgb
     windower.text.set_bg_color(tb_name, 200, 40, 40, 55)
     windower.text.set_color(tb_name, 255, 147, 161, 161)
@@ -773,79 +768,6 @@ end
 --Creates the Title for a section in the Text Screen
 function drawTitle(title)
     return '\\cs(255, 115, 0)'..pad(tostring(title), 6, '=')..'\\cr \n'
-end
-
---Used from Spicyryans BLU Gearswap
------------------------------
---      Spell control      --
------------------------------
-unusable_buff = {
-	spell={'Charm','Mute','Omerta','Petrification','Silence','Sleep','Stun','Terror'},
-    ability={'Amnesia','Charm','Impairment','Petrification','Sleep','Stun','Terror'}}
-  --check_recast('ability',spell.recast_id)  check_recast('spell',spell.recast_id)
-function check_recast(typ,id) --if spell can be cast(not in recast) return true
-    local recasts = windower.ffxi['get_'..typ..'_recasts']()
-    if id and recasts[id] and recasts[id] == 0 then
-        return true
-    else
-        return false
-    end
-end
- --return true if spell/ability is unable to be used at this time
-function spell_control(spell)
-	if spell.type == "Item" then
-		return false
-	--Stops spell if you do not have a target
-	elseif spell.target.name == nil and not spell.target.raw:contains("st") then
-		return true
-	--Stops spell if a blocking buff is active
-	elseif spell.action_type == 'Ability' and spell.type ~= 'WeaponSkill' and (has_any_buff_of(unusable_buff.ability) or not check_recast('ability',spell.recast_id)) then
-		return true
-	elseif spell.type == 'WeaponSkill' and player.tp < 1000 then
-		return true
-	elseif spell.type == 'WeaponSkill' and (has_any_buff_of(unusable_buff.ability)) then
-		msg("Weapon Skill Canceled, Can't")
-		return true
-	elseif spell.action_type == 'Magic' and (has_any_buff_of(unusable_buff.spell)
-      or not check_recast('spell',spell.recast_id)) then
-		return true
-    --Stops spell if you do not have enuf mp/tp to use
-	elseif spell.mp_cost and spell.mp_cost > player.mp and not has_any_buff_of({'Manawell','Manafont'}) then
-        msg("Spell Canceled, Not Enough MP")
-		return true
-	end
-    --Calculate how many finishing moves your char has up to 6
-	local fm_count = 0
-	for i, v in pairs(buffactive) do
-		if tostring(i):startswith('finishing move') or tostring(i):startswith('?????????') then
-			fm_count = tonumber(string.match(i, '%d+')) or 1
-		end
-	end
-    --Stops flourishes if you do not have enough finishing moves
-	local min_fm_for_flourishes = {['Animated Flourish']=1,['Desperate Flourish']=1,['Violent Flourish']=1,['Reverse Flourish']=1,['Building Flourish']=1,
-                                   ['Wild Flourish']=2,['Climactic Flourish']=1,['Striking Flourish']=2,['Ternary Flourish']=3,}
-	if min_fm_for_flourishes[spell.en] then
-		if min_fm_for_flourishes[spell.en] > fm_count and not buffactive[507] then
-			return true
-		end
-	end
-	--Reomves Sneak when casting Spectral Jig
-	if spell.en == 'Spectral Jig' then
-		send_command('cancel 71')
-	end
-	if spell.name == 'Utsusemi: Ichi' and overwrite and buffactive['Copy Image (3)'] then
-		return true
-	end
-	if player.tp >= 1000 and player.target and player.target.distance and player.target.distance > 7 and spell.type == 'WeaponSkill' then
-		msg("Weapon Skill Canceled  Target Out of Range")
-		return true
-	end
-end
-
-function has_any_buff_of(buff_set)--returns true if you have any of the buffs given
-    for i,v in pairs(buff_set) do
-        if buffactive[v] ~= nil then return true end
-    end
 end
 
 function msg(str)
@@ -1054,20 +976,29 @@ function determinePuppetType()
     SharpHead = "Sharpshoot Head"
     SharpFrame = "Sharpshoot Frame"
 
-    StormHead = "Stormwalker Head"
-    StormFrame = "StormwalkFrame"
+    StormHead = "Stormwaker Head"
+    StormFrame = "Stormwaker Frame"
 
     SoulHead = "Soulsoother Head"
     SpiritHead = "Spiritreaver Head"
 
     --This is based mostly off of the frames from String Theory
     --https://www.bg-wiki.com/bg/String_Theory#Automaton_Frame_Setups
-    if head == HarHead and frame == HarFrame then -- Magic Tank
-        ActualMode = "TANK"
-        ActualSubMode = "MDT"
+
+    if head == HarHead then
+        if frame == HarFrame then
+            ActualMode = "TANK"
+            ActualSubMode = "MDT"
+        else
+            ActualMode = 'DD'
+            ActualSubMode = 'NORMAL'
+        end
     elseif head == SoulHead and frame == ValFrame then --Turle Tank (Default)
         ActualMode = "TANK"
         ActualSubMode = "PDT"
+    elseif head == ValHead and frame == SharpFrame and pet.attachments.strobe == true then
+        ActualMode = 'TANK'
+        ActualSubMode = 'PDT'
     elseif head == ValHead and frame == SharpFrame then --DD (Default)
         ActualMode = "DD"
         ActualSubMode = "NORMAL"
@@ -1102,7 +1033,7 @@ end
 ------------------------------------
 
 --Auto Boost on Certain WS
-function precast(spell,action)
+function job_precast(spell,action)
 
     --Not quite functioning correctly. Will add when ready.
     -- if spell_control(spell) then
@@ -1130,10 +1061,10 @@ function precast(spell,action)
     end
 end
  
-function midcast(spell,action)
+function job_midcast(spell,action)
 end
  
-function aftercast(spell,action)
+function job_aftercast(spell,action)
     enable("ear1")
     
     if spell.name == null then
@@ -1155,7 +1086,7 @@ function aftercast(spell,action)
    
 end
  
-function status_change(new,old)
+function job_status_change(new,old)
     if new == 'Engaged' then
         Master_State = "Engaged"
         TotalSCalc()
@@ -1170,7 +1101,7 @@ function status_change(new,old)
    
 end
  
-function pet_status_change(new,old)
+function job_pet_status_change(new,old)
     if new == 'Engaged' then
         Pet_State = "Engaged"
         TotalSCalc()
@@ -1182,15 +1113,14 @@ function pet_status_change(new,old)
     end
     
     determineGearSet()
-
 end
  
-function pet_aftercast(spell)
+function job_pet_aftercast(spell)
     determineGearSet()
 end
 
 
-function buff_change(status,gain_or_loss, buff_table)
+function job_buff_change(status,gain_or_loss, buff_table)
     
     if status == "sleep" then
         if gain_or_loss then
@@ -1232,72 +1162,57 @@ end
 windower.raw_register_event('zone change', reset_timers)
  
 -- Toggles -- SE Macros: /console gs c "command" [case sensitive]
-function self_command(command)
-    local current_command = string.upper(command)
-    local current_command_table = {}
+function job_self_command(command, eventArgs)
 
-    if #current_command:split(' ') >= 2 then
-        current_command_table = T(current_command:split(' '))
-    end
+    if type(command) == 'table' then --We have a multiple inputs
+        if command[1]:upper() == "MODE" then
+            if PetMode[command[2]:upper()] then
+                msg("Changing Mode To: "..command[2]:upper())
+                ActualMode = command[2]:upper()
 
-    if type(current_command_table) == 'table' then --We have a multiple inputs
-        if current_command_table[1] == "MODE" then
-            if PetMode[current_command_table[2]] then
-                add_to_chat("Changing Mode To: "..current_command_table[2])
-                ActualMode = current_command_table[2]
-
-                if current_command_table[2] == 'TANK' then
-                    if PetSubMode["TANK"][current_command_table[3]] then
-                        ActualSubMode = current_command_table[3]
+                if command[2]:upper() == 'TANK' then
+                    if PetSubMode["TANK"][command[3]:upper()] then
+                        ActualSubMode = command[3]:upper()
                     else
                         ActualSubMode = "NORMAL"
                     end
 
-                    add_to_chat("Changing Pet Style To "..ActualSubMode)
-                elseif current_command_table[2] == 'MAGE' then
-                    if PetSubMode["MAGE"][current_command_table[3]] then
-                        ActualSubMode = current_command_table[3]
+                    msg("Changing Pet Style To "..ActualSubMode)
+                elseif command[2]:upper() == 'MAGE' then
+                    if PetSubMode["MAGE"][command[3]:upper()] then
+                        ActualSubMode = command[3]:upper()
                     else
                         ActualSubMode = "NORMAL"
                     end
 
-                    add_to_chat("Changing Pet Style To "..ActualSubMode)
-                elseif current_command_table[2] == 'DD' then
-                    if PetSubMode["DD"][current_command_table[3]] then
-                        ActualSubMode = current_command_table[3]
+                    msg("Changing Pet Style To "..ActualSubMode)
+                elseif command[2]:upper() == 'DD' then
+                    if PetSubMode["DD"][command[3]:upper()] then
+                        ActualSubMode = command[3]:upper()
                     else
                         ActualSubMode = "NORMAL"
                     end
 
-                    add_to_chat("Changing Pet Style To "..ActualSubMode)
+                    msg("Changing Pet Style To "..ActualSubMode)
                 else
-                    add_to_chat("Unable to determine Pet Style: "..current_command_table[3])
+                    msg("Unable to determine Pet Style: "..command[3]:upper())
                 end
 
             else
-                add_to_chat("Unable to determine Pet Mode: ".. current_command_table[2])
-            end
-        elseif current_command_table[1] == "PUPHELPER" then
-            if type(current_command_table[2]) == 'number' and type(current_command_table[3]) == 'number' then
-                Pos_X = tonumber(current_command_table[2])
-                Pos_Y = tonumber(current_command_table[3])
-            elseif current_command_table[2] == 'VISIBLE' then
-                windower.text.set_visibility(tb_name, not visible)
+                msg("Unable to determine Pet Mode: ".. command[2]:upper())
             end
         end
         
         refreshWindow()
     end
     
-    if current_command == 'PDT' then
-
-    elseif current_command == 'AUTOMAN' then
+    if command[1]:upper() == 'AUTOMAN' then
         Auto_Maneuver = not Auto_Maneuver
         refreshWindow()
-    elseif current_command == 'DEBUG' then
+    elseif command[1]:upper() == 'DEBUG' then
         d_mode = not d_mode
         refreshWindow()
-    elseif current_command == 'PREDICT' then
+    elseif command[1]:upper() == 'PREDICT' then
         determinePuppetType()
         refreshWindow()
     end
@@ -1311,15 +1226,15 @@ windower.register_event('prerender', function()
     if os.time() > time_start then
         time_start = os.time()
 
-        if ActualMode == "TANK" then
+        if ActualMode == "TANK" and Pet_State == 'Engaged' then
             if buffactive['Fire Maneuver'] and pet.attachments.strobe then
-                if Strobe_Recast <= 1 then
+                if Strobe_Recast == 0 then
                     equip(sets.petEnmity)
                 end
             end
 
             if buffactive['Light Maneuver'] and pet.attachments.flashbulb then
-                if Flashbulb_Recast <= 1 then
+                if Flashbulb_Recast == 0 then
                     equip(sets.petEnmity)
                 end
             end
@@ -1417,6 +1332,71 @@ windower.register_event('incoming text', function(original, modified, mode)
        
     return modified, mode
 end)
+
+--Passes state changes for cycle commands
+function job_state_change(stateField, newValue, oldValue)
+
+    if stateField == 'PetModeCycle' then
+        ActualMode = newValue
+        
+        if ActualMode == 'TANK' then
+            state.PetStyleCycle = state.PetStyleCycleTank
+        elseif ActualMode == 'DD' then
+            state.PetStyleCycle = state.PetStyleCycleDD
+        elseif ActualMode == 'MAGE' then
+            state.PetStyleCycle = state.PetStyleCycleMage
+        else
+            msg("No Style found for: "..ActualMode..' Mode setting to default DD Mode')
+            state.PetStyleCycle = state.PetStyleCycleDD
+        end
+
+        ActualSubMode = state.PetStyleCycle.value
+        refreshWindow()
+    elseif stateField == 'PetStyleCycle' then
+        ActualSubMode = newValue
+        refreshWindow()
+    elseif stateField == 'Auto Maneuver' then
+        Auto_Maneuver = newValue
+        refreshWindow()
+    end
+
+end
+
+-- Set eventArgs.handled to true if we don't want the automatic display to be run.
+function display_current_job_state(eventArgs)
+    local msg = 'Melee'
+    
+    if state.CombatForm.has_value then
+        msg = msg .. ' (' .. state.CombatForm.value .. ')'
+    end
+    
+    msg = msg .. ': '
+    
+    msg = msg .. state.OffenseMode.value
+    if state.HybridMode.value ~= 'Normal' then
+        msg = msg .. '/' .. state.HybridMode.value
+    end
+    msg = msg .. ', WS: ' .. state.WeaponskillMode.value
+    
+    if state.DefenseMode.value ~= 'None' then
+        msg = msg .. ', ' .. 'Defense: ' .. state.DefenseMode.value .. ' (' .. state[state.DefenseMode.value .. 'DefenseMode'].value .. ')'
+    end
+    
+    if state.Kiting.value then
+        msg = msg .. ', Kiting, '
+    end
+
+    if state.PetModeCycle.value ~= 'None' then
+        msg = msg..', Pet Mode: ('..state.PetModeCycle.value..')'
+    end
+
+    if state.PetStyleCycle.value ~= 'None' then
+        msg = msg..', Pet Style: ('..state.PetStyleCycle.value..")"
+    end
+
+    add_to_chat(4, msg)
+    eventArgs.handled = true
+end
 
 function sub_job_change(new,old)
     determinePuppetType()
