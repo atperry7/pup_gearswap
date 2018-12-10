@@ -636,6 +636,11 @@ visible = true
 
 time_start = os.time()
 
+RWSTrigger = S{"Arcuballista", "Daze", "Armor Piercer", "Armor Shatterer"}
+MWSTrigger = S{"Slapstick", "Knockout", "Chimera Ripper", "String Clipper", "Cannibal Blade", "Bone Crusher", "String Shredder"}
+HPWSTrigger = S{"Magic Mortar"}
+wscount=0
+
 --Default To Set Up the Text Window
 function setupTextWindow(pos_x, pos_y)
     tb_name = "pup_gs_helper"
@@ -755,7 +760,7 @@ end
 --This handles drawing the Pet Skills for the text box
 function drawPetSkills()
     --- Recast for enmity gears
-    if ActualMode == "TANK" then
+    if ActualMode == "TANK" then --TODO: May remove this check as long as we have the attachment on we would want to know
         textinbox = textinbox..drawTitle("Pet Skills")
         -- Strobe recast
         if Strobe_Recast == 0 and pet.attachments.strobe then
@@ -865,6 +870,84 @@ Style["Spam"] = {"ddspam", "Light", "Fire", "Wind"}
 Style["OD"] = {"overdrive", "Light", "Fire", "Thunder"}
 Style["ODAcc"] = {"overdriveacc", "Light", "Fire", "Thunder"}
 
+--Attempts to determine the puppet type being used for Pet Mode
+function determinePuppetType()
+    local head = pet.head
+    local frame = pet.frame
+
+    local ValHead = "Valoredge Head"
+    local ValFrame = "Valoredge Frame"
+    
+    local HarHead = "Harlequin Head"
+    local HarFrame = "Harlequin Frame"
+    
+    local SharpHead = "Sharpshoot Head"
+    local SharpFrame = "Sharpshoot Frame"
+    
+    local StormHead = "Stormwaker Head"
+    local StormFrame = "Stormwaker Frame"
+    
+    local SoulHead = "Soulsoother Head"
+    local SpiritHead = "Spiritreaver Head"
+    
+    --This is based mostly off of the frames from String Theory
+    --https://www.bg-wiki.com/bg/String_Theory#Automaton_Frame_Setups
+    
+    --Determine Head first, then further determine by body and attachments
+    --Set Command state.PetModeCycle:set('') need to test
+
+    if head == HarHead then
+        if frame == HarFrame and (pet.attachments.strobe == true or pet.attachments.flashbulb == true) then --Magic Tank
+            state.PetModeCycle:set("TANK")
+            state.PetStyleCycle:set("MDT")
+        else -- Default
+            state.PetModeCycle:set("DD")
+            state.PetStyleCycle:set("NORMAL")
+        end
+    elseif head == ValHead then
+
+    elseif head == SoulHead then
+
+    elseif head == SpiritHead then
+
+    end
+
+    -- elseif head == SoulHead and frame == ValFrame then --Turle Tank (Default)
+    --     ActualMode = "TANK"
+    --     ActualSubMode = "PDT"
+    -- elseif head == ValHead and frame == SharpFrame and pet.attachments.strobe == true then
+    --     ActualMode = 'TANK'
+    --     ActualSubMode = 'PDT'
+    -- elseif head == ValHead and frame == SharpFrame then --DD (Default)
+    --     ActualMode = "DD"
+    --     ActualSubMode = "NORMAL"
+    -- elseif head == ValHead and frame == ValFrame then -- Bone Slayer
+    --     ActualMode = "DD"
+    --     ActualSubMode = "BONE"
+    -- elseif head == SharpHead and frame == SharpFrame then --Spam DD
+    --     ActualMode = "DD"
+    --     ActualSubMode = "SPAM"
+    -- elseif head == SoulHead and frame == StormFrame then --WHM
+    --     ActualMode = "MAGE"
+    --     ActualSubMode = "HEAL"
+    -- elseif head == StormHead and frame == StormFrame then --RDM
+    --     ActualMode = "MAGE"
+    --     ActualSubMode = "SUPPORT"
+    -- elseif head == SpiritHead and frame == StormFrame then --BLM
+    --     ActualMode = "MAGE"
+    --     ActualSubMode = "DD"
+    -- end
+
+end
+
+--Various Timers that get reset when you zone
+function reset_timers()
+    Current_Maneuver = 0
+    --handle_toggle({'AutoMan'})
+    --TODO Test this functionailty, much cleaner to use this instead of calling the command directly
+    state.AutoMan:toggle()
+    refreshWindow()
+end
 
 function table.contains(table, element)
     for _, value in pairs(table) do
@@ -900,77 +983,10 @@ function ternary(cond , T , F)
     end
 end
 
---Attempts to determine the puppet type being used for Pet Mode
-function determinePuppetType()
-    local head = pet.head
-    local frame = pet.frame
-
-    ValHead = "Valoredge Head"
-    ValFrame = "Valoredge Frame"
-
-    HarHead = "Harlequin Head"
-    HarFrame = "Harlequin Frame"
-
-    SharpHead = "Sharpshoot Head"
-    SharpFrame = "Sharpshoot Frame"
-
-    StormHead = "Stormwaker Head"
-    StormFrame = "Stormwaker Frame"
-
-    SoulHead = "Soulsoother Head"
-    SpiritHead = "Spiritreaver Head"
-
-    --This is based mostly off of the frames from String Theory
-    --https://www.bg-wiki.com/bg/String_Theory#Automaton_Frame_Setups
-
-    if head == HarHead then
-        if frame == HarFrame then
-            ActualMode = "TANK"
-            ActualSubMode = "MDT"
-        else
-            ActualMode = 'DD'
-            ActualSubMode = 'NORMAL'
-        end
-    elseif head == SoulHead and frame == ValFrame then --Turle Tank (Default)
-        ActualMode = "TANK"
-        ActualSubMode = "PDT"
-    elseif head == ValHead and frame == SharpFrame and pet.attachments.strobe == true then
-        ActualMode = 'TANK'
-        ActualSubMode = 'PDT'
-    elseif head == ValHead and frame == SharpFrame then --DD (Default)
-        ActualMode = "DD"
-        ActualSubMode = "NORMAL"
-    elseif head == ValHead and frame == ValFrame then -- Bone Slayer
-        ActualMode = "DD"
-        ActualSubMode = "BONE"
-    elseif head == SharpHead and frame == SharpFrame then --Spam DD
-        ActualMode = "DD"
-        ActualSubMode = "SPAM"
-    elseif head == SoulHead and frame == StormFrame then --WHM
-        ActualMode = "MAGE"
-        ActualSubMode = "HEAL"
-    elseif head == StormHead and frame == StormFrame then --RDM
-        ActualMode = "MAGE"
-        ActualSubMode = "SUPPORT"
-    elseif head == SpiritHead and frame == StormFrame then --BLM
-        ActualMode = "MAGE"
-        ActualSubMode = "DD"
-    end
-
-end
-
---Various Timers that get reset when you zone
-function reset_timers()
-    Current_Maneuver = 0
-    handle_toggle({'AutoMan'})
-    refreshWindow()
-end
-
 ------------------------------------
 ----------Windower Hooks------------
 ------------------------------------
 
---Auto Boost on Certain WS
 function job_precast(spell,action)
 
     if spell.english == "Deploy" and pet.tp >= 950 then
@@ -987,10 +1003,6 @@ function job_precast(spell,action)
 
     elseif sets.precast.WS[spell.english] then
         equip(sets.precast.WS[spell.english])
-
-        if Hybrid_State == "Pet+Master" then
-            sets.aftercast = sets.midcast.Pet.WeaponSkill
-        end
     else
         equip(sets.precast.FC)
     end
@@ -1012,13 +1024,8 @@ function job_aftercast(spell,action)
         add_to_chat(392,'*-*-*-*-*-*-*-*-* [ '..pet.name..' is about to '..ws..' ('..modif..') ] *-*-*-*-*-*-*-*-*')
         equip(sets.midcast.Pet.WS[modif])
     else
-        if sets.precast.WS[spell.english] and Hybrid_State == "Pet+Master" then
-            equip(sets.aftercast)
-        else
-            determineGearSet()
-        end
+        determineGearSet()
     end
-   
 end
  
 function job_status_change(new,old)
@@ -1053,7 +1060,6 @@ end
 function job_pet_aftercast(spell)
     determineGearSet()
 end
-
 
 function job_buff_change(status,gain_or_loss, buff_table)
     
@@ -1093,10 +1099,9 @@ function job_buff_change(status,gain_or_loss, buff_table)
     end
    
 end
-
-windower.raw_register_event('zone change', reset_timers)
  
 -- Toggles -- SE Macros: /console gs c "command" [case sensitive]
+--TODO rework this since Mote-Libs places this in a table regardless of input
 function job_self_command(command, eventArgs)
 
     if type(command) == 'table' then --We have a multiple inputs
@@ -1199,11 +1204,6 @@ windower.register_event('prerender', function()
    
 end)
  
-RWSTrigger = S{"Arcuballista", "Daze", "Armor Piercer", "Armor Shatterer"}
-MWSTrigger = S{"Slapstick", "Knockout", "Chimera Ripper", "String Clipper", "Cannibal Blade", "Bone Crusher", "String Shredder"}
-HPWSTrigger = S{"Magic Mortar"}
-wscount=0
---- Delve Assistant
 windower.register_event('incoming text', function(original, modified, mode)
     local match
 
@@ -1335,3 +1335,5 @@ end
 function sub_job_change(new,old)
     determinePuppetType()
 end
+
+windower.raw_register_event('zone change', reset_timers)
