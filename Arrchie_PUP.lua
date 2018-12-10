@@ -39,20 +39,27 @@ function get_sets()
 end
 
 function user_setup()
-    select_default_macro_book()
-    --Predict Puppet on initial Load
-    --Then attempt to Set the Pet Mode Cycle
-    --Then attempt to Set the Pet Style Cycle
+    state.OffenseMode:options('Normal')
+	state.RangedMode:options('Normal')
+	state.HybridMode:options('Normal')
+	state.WeaponskillMode:options('Normal')
+	state.CastingMode:options('Normal')
+	state.IdleMode:options('Normal')
+	state.RestingMode:options('Normal')
+	state.PhysicalDefenseMode:options('PDT')
+	state.MagicalDefenseMode:options('MDT')
+    
+    --Various Cycles for the different types of PetModes
     state.PetStyleCycleTank = M{"NORMAL", "DD", "PDT", "MDT", "RANGE"}
     state.PetStyleCycleMage = M{"NORMAL", "HEAL", "SUPPORT", "MB", "DD"}
     state.PetStyleCycleDD = M{"NORMAL", "BONE", "SPAM", "OD", "ODACC"}
 
+    --The actual Pet Mode and Pet Style cycles
     state.PetModeCycle = M{"TANK", "DD", "MAGE"}
+    --Default to tanking set for now
     state.PetStyleCycle = state.PetStyleCycleTank
 
-    ActualMode = state.PetModeCycle.value
-    ActualSubMode = state.PetStyleCycle.value
- 
+    --Toggles
     state.AutoMan = M(false, "Auto Maneuver")
     state.LockPetDT = M(false, "Lock Pet DT")
 
@@ -63,6 +70,7 @@ function user_setup()
     send_command('bind !e gs c toggle AutoMan')
     send_command('bind !d gs c toggle LockPetDT')
 
+    select_default_macro_book()
 end
 
 function file_unload()
@@ -76,7 +84,7 @@ end
 
 function job_setup()
     -- Attempts to figure what puppet you may have equipped
-    -- determinePuppetType()
+    determinePuppetType()
 
     -- Adjust the X (horizontal) and Y (vertical) position here to adjust the window 
     setupTextWindow(1400, 600)
@@ -84,105 +92,56 @@ end
 
 function init_gear_sets()
 
-    AF_Head = "Foire Taj +1"
-    AF_Body = "Foire Tobe"
-    AF_Hands = "Foire Dastanas"
-    AF_Legs = "Foire Churidars +1"
-    AF_Feet = "Foire Babouches"
+    --Table of Contents
+    ---Gear Variables
+    ---Master Only Sets
+    ---Hybrid Only Sets
+    ---Pet Only Sets
+    ---Misc Sets
 
-    Relic_Head = "Pitre Taj +1"
-    Relic_Body = "Pitre Tobe"
-    Relic_Hands = "Pitre Dastanas"
-    Relic_Legs = ""
-    Relic_Feet = ""
+    -------------------------------
+    --------Gear Variables---------
+    -------------------------------
+    --This section is best ultilized for defining gear that is used among multiple sets
 
-    Empy_Head = "Karagoz Capello"
-    Empy_Body = "Karagoz Farsetto"
-    Empy_Hands = "Cirque Guanti +1"
-    Empy_Legs = "Cirq. Pantaloni +1"
-    Empy_Feet = ""
+    Animators = {}
+    Animators.Range = "Animator P II"
+    Animators.Melee = "Animator P"
+
+    --Adjust to your reforge level
+    --Sets up a Key, Value Pair
+    Artifact_Foire = {}
+    Artifact_Foire.Head_PRegen = "Foire Taj"
+    Artifact_Foire.Body_WSD_PTank = "Foire Tobe"
+    Artifact_Foire.Hands_Mane_Overload = "Foire Dastanas"
+    Artifact_Foire.Legs_PCure = "Foire Churidars"
+    Artifact_Foire.Feet_Repair_PMagic = "Foire Babouches"
+
+    Relic_Pitre = {}
+    Relic_Pitre.Head_PRegen = "Pitre Taj" --Enhances Optimization
+    Relic_Pitre.Body_PTP = "Pitre Tobe" --Enhances Overdrive
+    Relic_Pitre.Hands_WSD = "Pitre Dastanas" --Enhances Fine-Tuning
+    Relic_Pitre.Legs_PMagic = "Pitre Churidars" --Enhances Ventriloquy
+    Relic_Pitre.Feet_PMagic = "Pitre Babouches" --Role Reversal 
+
+    Empy_Karagoz = {}
+    Empy_Karagoz.Head_PTPBonus = "Karagoz Capello"
+    Empy_Karagoz.Body_Overload = "Karagoz Farsetto"
+    Empy_Karagoz.Hands = "Karagoz Guanti"
+    Empy_Karagoz.Legs_Combat = "Karagoz Pantaloni"
+    Empy_Karagoz.Feet_Tatical = "Karagoz Scarpe"
 
     Visucius = {}
-    Visucius.DT = {
-        name = "Visucius's Mantle",
-        augments = {
-            "Pet: Acc.+20 Pet: R.Acc.+20 Pet: Atk.+20 Pet: R.Atk.+20",
-            "Accuracy+20 Attack+20",
-            "Pet: Accuracy+4 Pet: Rng. Acc.+4",
-            'Pet: "Regen"+10',
-            "Pet: Damage taken -5%"
-        }
-    }
+    Visucius.PetDT = { name = "Visucius's Mantle", augments = {"Pet: Acc.+20 Pet: R.Acc.+20 Pet: Atk.+20 Pet: R.Atk.+20","Accuracy+20 Attack+20","Pet: Accuracy+4 Pet: Rng. Acc.+4", 'Pet: "Regen"+10',"Pet: Damage taken -5%"  } }
+    Visucius.PetMagic = { name = "Visucius's Mantle", augments = {"Pet: Acc.+20 Pet: R.Acc.+20 Pet: Atk.+20 Pet: R.Atk.+20","Accuracy+20 Attack+20","Pet: Accuracy+4 Pet: Rng. Acc.+4", 'Pet: "Regen"+10',"Pet: Damage taken -5%"  } }
 
-    HercHeadSTR = {
-        name = "Herculean Helm",
-        augments = {"Accuracy+28", "Weapon skill damage +4%", "STR+11", "Attack+13"}
-    }
-    HercHeadPDT = {name = "Herculean Helm", augments = {"CHR+7", "Accuracy+29", "Phys. dmg. taken -4%"}}
-    HercHeadMAB = {
-        name = "Herculean Helm",
-        augments = {'Mag. Acc.+20 "Mag.Atk.Bns."+20', "Phys. dmg. taken -2%", '"Mag.Atk.Bns."+15'}
-    }
-    HercBootMAB = {
-        name = "Herculean Boots",
-        augments = {
-            'Mag. Acc.+18 "Mag.Atk.Bns."+18',
-            "Magic burst mdg.+4%",
-            "MND+2",
-            "Mag. Acc.+10",
-            '"Mag.Atk.Bns."+14'
-        }
-    }
-    HercBootAcc = {
-        name = "Herculean Boots",
-        augments = {"MND+9", "Pet: STR+8", '"Treasure Hunter"+2', "Accuracy+18 Attack+18"}
-    }
-    HercBootDEX = {name = "Herculean Boots", augments = {"Attack+18", '"Triple Atk."+3', "DEX+10"}}
 
-    --- DT
-    HercLegsPDT = {name = "Herculean Trousers", augments = {"Damage taken-3%", "Attack+3"}}
-    HercGlovesPDT = {name = "Herculean Gloves", augments = {"Phys. dmg. taken -5%", "Accuracy+2"}}
-    HercBootsPDT = {name = "Herculean Boots", augments = {"Damage taken-2%", "STR+9", "Attack+7"}}
+    -------------------------------
+    --------Master Only Sets-------
+    -------------------------------
+    --This section is best utilized for Master Sets
 
-    HercBootBone = {
-        name = "Herculean Boots",
-        augments = {"Pet: Accuracy+5 Pet: Rng. Acc.+5", 'Pet: "Dbl.Atk."+2 Pet: Crit.hit rate +2', "Pet: VIT+5"}
-    }
-
-    HercLegsPET = {
-        name = "Herculean Trousers",
-        augments = {"Pet: Attack+21 Pet: Rng.Atk.+21", 'Pet: "Store TP"+10', "Pet: VIT+7"}
-    }
-    HercLegsPetDEX = {
-        name = "Herculean Trousers",
-        augments = {"Pet: Attack+10 Pet: Rng.Atk.+10", "Pet: DEX+10", 'Pet: "Mag.Atk.Bns."+3'}
-    }
-
-    JSECAPEPetHaste = {
-        name = "Visucius's Mantle",
-        augments = {
-            "Pet: Acc.+20 Pet: R.Acc.+20 Pet: Atk.+20 Pet: R.Atk.+20",
-            "Accuracy+20 Attack+20",
-            "Pet: Haste+10",
-            "System: 1 ID: 1247 Val: 2"
-        }
-    }
-    JSECAPESTR = {
-        name = "Visucius's Mantle",
-        augments = {"STR+20", "Accuracy+20 Attack+20", "STR+5", "Crit.hit rate+10"}
-    }
-
-    -- RAO WS
-    RAOWShead = {name = "Rao Kabuto", augments = {"STR+10", "DEX+10", "Attack+15"}}
-    RAOWShands = {name = "Rao Kote", augments = {"Accuracy+10", "Attack+10", "Evasion+15"}}
-    RAOWSlegs = {name = "Rao Haidate", augments = {"Accuracy+20", '"Dbl.Atk."+3', "Pet: Accuracy+20"}}
-    RAOWSfeet = {name = "Rao Sune-Ate", augments = {"Accuracy+10", "Attack+10", "Evasion+15"}}
-
-    sets.precast = {}
-
-    -- Precast Sets
-
-    -- Fast cast sets for spells
+    -------------------------------------Fastcast
     sets.precast.FC = {
         head = "Haruspex Hat",
         body = "Zendik Robe",
@@ -195,26 +154,43 @@ function init_gear_sets()
         neck = "Orunmila's Torque"
     }
 
+    -------------------------------------Midcast
+    sets.midcast = {}
+    sets.midcast.FastRecast = {
+        head = "Haruspex Hat",
+        ear2 = "Loquacious Earring",
+        body = "Otronif Harness +1",
+        hands = "Regimen Mittens",
+        legs = "Manibozho Brais",
+        feet = "Otronif Boots +1"
+    }
+
+    -------------------------------------Kiting
+    sets.Kiting = {feet = "Hermes' Sandals"}
+
+    -------------------------------------JA
     sets.precast.FC.Utsusemi = set_combine(sets.precast.FC, {neck = "Magoraga Beads"})
 
     sets.precast.JA = {}
     -- Precast sets to enhance JAs
-    sets.precast.JA["Tactical Switch"] = {feet = Empy_Feet}
-    sets.precast.JA["Ventriloquy"] = {legs = Relic_Legs}
-    sets.precast.JA["Role Reversal"] = {feet = Relic_Feet}
-    sets.precast.JA["Overdrive"] = {feet = Relic_Body}
+    sets.precast.JA["Tactical Switch"] = {feet = Empy_Karagoz.Feet_PMagic}
+    sets.precast.JA["Ventriloquy"] = {legs = Relic_Pitre.Legs_PMagic}
+    sets.precast.JA["Role Reversal"] = {feet = Relic_Pitre.Feet_PMagic}
+    sets.precast.JA["Overdrive"] = {body = Relic_Pitre.Body_PTP}
 
-    sets.precast.JA["Repair"] = {feet = "Foire Babouches", "Guignol Earring"}
+    sets.precast.JA["Repair"] = {
+        feet = Artifact_Foire.Feet_Repair_PMagic, "Guignol Earring"
+    }
 
     sets.precast.JA.Maneuver = {
         neck = "Buffoon's Collar +1",
-        body = Empy_Body,
-        hands = AF_Hands,
-        back = Visucius.DT,
+        body = Empy_Karagoz.Body_Overload,
+        hands = Artifact_Foire.Hands_Mane_Overload,
+        back = Visucius.PetDT,
         ear1 = "Burana Earring"
     }
 
-    sets.precast.JA["Activate"] = {back = "Visucius's Mantle"}
+    sets.precast.JA["Activate"] = {back = Visucius.PetDT}
     sets.precast.JA["Deus Ex Automata"] = sets.precast.JA["Activate"]
 
     sets.precast.JA["Provoke"] = {
@@ -225,7 +201,7 @@ function init_gear_sets()
         ring1 = "Provocare Ring"
     }
 
-    -- Waltz set (chr and vit)
+    --Waltz set (chr and vit)
     sets.precast.Waltz = {
         head = "Whirlpool Mask",
         ear1 = "Roundel Earring",
@@ -237,9 +213,9 @@ function init_gear_sets()
         feet = "Thurandaut Boots +1"
     }
 
-    -- Don't need any special gear for Healing Waltz.
     sets.precast.Waltz["Healing Waltz"] = {}
 
+    -------------------------------------WS
     -- Weaponskill sets
     -- Default set for any weaponskill that isn't any more specifically defined
     sets.precast.WS = {
@@ -291,95 +267,8 @@ function init_gear_sets()
         legs = "Hiza. Hizayoroi +2",
         feet = "Ryuo Sune-Ate"
     }
-
-    -- Midcast Sets
-    sets.midcast = {}
-    sets.midcast.FastRecast = {
-        head = "Haruspex Hat",
-        ear2 = "Loquacious Earring",
-        body = "Otronif Harness +1",
-        hands = "Regimen Mittens",
-        legs = "Manibozho Brais",
-        feet = "Otronif Boots +1"
-    }
-
-    -- Midcast sets for pet actions
-    sets.midcast.Pet = {}
-    sets.midcast.Pet.Cure = {legs = AF_Legs}
-
-    sets.midcast.Pet["Elemental Magic"] = {
-        feet = "Naga Kyahan",
-        ear1 = "Burana Earring",
-        ear2 = "Cirque Earring",
-        legs = Relic_Legs
-    }
-
-    sets.midcast.Pet.WeaponSkillNoAcc = {
-        neck = "Empath Necklace",
-        head = Empy_Head,
-        body = "Tali'ah Manteel +2",
-        waist = "Incarnation Sash",
-        hands = Empy_Hands,
-        ring1 = "Varar Ring",
-        ring2 = "Varar Ring",
-        legs = HercLegsPET,
-        feet = "Punchinellos",
-        back = "Dispersal Mantle"
-    }
-    sets.midcast.Pet.WSNoFTP = {
-        neck = "Empath Necklace",
-        head = Relic_Head,
-        body = "Tali'ah Manteel +2",
-        waist = "Incarnation Sash",
-        hands = Empy_Hands,
-        ring1 = "Thurandaut Ring",
-        ring2 = "Varar Ring +1",
-        legs = "Kara. Pantaloni +1",
-        feet = "Naga Kyahan",
-        back = JSECAPEPetHaste
-    }
-    sets.midcast.Pet.WSFTP = {
-        neck = "Empath Necklace",
-        head = Empy_Head,
-        body = "Tali'ah Manteel +2",
-        waist = "Incarnation Sash",
-        hands = Empy_Hands,
-        ring1 = "Thurandaut Ring",
-        ring2 = "Varar Ring",
-        legs = "Kara. Pantaloni +1",
-        feet = "Naga Kyahan",
-        back = "Dispersal Mantle"
-    }
-    sets.midcast.Pet.WeaponSkill = sets.midcast.Pet.WSNoFTP
-    sets.midcast.Pet.WS = {}
-    --Chimera Ripper, String Clipper
-    sets.midcast.Pet.WS["STR"] = set_combine(sets.midcast.Pet.WeaponSkill, {})
-    -- Bone crusher, String Shredder
-    sets.midcast.Pet.WS["VIT"] =
-        set_combine(
-        sets.midcast.Pet.WeaponSkill,
-        {head = Empy_Head, legs = HercLegsPET, waist = "Incarnation Sash", feet = HercBootBone}
-    )
-    -- Cannibal Blade
-    sets.midcast.Pet.WS["MND"] = set_combine(sets.midcast.Pet.WeaponSkill, {})
-    -- Armor Piercer, Armor Shatterer
-    sets.midcast.Pet.WS["DEX"] = set_combine(sets.midcast.Pet.WeaponSkill, {legs = HercLegsPetDEX})
-    -- Arcuballista, Daze
-    sets.midcast.Pet.WS["DEXFTP"] =
-        set_combine(sets.midcast.Pet.WS["DEX"], {head = Empy_Head, back = "Dispersal Mantle"})
-
-    -- Sets to return to when not performing an action.
-
-    -- Resting sets
-    sets.resting = {
-        head = Relic_Head,
-        neck = "Wiglen Gorget",
-        ring1 = "Sheltered Ring",
-        ring2 = "Paguroidea Ring"
-    }
-
-    -- Idle sets
-
+    
+    -------------------------------------Idle
     sets.idle = {
         range = "Animator P +1",
         ammo = "Automat. Oil +3",
@@ -395,120 +284,8 @@ function init_gear_sets()
         left_ring = "Thurandaut Ring",
         right_ring = "Varar Ring +1"
     }
-
-    sets.idle.Town = sets.idle
-
-    ------------------------------------------------------------------ PET SETS
-    -- Set for idle while pet is out (eg: pet regen gear)
-    sets.idle.Pet = sets.idle
-
-    -- Idle sets to wear while pet is engaged
-    sets.idle.Pet.EngagedO = {
-        head = "Tali'ah Turban +1",
-        neck = "Empath Necklace",
-        ear1 = "Burana Earring",
-        ear2 = "Domes. Earring",
-        body = Relic_Body,
-        hands = "Tali'ah Gages +1",
-        ring1 = "Varar Ring",
-        ring2 = "Varar Ring",
-        back = JSECAPEPetHaste,
-        waist = "Incarnation Sash",
-        legs = HercLegsPET,
-        feet = "Herculean Boots"
-    }
-
-    sets.idle.Pet.Engaged = sets.idle.Pet.EngagedO
-    sets.idle.Pet.Engaged.Ranged = set_combine(sets.idle.Pet.Engaged, {legs = "Kara. Pantaloni +1"})
-
-    sets.idle.Pet.Engaged.Nuke =
-        set_combine(sets.idle.Pet.Engaged, {legs = Relic_Legs, feet = Relic_Feet, ear1 = "Burana Earring"})
-
-    sets.idle.Pet.Engaged.Magic =
-        set_combine(sets.idle.Pet.Engaged, {legs = Relic_Legs, feet = Relic_Feet, ear1 = "Burana Earring"})
-
-    sets.petTank = {
-        ammo = "Automat. Oil +3",
-        head = {name = "Anwig Salade", augments = {"Attack+3", "Pet: Damage taken -10%", "Attack+3", 'Pet: "Regen"+1'}},
-        body = {name = "Taeon Tabard", augments = {"Pet: Evasion+21", 'Pet: "Dbl. Atk."+4', "Pet: Damage taken -4%"}},
-        hands = "Tali'ah Gages +1",
-        legs = "Tali'ah Sera. +1",
-        feet = "Tali'ah Crackows +1",
-        neck = "Pup. Collar",
-        waist = "Klouskap Sash",
-        left_ear = "Handler's Earring",
-        right_ear = "Handler's Earring +1",
-        left_ring = "Thurandaut Ring",
-        right_ring = "Varar Ring +1",
-        back = Visucius.DT
-    }
-
-    sets.petEnmity = {
-        head = "Heyoka Cap",
-        body = "Heyoka Harness",
-        hands = "Heyoka Mittens",
-        legs = "Heyoka Subligar",
-        feet = "Heyoka Leggings",
-        ear1 = "Domesticator's Earring"
-    }
-
-    -- Defense sets
-    sets.defense = {}
-    sets.defense.Evasion = {
-        head = "Whirlpool Mask",
-        neck = "Loricate Torque",
-        body = "Otronif Harness +1",
-        hands = "Otronif Gloves",
-        ring1 = "Defending Ring",
-        ring2 = "Beeline Ring",
-        back = "Ik Cape",
-        waist = "Incarnation Sash",
-        legs = "Nahtirah Trousers",
-        feet = "Otronif Boots +1"
-    }
-
-    sets.defense.PDT = {
-        head = Relic_Head,
-        body = "Udug Jacket",
-        hands = "Herculean Gloves",
-        legs = "Herculean Trousers",
-        feet = "Herculean Boots",
-        neck = "Warder's Charm +1",
-        waist = "Moonbow Belt",
-        left_ear = "Dominance Earring",
-        right_ear = "Handler's Earring +1",
-        left_ring = "Supershear Ring",
-        right_ring = "Kunaji Ring",
-        back = "Moonbeam Cape"
-    }
-
-    sets.defense.MDT = {
-        head = Relic_Head,
-        body = "Udug Jacket",
-        hands = "Herculean Gloves",
-        legs = "Herculean Trousers",
-        feet = "Herculean Boots",
-        neck = "Warder's Charm +1",
-        waist = "Moonbow Belt",
-        left_ear = "Dominance Earring",
-        right_ear = "Handler's Earring +1",
-        left_ring = "Supershear Ring",
-        right_ring = "Kunaji Ring",
-        back = "Moonbeam Cape"
-    }
-
-    sets.Kiting = {feet = "Hermes' Sandals"}
-
-    -- Engaged sets
-
-    -- Variations for TP weapon and (optional) offense/defense modes.  Code will fall back on previous
-    -- sets if more refined versions aren't defined.
-    -- If you create a set with both offense and defense modes, the offense mode should be first.
-    -- EG: sets.engaged.Dagger.Accuracy.Evasion
-
-    -- Normal melee group
-    sets.aftercast = sets.idle
-
+    
+    -------------------------------------Engaged
     sets.engaged = {
         head="Heyoka Cap",
         body="Tali'ah Manteel +2",
@@ -522,6 +299,7 @@ function init_gear_sets()
         left_ring="Varar Ring +1",
         right_ring="Chirich Ring",
     }
+    
     sets.engagedN = {
         head="Heyoka Cap",
         body="Tali'ah Manteel +2",
@@ -535,6 +313,7 @@ function init_gear_sets()
         left_ring="Varar Ring +1",
         right_ring="Chirich Ring",
     }
+    
     sets.engagedMO = {
         head="Heyoka Cap",
         body="Tali'ah Manteel +2",
@@ -562,6 +341,7 @@ function init_gear_sets()
         left_ring="Varar Ring +1",
         right_ring="Chirich Ring",
     }
+    
     sets.engaged.DT = {
         head = Relic_Head,
         body = "Udug Jacket",
@@ -576,6 +356,7 @@ function init_gear_sets()
         right_ring = "Kunaji Ring",
         back = "Moonbeam Cape"
     }
+
     sets.engaged.Acc.DT = {
         head = Relic_Head,
         body = "Udug Jacket",
@@ -590,6 +371,225 @@ function init_gear_sets()
         right_ring = "Kunaji Ring",
         back = "Moonbeam Cape"
     }
+
+    -------------------------------
+    --------Hybrid Only Sets-------
+    -------------------------------
+
+    -------------------------------------WS
+
+    -------------------------------------Idle
+
+    -------------------------------------Engaged
+
+    -------------------------------
+    ---------Pet Only Sets---------
+    -------------------------------
+
+    -------------------------------------TP
+
+    -------------------------------------DT
+    
+    -------------------------------------Magic Midcast
+    sets.midcast.Pet.Cure = {ear2="Enmerkar Earring",ear1="Burana Earring",back=Visucius.PetMagic,legs="Foire Churidars +1",waist="Ukko Sash",neck="Adad Amulet"}
+ 
+    sets.midcast.Pet['Elemental Magic'] = {ear2="Enmerkar Earring",ear1="Burana Earring",back=Visucius.PetMagic,head="Tali'ah Turban +1",body="Tali'ah Manteel +1",hands="Naga Tekko",legs="Tali'ah Sera. +1",feet="Tali'ah Crackows +1",waist="Ukko Sash",neck="Adad Amulet"}
+
+    sets.midcast.Pet['Enfeebling Magic'] = {ear2="Enmerkar Earring",ear1="Burana Earring",back=Visucius.PetMagic,head="Tali'ah Turban +1",body="Tali'ah Manteel +1",hands="Naga Tekko",legs="Tali'ah Sera. +1",feet="Tali'ah Crackows +1",waist="Ukko Sash",neck="Adad Amulet"}
+ 
+    sets.midcast.Pet['Dark Magic'] = {ear2="Enmerkar Earring",ear1="Burana Earring",back=Visucius.PetMagic,head="Tali'ah Turban +1",body="Tali'ah Manteel +1",hands="Naga Tekko",legs="Tali'ah Sera. +1",feet="Tali'ah Crackows +1",waist="Ukko Sash",neck="Adad Amulet"}
+ 
+    sets.midcast.Pet['Divine Magic'] = {ear2="Enmerkar Earring",ear1="Burana Earring",back=Visucius.PetMagic,head="Tali'ah Turban +1",body="Tali'ah Manteel +1",hands="Naga Tekko",legs="Tali'ah Sera. +1",feet="Tali'ah Crackows +1",waist="Ukko Sash",neck="Adad Amulet"}
+ 
+    sets.midcast.Pet['Enhancing Magic'] = {ear2="Enmerkar Earring",ear1="Burana Earring",back=Visucius.PetMagic,head="Tali'ah Turban +1",body="Tali'ah Manteel +1",hands="Naga Tekko",legs="Tali'ah Sera. +1",feet="Tali'ah Crackows +1",waist="Ukko Sash",neck="Adad Amulet"}
+
+    -------------------------------------Idle
+
+    -------------------------------------Engaged
+
+
+    -------------------------------
+    -----------Misc Sets-----------
+    -------------------------------
+
+
+    ------------------OLD SETS THAT NEED A NEW HOME STILL ---------------------
+    ---------------------------------------------------------------------------
+    ---------------------------------------------------------------------------
+    ---------------------------------------------------------------------------
+    ---------------------------------------------------------------------------
+        -- Defense sets
+        sets.defense = {}
+        sets.defense.Evasion = {
+            head = "Whirlpool Mask",
+            neck = "Loricate Torque",
+            body = "Otronif Harness +1",
+            hands = "Otronif Gloves",
+            ring1 = "Defending Ring",
+            ring2 = "Beeline Ring",
+            back = "Ik Cape",
+            waist = "Incarnation Sash",
+            legs = "Nahtirah Trousers",
+            feet = "Otronif Boots +1"
+        }
+    
+        sets.defense.PDT = {
+            head = Relic_Head,
+            body = "Udug Jacket",
+            hands = "Herculean Gloves",
+            legs = "Herculean Trousers",
+            feet = "Herculean Boots",
+            neck = "Warder's Charm +1",
+            waist = "Moonbow Belt",
+            left_ear = "Dominance Earring",
+            right_ear = "Handler's Earring +1",
+            left_ring = "Supershear Ring",
+            right_ring = "Kunaji Ring",
+            back = "Moonbeam Cape"
+        }
+    
+        sets.defense.MDT = {
+            head = Relic_Head,
+            body = "Udug Jacket",
+            hands = "Herculean Gloves",
+            legs = "Herculean Trousers",
+            feet = "Herculean Boots",
+            neck = "Warder's Charm +1",
+            waist = "Moonbow Belt",
+            left_ear = "Dominance Earring",
+            right_ear = "Handler's Earring +1",
+            left_ring = "Supershear Ring",
+            right_ring = "Kunaji Ring",
+            back = "Moonbeam Cape"
+        }
+    
+        -- Resting sets
+        sets.resting = {
+            head = Relic_Head,
+            neck = "Wiglen Gorget",
+            ring1 = "Sheltered Ring",
+            ring2 = "Paguroidea Ring"
+        }
+    
+    
+        sets.idle.Town = sets.idle
+    
+        sets.idle.Pet = sets.idle
+    
+        -- Idle sets to wear while pet is engaged
+        sets.idle.Pet.EngagedO = {
+            head = "Tali'ah Turban +1",
+            neck = "Empath Necklace",
+            ear1 = "Burana Earring",
+            ear2 = "Domes. Earring",
+            body = Relic_Body,
+            hands = "Tali'ah Gages +1",
+            ring1 = "Varar Ring",
+            ring2 = "Varar Ring",
+            back = JSECAPEPetHaste,
+            waist = "Incarnation Sash",
+            legs = HercLegsPET,
+            feet = "Herculean Boots"
+        }
+    
+        sets.idle.Pet.Engaged = sets.idle.Pet.EngagedO
+        sets.idle.Pet.Engaged.Ranged = set_combine(sets.idle.Pet.Engaged, {legs = "Kara. Pantaloni +1"})
+    
+        sets.idle.Pet.Engaged.Nuke =
+            set_combine(sets.idle.Pet.Engaged, {legs = Relic_Legs, feet = Relic_Feet, ear1 = "Burana Earring"})
+    
+        sets.idle.Pet.Engaged.Magic =
+            set_combine(sets.idle.Pet.Engaged, {legs = Relic_Legs, feet = Relic_Feet, ear1 = "Burana Earring"})
+    
+        sets.petTank = {
+            ammo = "Automat. Oil +3",
+            head = {name = "Anwig Salade", augments = {"Attack+3", "Pet: Damage taken -10%", "Attack+3", 'Pet: "Regen"+1'}},
+            body = {name = "Taeon Tabard", augments = {"Pet: Evasion+21", 'Pet: "Dbl. Atk."+4', "Pet: Damage taken -4%"}},
+            hands = "Tali'ah Gages +1",
+            legs = "Tali'ah Sera. +1",
+            feet = "Tali'ah Crackows +1",
+            neck = "Pup. Collar",
+            waist = "Klouskap Sash",
+            left_ear = "Handler's Earring",
+            right_ear = "Handler's Earring +1",
+            left_ring = "Thurandaut Ring",
+            right_ring = "Varar Ring +1",
+            back = Visucius.DT
+        }
+    
+        sets.petEnmity = {
+            head = "Heyoka Cap",
+            body = "Heyoka Harness",
+            hands = "Heyoka Mittens",
+            legs = "Heyoka Subligar",
+            feet = "Heyoka Leggings",
+            ear1 = "Domesticator's Earring"
+        }
+    
+        -- Midcast sets for pet actions
+        sets.midcast.Pet = {}
+        sets.midcast.Pet.Cure = {legs = AF_Legs}
+    
+        sets.midcast.Pet["Elemental Magic"] = {
+            feet = "Naga Kyahan",
+            ear1 = "Burana Earring",
+            ear2 = "Cirque Earring",
+            legs = Relic_Legs
+        }
+    
+        sets.midcast.Pet.WeaponSkillNoAcc = {
+            neck = "Empath Necklace",
+            head = Empy_Head,
+            body = "Tali'ah Manteel +2",
+            waist = "Incarnation Sash",
+            hands = Empy_Hands,
+            ring1 = "Varar Ring",
+            ring2 = "Varar Ring",
+            legs = HercLegsPET,
+            feet = "Punchinellos",
+            back = "Dispersal Mantle"
+        }
+        sets.midcast.Pet.WSNoFTP = {
+            neck = "Empath Necklace",
+            head = Relic_Head,
+            body = "Tali'ah Manteel +2",
+            waist = "Incarnation Sash",
+            hands = Empy_Hands,
+            ring1 = "Thurandaut Ring",
+            ring2 = "Varar Ring +1",
+            legs = "Kara. Pantaloni +1",
+            feet = "Naga Kyahan",
+            back = JSECAPEPetHaste
+        }
+        sets.midcast.Pet.WSFTP = {
+            neck = "Empath Necklace",
+            head = Empy_Head,
+            body = "Tali'ah Manteel +2",
+            waist = "Incarnation Sash",
+            hands = Empy_Hands,
+            ring1 = "Thurandaut Ring",
+            ring2 = "Varar Ring",
+            legs = "Kara. Pantaloni +1",
+            feet = "Naga Kyahan",
+            back = "Dispersal Mantle"
+        }
+        sets.midcast.Pet.WeaponSkill = sets.midcast.Pet.WSNoFTP
+        sets.midcast.Pet.WS = {}
+        --Chimera Ripper, String Clipper
+        sets.midcast.Pet.WS["STR"] = set_combine(sets.midcast.Pet.WeaponSkill, {})
+        -- Bone crusher, String Shredder
+        sets.midcast.Pet.WS["VIT"] =
+            set_combine(
+            sets.midcast.Pet.WeaponSkill,
+            {head = Empy_Head, legs = HercLegsPET, waist = "Incarnation Sash", feet = HercBootBone}
+        )
+        -- Cannibal Blade
+        sets.midcast.Pet.WS["MND"] = set_combine(sets.midcast.Pet.WeaponSkill, {})
+        -- Armor Piercer, Armor Shatterer
+        sets.midcast.Pet.WS["DEX"] = set_combine(sets.midcast.Pet.WeaponSkill, {legs = HercLegsPetDEX})
+        -- Arcuballista, Daze
+        sets.midcast.Pet.WS["DEXFTP"] =
+            set_combine(sets.midcast.Pet.WS["DEX"], {head = Empy_Head, back = "Dispersal Mantle"})
 end
 
 -- Select default macro book on initial load or subjob change.
