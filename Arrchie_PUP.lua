@@ -641,164 +641,6 @@ MWSTrigger = S{"Slapstick", "Knockout", "Chimera Ripper", "String Clipper", "Can
 HPWSTrigger = S{"Magic Mortar"}
 wscount=0
 
---Default To Set Up the Text Window
-function setupTextWindow(pos_x, pos_y)
-    tb_name = "pup_gs_helper"
-    bg_visible = true
-    textinbox = ' '
-
-    windower.text.create(tb_name)
-    -- table_name, x, y
-    windower.text.set_location(tb_name, pos_x, pos_y)
-    -- transparency, rgb
-    windower.text.set_bg_color(tb_name, 200, 40, 40, 55)
-    windower.text.set_color(tb_name, 255, 147, 161, 161)
-    windower.text.set_font(tb_name, "Arial")
-    windower.text.set_font_size(tb_name, 11)
-    windower.text.set_bold(tb_name, true)
-    windower.text.set_italic(tb_name, false)
-    windower.text.set_text(tb_name, textinbox)
-    windower.text.set_bg_visibility(tb_name, bg_visible)
-    windower.text.set_visibility(tb_name, visible)
-end
-
---Used to calculate the Hybrid State of you and your pet
-function TotalSCalc()
-    if ActualMode == "DD" then
-        if buffactive['Overdrive'] then
-            Hybrid_State = "Overdrive"
-        elseif Master_State == "Idle" and Pet_State == "Idle" then
-            Hybrid_State = "Idle"
-        elseif Master_State == "Idle" and Pet_State == "Engaged" then
-            Hybrid_State = "Pet Only"
-        elseif Master_State == "Engaged" and Pet_State == "Engaged" then
-            Hybrid_State = "Pet+Master"
-        elseif Master_State == "Engaged" and Pet_State == "Idle" then
-            Hybrid_State = "Master Only"
-        end
-    elseif ActualMode == "TANK" then
-        if Pet_State == "Idle" then
-            Hybrid_State = "Idle"
-        else
-            Hybrid_State = "Tank"
-        end
-    else
-        Pet_State = "MAGE"
-        if Master_State == "Idle" then
-            Hybrid_State = "Idle"
-        else
-            Hybrid_State = "Master Only"
-        end
-    end
-end
-
---Determines Gear based on that Hybrid Set
-function determineGearSet()
-    if ActualMode == "TANK" then
-        equip(sets.petTank)
-    elseif Hybrid_State == "Idle" then
-        equip(sets.idle)
-    elseif Hybrid_State == "Master Only" then
-        equip(sets.engagedMO)
-    elseif Hybrid_State == "Pet Only" then
-        equip(sets.idle.Pet.EngagedO)
-    elseif Hybrid_State == "Pet+Master" then
-        equip(sets.engagedN)
-    elseif Hybrid_State == "Overdrive" then
-        equip(sets.engaged)
-    else
-        handle_equipping_gear(player.status)
-    end
-
-end
-
-function refreshWindow()
-    textinbox = ' '
-    textColorNewLine = '\\cr \n'
-    textColorEnd = ' \\cr'
-    textColor = '\\cs(125, 125, 0)'
-
-    if pet.isvalid then
-        drawPetInfo()
-        drawPetSkills()
-    end
-
-    textinbox = textinbox..drawTitle('   Mode   ')
-    textinbox = textinbox..textColor..'Pet Mode : '..ActualMode..textColorNewLine
-    textinbox = textinbox..textColor..'Pet Style : '..ActualSubMode..textColorNewLine
-    
-    textinbox = textinbox..drawTitle('    State    ')
-    textinbox = textinbox..textColor..'Master : '..Master_State..textColorNewLine
-    textinbox = textinbox..textColor..'Pet : '..Pet_State..textColorNewLine
-    textinbox = textinbox..textColor..'Hybrid : '..Hybrid_State..textColorNewLine
-
-    textinbox = textinbox..drawTitle('  Options  ')
-    textinbox = textinbox..textColor..'Auto Maneuver : '..ternary(state.AutoMan.value, 'ON', 'OFF')..textColorNewLine
-    textinbox = textinbox..textColor..'Lock Pet DT Set: '..ternary(state.LockPetDT.value, 'ON', 'OFF')..textColorNewLine
-
-
-    --Debug Variables that are used for testing
-    if d_mode then
-        textinbox = textinbox..drawTitle("DEBUG")
-        textinbox = textinbox..textColor..'Current Maneuvers : '..Current_Maneuver..textColorNewLine
-        textinbox = textinbox..textColor..'Strobe Attached : '..tostring(pet.attachments.strobe)..textColorNewLine
-        textinbox = textinbox..textColor..'Flashbulb Attached : '..tostring(pet.attachments.Flashbulb)..textColorNewLine
-        textinbox = textinbox..textColor..'AutoMan : '..tostring(state.AutoMan.value)..textColorNewLine
-    end
-
-    windower.text.set_text(tb_name, textinbox)
-end
-
---This handles drawing the Pet Infor for the Text Box
-function drawPetInfo()
-    textinbox = textinbox..drawTitle('Pet Info')
-    textinbox = textinbox..'- \\cs(0, 0, 125)HP : '..pet.hp..'/'..pet.max_hp..textColorNewLine
-    textinbox = textinbox..'- \\cs(0, 125, 0)MP : '..pet.mp..'/'..pet.max_mp..textColorNewLine
-    textinbox = textinbox..'- \\cs(255, 0, 0)TP : '..tostring(pet.tp)..textColorNewLine
-end
-
---This handles drawing the Pet Skills for the text box
-function drawPetSkills()
-    --- Recast for enmity gears
-    if ActualMode == "TANK" then --TODO: May remove this check as long as we have the attachment on we would want to know
-        textinbox = textinbox..drawTitle("Pet Skills")
-        -- Strobe recast
-        if Strobe_Recast == 0 and pet.attachments.strobe then
-            if buffactive['Fire Maneuver'] then
-                textinbox = textinbox..'\\cs(125, 125, 125)-\\cr \\cs(125,0,0)Strobe\\cr \n'
-            else
-                textinbox = textinbox..'\\cs(125, 125, 125)- Strobe\\cr \n'
-            end
-        elseif pet.attachments.strobe ~= nil then
-            textinbox = textinbox..'\\cs(125, 125, 125)- Strobe ('..Strobe_Recast..')\\cr \n'
-        end
-        
-        -- Flashbulb recast    
-        if Flashbulb_Recast == 0 and pet.attachments.flashbulb then
-            if buffactive['Light Maneuver'] then
-                textinbox = textinbox..'\\cs(125, 125, 125)-\\cr \\cs(255,255,255)Flashbulb\\cr \n'
-            else
-                textinbox = textinbox..'\\cs(125, 125, 125)- Flashbulb\\cr \n'
-            end
-        elseif pet.attachments.flashbulb ~= nil then
-            textinbox = textinbox..'\\cs(125, 125, 125)- Flashbulb ('..Flashbulb_Recast..')\\cr \n'
-        end
-    end
-end
-
---Creates the Title for a section in the Text Screen
-function drawTitle(title)
-    return '\\cs(255, 115, 0)'..pad(tostring(title), 6, '=')..'\\cr \n'
-end
-
-function msg(str)
-    send_command('@input /echo *-*-*-*-*-*-*-*-* ' .. str .. ' *-*-*-*-*-*-*-*-*')
-end
-
-------------------------------------
-----------Utility Functions---------
-------------------------------------
- 
 --- SKILLCHAIN TABLE
 SC = {}
 SC['Valoredge Frame'] = {}
@@ -870,7 +712,170 @@ Style["Spam"] = {"ddspam", "Light", "Fire", "Wind"}
 Style["OD"] = {"overdrive", "Light", "Fire", "Thunder"}
 Style["ODAcc"] = {"overdriveacc", "Light", "Fire", "Thunder"}
 
---Attempts to determine the puppet type being used for Pet Mode
+------------------------------------
+------------Text Window-------------
+------------------------------------
+
+--Default To Set Up the Text Window
+function setupTextWindow(pos_x, pos_y)
+    tb_name = "pup_gs_helper"
+    bg_visible = true
+    textinbox = ' '
+
+    windower.text.create(tb_name)
+    -- table_name, x, y
+    windower.text.set_location(tb_name, pos_x, pos_y)
+    -- transparency, rgb
+    windower.text.set_bg_color(tb_name, 200, 40, 40, 55)
+    windower.text.set_color(tb_name, 255, 147, 161, 161)
+    windower.text.set_font(tb_name, "Arial")
+    windower.text.set_font_size(tb_name, 11)
+    windower.text.set_bold(tb_name, true)
+    windower.text.set_italic(tb_name, false)
+    windower.text.set_text(tb_name, textinbox)
+    windower.text.set_bg_visibility(tb_name, bg_visible)
+    windower.text.set_visibility(tb_name, visible)
+end
+
+--Hanldles refreshing the current text window
+function refreshWindow()
+    textinbox = ' '
+    textColorNewLine = '\\cr \n'
+    textColorEnd = ' \\cr'
+    textColor = '\\cs(125, 125, 0)'
+
+    if pet.isvalid then
+        drawPetInfo()
+        drawPetSkills()
+    end
+
+    textinbox = textinbox..drawTitle('   Mode   ')
+    textinbox = textinbox..textColor..'Pet Mode : '..ActualMode..textColorNewLine
+    textinbox = textinbox..textColor..'Pet Style : '..ActualSubMode..textColorNewLine
+    
+    textinbox = textinbox..drawTitle('    State    ')
+    textinbox = textinbox..textColor..'Master : '..Master_State..textColorNewLine
+    textinbox = textinbox..textColor..'Pet : '..Pet_State..textColorNewLine
+    textinbox = textinbox..textColor..'Hybrid : '..Hybrid_State..textColorNewLine
+
+    textinbox = textinbox..drawTitle('  Options  ')
+    textinbox = textinbox..textColor..'Auto Maneuver : '..ternary(state.AutoMan.value, 'ON', 'OFF')..textColorNewLine
+    textinbox = textinbox..textColor..'Lock Pet DT Set: '..ternary(state.LockPetDT.value, 'ON', 'OFF')..textColorNewLine
+
+
+    --Debug Variables that are used for testing
+    if d_mode then
+        textinbox = textinbox..drawTitle("DEBUG")
+        textinbox = textinbox..textColor..'Current Maneuvers : '..Current_Maneuver..textColorNewLine
+        textinbox = textinbox..textColor..'Strobe Attached : '..tostring(pet.attachments.strobe)..textColorNewLine
+        textinbox = textinbox..textColor..'Flashbulb Attached : '..tostring(pet.attachments.Flashbulb)..textColorNewLine
+        textinbox = textinbox..textColor..'AutoMan : '..tostring(state.AutoMan.value)..textColorNewLine
+    end
+
+    windower.text.set_text(tb_name, textinbox)
+end
+
+--Handles drawing the Pet Info for the Text Box
+function drawPetInfo()
+    textinbox = textinbox..drawTitle('Pet Info')
+    textinbox = textinbox..'- \\cs(0, 0, 125)HP : '..pet.hp..'/'..pet.max_hp..textColorNewLine
+    textinbox = textinbox..'- \\cs(0, 125, 0)MP : '..pet.mp..'/'..pet.max_mp..textColorNewLine
+    textinbox = textinbox..'- \\cs(255, 0, 0)TP : '..tostring(pet.tp)..textColorNewLine
+end
+
+--This handles drawing the Pet Skills for the text box
+function drawPetSkills()
+    --- Recast for enmity gears
+    if ActualMode == "TANK" then --TODO: May remove this check as long as we have the attachment on we would want to know
+        textinbox = textinbox..drawTitle("Pet Skills")
+        -- Strobe recast
+        if Strobe_Recast == 0 and pet.attachments.strobe then
+            if buffactive['Fire Maneuver'] then
+                textinbox = textinbox..'\\cs(125, 125, 125)-\\cr \\cs(125,0,0)Strobe\\cr \n'
+            else
+                textinbox = textinbox..'\\cs(125, 125, 125)- Strobe\\cr \n'
+            end
+        elseif pet.attachments.strobe ~= nil then
+            textinbox = textinbox..'\\cs(125, 125, 125)- Strobe ('..Strobe_Recast..')\\cr \n'
+        end
+        
+        -- Flashbulb recast    
+        if Flashbulb_Recast == 0 and pet.attachments.flashbulb then
+            if buffactive['Light Maneuver'] then
+                textinbox = textinbox..'\\cs(125, 125, 125)-\\cr \\cs(255,255,255)Flashbulb\\cr \n'
+            else
+                textinbox = textinbox..'\\cs(125, 125, 125)- Flashbulb\\cr \n'
+            end
+        elseif pet.attachments.flashbulb ~= nil then
+            textinbox = textinbox..'\\cs(125, 125, 125)- Flashbulb ('..Flashbulb_Recast..')\\cr \n'
+        end
+    end
+end
+
+--Creates the Title for a section in the Text Screen
+function drawTitle(title)
+    return '\\cs(255, 115, 0)'..pad(tostring(title), 6, '=')..'\\cr \n'
+end
+
+function msg(str)
+    send_command('@input /echo *-*-*-*-*-*-*-*-* ' .. str .. ' *-*-*-*-*-*-*-*-*')
+end
+
+------------------------------------
+----------Utility Functions---------
+------------------------------------
+
+--Used to calculate the Hybrid State of you and your pet
+function TotalSCalc()
+    if ActualMode == "DD" then
+        if buffactive['Overdrive'] then
+            Hybrid_State = "Overdrive"
+        elseif Master_State == "Idle" and Pet_State == "Idle" then
+            Hybrid_State = "Idle"
+        elseif Master_State == "Idle" and Pet_State == "Engaged" then
+            Hybrid_State = "Pet Only"
+        elseif Master_State == "Engaged" and Pet_State == "Engaged" then
+            Hybrid_State = "Pet+Master"
+        elseif Master_State == "Engaged" and Pet_State == "Idle" then
+            Hybrid_State = "Master Only"
+        end
+    elseif ActualMode == "TANK" then
+        if Pet_State == "Idle" then
+            Hybrid_State = "Idle"
+        else
+            Hybrid_State = "Tank"
+        end
+    else
+        Pet_State = "MAGE"
+        if Master_State == "Idle" then
+            Hybrid_State = "Idle"
+        else
+            Hybrid_State = "Master Only"
+        end
+    end
+end
+
+--Determines Gear based on that Hybrid Set
+function determineGearSet()
+    if ActualMode == "TANK" then
+        equip(sets.petTank)
+    elseif Hybrid_State == "Idle" then
+        equip(sets.idle)
+    elseif Hybrid_State == "Master Only" then
+        equip(sets.engagedMO)
+    elseif Hybrid_State == "Pet Only" then
+        equip(sets.idle.Pet.EngagedO)
+    elseif Hybrid_State == "Pet+Master" then
+        equip(sets.engagedN)
+    elseif Hybrid_State == "Overdrive" then
+        equip(sets.engaged)
+    else
+        handle_equipping_gear(player.status)
+    end
+
+end
+
+--Attempts to determine the Puppet Mode and Style
 function determinePuppetType()
     local head = pet.head
     local frame = pet.frame
@@ -949,6 +954,7 @@ function reset_timers()
     refreshWindow()
 end
 
+--Traverses a table to see if it contains the given element
 function table.contains(table, element)
     for _, value in pairs(table) do
       if string.lower(value) == element then
@@ -958,23 +964,18 @@ function table.contains(table, element)
     return false  
 end
 
-function round(num, dec)
-    local mult = 10^(dec or 0)
-    return math.floor(num * mult + 0.5) / mult
-end
-
-local srep = string.rep
-
--- pad on both sides (centering with left justification)
+--Pads a given chara on both sides (centering with left justification)
 function pad(s, l, c)
-	c = c or ' '
+    local srep = string.rep
+    local c = c or ' '
 
-    local res1 = srep(c, l) .. s -- pad to half-length + the length of s
+    local res1 = srep(c, l) .. s -- pad to half-length s
     local res2 = res1 .. srep(c,  l) -- right-pad our left-padded string to the full length
 
     return res2
 end
 
+--Takes a condition and returns a given value based on if it is true or false
 function ternary(cond , T , F)
     if cond then 
         return T 
@@ -990,11 +991,8 @@ end
 function job_precast(spell,action)
 
     if spell.english == "Deploy" and pet.tp >= 950 then
-        if ActualMode == "TANK" then
-            -- Nothing
-        else
-            equip(sets.midcast.Pet.WeaponSkill)
-        end
+        equip(sets.midcast.Pet.WeaponSkill)
+
     elseif string.find(spell.english,'Maneuver') then
         equip(sets.precast.JA.Maneuver)
 
@@ -1003,6 +1001,7 @@ function job_precast(spell,action)
 
     elseif sets.precast.WS[spell.english] then
         equip(sets.precast.WS[spell.english])
+
     else
         equip(sets.precast.FC)
     end
@@ -1017,7 +1016,7 @@ function job_aftercast(spell,action)
     if spell.name == null then
         return -- Cancel Aftercast for out of range/unable to see.
     end
-   
+
     if (spell.english == "Shijin Spiral" or spell.english == "Victory Smite" or spell.english == "Stringing Pummel" or spell.english == "Howling Fist") and pet.tp >= 850 then
         ws = SC[pet.frame][spell.english]
         modif = Modifier[ws]
@@ -1047,11 +1046,11 @@ function job_pet_status_change(new,old)
     if new == 'Engaged' then
         Pet_State = "Engaged"
         TotalSCalc()
-        add_to_chat(392,'*-*-*-*-*-*-*-*-* [ PetEngaged ] *-*-*-*-*-*-*-*-*')
+        add_to_chat(392,'*-*-*-*-*-*-*-*-* [ Pet Engaged ] *-*-*-*-*-*-*-*-*')
     else
         Pet_State="Idle"
         TotalSCalc()
-        add_to_chat(392,'*-*-*-*-*-*-*-*-* [ PetIdle ] *-*-*-*-*-*-*-*-*')
+        add_to_chat(392,'*-*-*-*-*-*-*-*-* [ Pet Idle ] *-*-*-*-*-*-*-*-*')
     end
     
     determineGearSet()
@@ -1283,7 +1282,7 @@ function job_state_change(stateField, newValue, oldValue)
     elseif stateField == 'Auto Maneuver' then
         refreshWindow()
     elseif stateField == 'Lock Pet DT' then
-        --If true the lock gearswap
+        --If true then lock all gear
         if newValue == true then
             equip(sets.petTank)
             disable({'main','sub','range','ammo','head','neck','lear','rear','body','hands','lring','rring', 'ear1', 'ear2','back','waist','legs','feet'})
