@@ -900,49 +900,63 @@ function determinePuppetType()
     
     --Determine Head first, then further determine by body and attachments
     --Set Command state.PetModeCycle:set('') need to test
-
-    if head == HarHead then
+    if head == HarHead then --Harlequin Predictions
         if frame == HarFrame and (pet.attachments.strobe == true or pet.attachments.flashbulb == true) then --Magic Tank
             state.PetModeCycle:set("TANK")
             state.PetStyleCycle:set("MDT")
-        else -- Default
+        elseif frame == HarFrame then -- Default
             state.PetModeCycle:set("DD")
             state.PetStyleCycle:set("NORMAL")
+        else
+            msg('Unable to determine Mode/Style for Puppet Head: ('..head..') Puppet Frame: ('..frame..')')
         end
-    elseif head == ValHead then
-
-    elseif head == SoulHead then
-
-    elseif head == SpiritHead then
-
+    elseif head == ValHead then --Valoredge Predictions
+        if frame == SharpFrame then
+            if (pet.attachments.strobe == true or pet.attachments.flashbulb == true) then -- DD Tank
+                state.PetModeCycle:set("TANK")
+                state.PetStyleCycle:set("DD")
+            else -- Default
+                state.PetModeCycle:set("DD")
+                state.PetStyleCycle:set("NORMAL")
+            end
+        elseif frame == ValFrame then -- Default Standard Tank
+            state.PetModeCycle:set("TANK")
+            state.PetStyleCycle:set("NORMAL")
+        else
+            msg('Unable to determine Mode/Style for Puppet Head: ('..head..') Puppet Frame: ('..frame..')')
+        end
+    elseif head == SharpHead then -- Sharpshooter Prediction
+        if frame == SharpFrame then -- SPAM DD
+            state.PetModeCycle:set("DD")
+            state.PetStyleCycle:set("SPAM")
+        else
+            msg('Unable to determine Mode/Style for Puppet Head: ('..head..') Puppet Frame: ('..frame..')')
+        end
+    elseif head == StormHead then --Stormwaker Prediction
+        if head == StormFrame then -- RDM
+            state.PetModeCycle:set("MAGE")
+            state.PetStyleCycle:set("SUPPORT")
+        else
+            msg('Unable to determine Mode/Style for Puppet Head: ('..head..') Puppet Frame: ('..frame..')')
+        end
+    elseif head == SoulHead then -- Soulsoother Prediction
+        if frame == StormFrame then -- WHM
+            state.PetModeCycle:set("MAGE")
+            state.PetStyleCycle:set("HEAL")
+        elseif frame == ValFrame then -- Turtle Tank
+            state.PetModeCycle:set("TANK")
+            state.PetStyleCycle:set("NORMAL")
+        else
+            msg('Unable to determine Mode/Style for Puppet Head: ('..head..') Puppet Frame: ('..frame..')')
+        end
+    elseif head == SpiritHead then -- Spiritweaver Prediction
+        if frame == StormFrame then -- BLM
+            state.PetModeCycle:set("MAGE")
+            state.PetStyleCycle:set("DD")
+        else
+            msg('Unable to determine Mode/Style for Puppet Head: ('..head..') Puppet Frame: ('..frame..')')
+        end
     end
-
-    -- elseif head == SoulHead and frame == ValFrame then --Turle Tank (Default)
-    --     ActualMode = "TANK"
-    --     ActualSubMode = "PDT"
-    -- elseif head == ValHead and frame == SharpFrame and pet.attachments.strobe == true then
-    --     ActualMode = 'TANK'
-    --     ActualSubMode = 'PDT'
-    -- elseif head == ValHead and frame == SharpFrame then --DD (Default)
-    --     ActualMode = "DD"
-    --     ActualSubMode = "NORMAL"
-    -- elseif head == ValHead and frame == ValFrame then -- Bone Slayer
-    --     ActualMode = "DD"
-    --     ActualSubMode = "BONE"
-    -- elseif head == SharpHead and frame == SharpFrame then --Spam DD
-    --     ActualMode = "DD"
-    --     ActualSubMode = "SPAM"
-    -- elseif head == SoulHead and frame == StormFrame then --WHM
-    --     ActualMode = "MAGE"
-    --     ActualSubMode = "HEAL"
-    -- elseif head == StormHead and frame == StormFrame then --RDM
-    --     ActualMode = "MAGE"
-    --     ActualSubMode = "SUPPORT"
-    -- elseif head == SpiritHead and frame == StormFrame then --BLM
-    --     ActualMode = "MAGE"
-    --     ActualSubMode = "DD"
-    -- end
-
 end
 
 --Various Timers that get reset when you zone
