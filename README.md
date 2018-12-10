@@ -16,6 +16,7 @@ Please keep in mind that this **currently** a work in progress and any feed back
 Due to the flexibilty that Mote-Libs offers, you will need this in gearswap folder to be able to utilize this gearswap.
 
 You can find and download from the below link:
+
 https://github.com/Kinematics/Mote-libs
 
 # Features
@@ -33,10 +34,8 @@ This will attempt to determine the currently equipped puppet and adjust the Pet 
 - //gs c predict
  
 ## Pet Mode:
-This will allow you to cycle between different modes for your pet.
-
 This will change the mode of the pet and the style of the pet.
-Current Modes: TANK, DD, Mage
+
 
 #### Current Styles:
 | Modes | Styles |||||
@@ -54,7 +53,7 @@ Current Modes: TANK, DD, Mage
 - [x] Update Readme with better format
 - [ ] Test cycle commands for various Mode and Styles
 - [ ] Test Auto Maneuvers with new toggle feature
-- [ ] Create better gear sets with better variables
+- [ ] Create better gear sets with better variable names
 - [ ] Improve the functionality of the Predict Function
 - [ ] Update gearsets with better naming convention
 - [ ] Set up gearsets for different Modes/Styles to offer more options for a puppet
