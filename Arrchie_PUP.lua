@@ -738,6 +738,7 @@ function refreshWindow()
         textinbox = textinbox..textColor..'Current Maneuvers : '..Current_Maneuver..textColorNewLine
         textinbox = textinbox..textColor..'Strobe Attached : '..tostring(pet.attachments.strobe)..textColorNewLine
         textinbox = textinbox..textColor..'Flashbulb Attached : '..tostring(pet.attachments.Flashbulb)..textColorNewLine
+        textinbox = textinbox..textColor..'AutoMan : '..tostring(state.AutoMan.value)..textColorNewLine
     end
 
     windower.text.set_text(tb_name, textinbox)
@@ -961,7 +962,7 @@ end
 --Various Timers that get reset when you zone
 function reset_timers()
     Current_Maneuver = 0
-    state.AutoMan.value = false
+    handle_toggle({'AutoMan'})
     refreshWindow()
 end
 
