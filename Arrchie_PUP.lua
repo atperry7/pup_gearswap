@@ -56,7 +56,7 @@ function user_setup()
     state.PetStyleCycleDD = M{"NORMAL", "BONE", "SPAM", "OD", "ODACC"}
 
     --The actual Pet Mode and Pet Style cycles
-    state.PetModeCycle = M{"TANK", "DD", const_mage}
+    state.PetModeCycle = M{"TANK", "DD", "MAGE"}
     --Default to tanking set for now
     state.PetStyleCycle = state.PetStyleCycleTank
     
