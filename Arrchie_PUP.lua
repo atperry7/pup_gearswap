@@ -680,7 +680,6 @@ Colors["Ice"] = "\\cs(0, 204, 204)"
 Colors["Thunder"] = "\\cs(51, 0, 102)"
  
 --- Pet modes references
-PetMode = S{"TANK", "DD", "MAGE"}
 PetSubMode = {}
 PetSubMode["TANK"] = S{"NORMAL", "DD", "PDT", "MDT", "RANGE"}
 PetSubMode["DD"] = S{"NORMAL", "BONE", "SPAM", "OD", "ODACC"}
@@ -773,7 +772,7 @@ end
 --This handles drawing the Pet Skills for the text box
 function drawPetSkills()
     --- Recast for enmity gears
-    if ActualMode == "TANK" then --TODO: May remove this check as long as we have the attachment on we would want to know
+
         textinbox = textinbox..drawTitle("Pet Skills")
         -- Strobe recast
         if Strobe_Recast == 0 and pet.attachments.strobe then
@@ -796,7 +795,7 @@ function drawPetSkills()
         elseif pet.attachments.flashbulb ~= nil then
             textinbox = textinbox..'\\cs(125, 125, 125)- Flashbulb ('..Flashbulb_Recast..')\\cr \n'
         end
-    end
+
 end
 
 --Creates the Title for a section in the Text Screen
@@ -1015,7 +1014,6 @@ function job_midcast(spell,action)
 end
  
 function job_aftercast(spell,action)
-    enable("ear1")
     
     if spell.name == null then
         return -- Cancel Aftercast for out of range/unable to see.
@@ -1106,48 +1104,6 @@ end
 -- Toggles -- SE Macros: /console gs c "command" [case sensitive]
 --TODO rework this since Mote-Libs places this in a table regardless of input
 function job_self_command(command, eventArgs)
-
-    if type(command) == 'table' then --We have a multiple inputs
-        if command[1]:upper() == "MODE" then
-            if PetMode[command[2]:upper()] then
-                msg("Changing Mode To: "..command[2]:upper())
-                ActualMode = command[2]:upper()
-
-                if command[2]:upper() == 'TANK' then
-                    if PetSubMode["TANK"][command[3]:upper()] then
-                        ActualSubMode = command[3]:upper()
-                    else
-                        ActualSubMode = "NORMAL"
-                    end
-
-                    msg("Changing Pet Style To "..ActualSubMode)
-                elseif command[2]:upper() == 'MAGE' then
-                    if PetSubMode["MAGE"][command[3]:upper()] then
-                        ActualSubMode = command[3]:upper()
-                    else
-                        ActualSubMode = "NORMAL"
-                    end
-
-                    msg("Changing Pet Style To "..ActualSubMode)
-                elseif command[2]:upper() == 'DD' then
-                    if PetSubMode["DD"][command[3]:upper()] then
-                        ActualSubMode = command[3]:upper()
-                    else
-                        ActualSubMode = "NORMAL"
-                    end
-
-                    msg("Changing Pet Style To "..ActualSubMode)
-                else
-                    msg("Unable to determine Pet Style: "..command[3]:upper())
-                end
-
-            else
-                msg("Unable to determine Pet Mode: ".. command[2]:upper())
-            end
-        end
-        
-        refreshWindow()
-    end
     
     if command[1]:upper() == 'AUTOMAN' then
         state.AutoMan.value = not state.AutoMan.value
@@ -1235,28 +1191,28 @@ windower.register_event('incoming text', function(original, modified, mode)
                     OverCount = 1
                 end
             end
+
             -- Checking timer for enmity sets
-            if ActualMode == "TANK" then
-                if buffactive['Fire Maneuver'] then
-                    if original:contains(pet.name) and original:contains("Provoke") then
-                        add_to_chat(204, '*-*-*-*-*-*-*-*-* [ Strobe done ] *-*-*-*-*-*-*-*-*')
-                        Strobe_Time = os.time()
-                        Strobe_Recast = Strobe_Timer
-                        refreshWindow()
-                        determineGearSet()
-                    end
-                end
-                
-                if buffactive['Light Maneuver'] then
-                    if original:contains(pet.name) and original:contains("Flashbulb") then
-                        add_to_chat(204, '*-*-*-*-*-*-*-*-* [ Flashbulb done ] *-*-*-*-*-*-*-*-*')
-                        Flashbulb_Time = os.time()
-                        Flashbulb_Recast = Flashbulb_Timer
-                        refreshWindow()
-                        determineGearSet()
-                    end
+            if buffactive['Fire Maneuver'] then
+                if original:contains(pet.name) and original:contains("Provoke") then
+                    add_to_chat(204, '*-*-*-*-*-*-*-*-* [ Strobe done ] *-*-*-*-*-*-*-*-*')
+                    Strobe_Time = os.time()
+                    Strobe_Recast = Strobe_Timer
+                    refreshWindow()
+                    determineGearSet()
                 end
             end
+            
+            if buffactive['Light Maneuver'] then
+                if original:contains(pet.name) and original:contains("Flashbulb") then
+                    add_to_chat(204, '*-*-*-*-*-*-*-*-* [ Flashbulb done ] *-*-*-*-*-*-*-*-*')
+                    Flashbulb_Time = os.time()
+                    Flashbulb_Recast = Flashbulb_Timer
+                    refreshWindow()
+                    determineGearSet()
+                end
+            end
+        
        
     return modified, mode
 end)
