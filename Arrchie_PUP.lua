@@ -1,8 +1,17 @@
+----------------------------------------------------------------------------------------
+--  __  __           _                     __   _____                        _       
+-- |  \/  |         | |                   / _| |  __ \                      | |      
+-- | \  / | __ _ ___| |_ ___ _ __    ___ | |_  | |__) |   _ _ __  _ __   ___| |_ ___ 
+-- | |\/| |/ _` / __| __/ _ \ '__|  / _ \|  _| |  ___/ | | | '_ \| '_ \ / _ \ __/ __|
+-- | |  | | (_| \__ \ ||  __/ |    | (_) | |   | |   | |_| | |_) | |_) |  __/ |_\__ \
+-- |_|  |_|\__,_|___/\__\___|_|     \___/|_|   |_|    \__,_| .__/| .__/ \___|\__|___/
+--                                                         | |   | |                 
+--                                                         |_|   |_|                 
+-----------------------------------------------------------------------------------------
 --Created By: Faloun
 --Modified By: Arrchie
 --Contributions From: Kuroganashi, Xilkk
 --ASCII Art Generator: http://www.network-science.de/ascii/
-local player = windower.ffxi.get_player()
 
 --Auto Maneuvers Toggle:
 --Currently, the way this works is it will simply recast the maneuver that wears off. This way you can cast any maneuvers you want and it will simply attempt to maintain what you have active.
@@ -40,7 +49,8 @@ function get_sets()
 end
 
 function user_setup()
-    --F9 - Cycle Offense Mode (the offensive half of all 'hybrid' melee modes).
+    -- Default Commands for Mote-Libs
+    -- F9 - Cycle Offense Mode (the offensive half of all 'hybrid' melee modes).
     -- Ctrl-F9 - Cycle Hybrid Mode (the defensive half of all 'hybrid' melee modes).
     -- Alt-F9 - Cycle Ranged Mode.
     -- Win-F9 - Cycle Weaponskill Mode.
@@ -52,15 +62,6 @@ function user_setup()
     -- Ctrl-F11 - Cycle Casting Mode.
     -- F12 - Update currently equipped gear, and report current status.
     -- Ctrl-F12 - Cycle Idle Mode.
-    state.OffenseMode:options('Normal')
-    state.RangedMode:options('Normal')
-    state.HybridMode:options('Normal')
-	state.WeaponskillMode:options('Normal')
-	state.CastingMode:options('Normal')
-	state.IdleMode:options('Normal')
-	state.RestingMode:options('Normal')
-	state.PhysicalDefenseMode:options('PDT')
-	state.MagicalDefenseMode:options('MDT')
     
     --Various Cycles for the different types of PetModes
     state.PetStyleCycleTank = M{"NORMAL", "DD", "PDT", "MDT", "RANGE"}
@@ -177,7 +178,8 @@ function init_gear_sets()
     }
 
     -------------------------------------Midcast
-    sets.midcast = {}
+    sets.midcast = {} -- Initilization Keep Empty
+
     sets.midcast.FastRecast = {
         head = "Haruspex Hat",
         ear2 = "Loquacious Earring",
@@ -193,7 +195,7 @@ function init_gear_sets()
     -------------------------------------JA
     sets.precast.FC.Utsusemi = set_combine(sets.precast.FC, {neck = "Magoraga Beads"})
 
-    sets.precast.JA = {}
+    sets.precast.JA = {} -- Initilization Keep Empty
     -- Precast sets to enhance JAs
     sets.precast.JA["Tactical Switch"] = {feet = Empy_Karagoz.Feet_PMagic}
     sets.precast.JA["Ventriloquy"] = {legs = Relic_Pitre.Legs_PMagic}
@@ -246,12 +248,11 @@ function init_gear_sets()
         ear1 = "Ishvara Earring",
         ear2 = "Moonshade Earring",
         body = "Abnoba Kaftan",
-        hands = Relic_Hands,
+        hands = Relic_Pitre.Hands_WSD,
         ring1 = "Shukuyu Ring",
         ring2 = "Rufescent Ring",
-        back = JSECAPESTR,
         waist = "Moonbow Belt",
-        legs = Relic_Legs,
+        legs = Relic_Pitre.Legs_PMagic,
         feet = "Ryuo Sune-Ate"
     } --"Hiza. Hizayoroi +2"
 
@@ -265,10 +266,10 @@ function init_gear_sets()
         set_combine(
         sets.precast.WS,
         {
-            head = Relic_Head,
-            body = Relic_Body,
-            hands = Relic_Hands,
-            legs = Relic_Legs,
+            head = Relic_Pitre.Head_PRegen,
+            body = Relic_Pitre.Body_PTP,
+            hands = Relic_Pitre.Hands_WSD,
+            legs = Relic_Pitre.Legs_PMagic,
             feet = "Heyoka leggings",
             ring1 = "Apate Ring",
             ring2 = "Petrov Ring"
@@ -276,25 +277,25 @@ function init_gear_sets()
     )
 
     sets.precast.WS["Howling Fist"] = {
-        head = RAOWShead,
         neck = "Fotia Gorget",
         ear1 = "Ishvara Earring",
         ear2 = "Moonshade Earring",
-        body = AF_Body,
-        hands = Relic_Hands,
+        body = Artifact_Foire.Body_WSD_PTank,
+        hands = Relic_Pitre.Hands_WSD,
         ring1 = "Shukuyu Ring",
         ring2 = "Rufescent Ring",
-        back = JSECAPESTR,
         waist = "Moonbow Belt",
         legs = "Hiza. Hizayoroi +2",
         feet = "Ryuo Sune-Ate"
     }
     
     -------------------------------------Idle
-    sets.idle = {
+    sets.idle = {} -- Initilization Keep Empty
+
+    sets.idle.Normal = {
         range = "Animator P +1",
         ammo = "Automat. Oil +3",
-        head = Relic_Head,
+        head = Relic_Pitre.Head_PRegen,
         body = "Udug Jacket",
         hands = "Tali'ah Gages +1",
         legs = "Tali'ah Sera. +1",
@@ -365,7 +366,7 @@ function init_gear_sets()
     }
     
     sets.engaged.DT = {
-        head = Relic_Head,
+        head = Relic_Pitre.Head_PRegen,
         body = "Udug Jacket",
         hands = "Herculean Gloves",
         legs = "Herculean Trousers",
@@ -380,7 +381,7 @@ function init_gear_sets()
     }
 
     sets.engaged.Acc.DT = {
-        head = Relic_Head,
+        head = Relic_Pitre.Head_PRegen,
         body = "Udug Jacket",
         hands = "Herculean Gloves",
         legs = "Herculean Trousers",
@@ -406,19 +407,19 @@ function init_gear_sets()
     -----------------------------------------------------------------------------------
 
     -------------------------------------Idle
-    set.hybrid = {}
+    sets.hybrid = {}
 
     -------------------------------------Engaged
-    set.hybrid.engaged = {}
+    sets.hybrid.engaged = {}
     
     -------------------------------------TP
-    set.hybrid.engaged.TP = {}
+    sets.hybrid.engaged.TP = {}
     
     -------------------------------------Acc
-    set.hybrid.engaged.Acc = {}
+    sets.hybrid.engaged.Acc = {}
     
     -------------------------------------DT
-    set.hybrid.DT = {}
+    sets.hybrid.DT = {}
     
     ----------------------------------------------------------------
     --  _____     _      ____        _          _____      _       
@@ -432,26 +433,25 @@ function init_gear_sets()
     ----------------------------------------------------------------
     --This section for sets pretaining to Pets
 
-    set.pet = {}
+    sets.pet = {} -- Initilization Keep Empty
 
     -------------------------------------TP
 
-    set.pet.TP = {}
+    sets.pet.TP = {}
 
     -------------------------------------DT
     sets.pet.Tank = {
-        ammo = "Automat. Oil +3",
-        head = {name = "Anwig Salade", augments = {"Attack+3", "Pet: Damage taken -10%", "Attack+3", 'Pet: "Regen"+1'}},
-        body = {name = "Taeon Tabard", augments = {"Pet: Evasion+21", 'Pet: "Dbl. Atk."+4', "Pet: Damage taken -4%"}},
-        hands = "Tali'ah Gages +1",
-        legs = "Tali'ah Sera. +1",
-        feet = "Tali'ah Crackows +1",
-        neck = "Pup. Collar",
-        waist = "Klouskap Sash",
-        left_ear = "Handler's Earring",
-        right_ear = "Handler's Earring +1",
-        left_ring = "Thurandaut Ring",
-        right_ring = "Varar Ring +1",
+        head={ name="Pitre Taj +1", augments={'Enhances "Optimization" effect',}},
+        body={ name="Taeon Tabard", augments={'Pet: Evasion+21','Pet: "Dbl. Atk."+4','Pet: Damage taken -4%',}},
+        hands={ name="Rao Kote", augments={'Pet: HP+100','Pet: Accuracy+15','Pet: Damage taken -3%',}},
+        legs="Tali'ah Sera. +1",
+        feet={ name="Rao Sune-Ate +1", augments={'Pet: HP+125','Pet: Accuracy+20','Pet: Damage taken -4%',}},
+        neck="Pup. Collar",
+        waist="Klouskap Sash",
+        left_ear="Handler's Earring",
+        right_ear="Handler's Earring +1",
+        left_ring="Thurandaut Ring",
+        right_ring="Tali'ah Ring",    
         back = Visucius.DT
     }
     
@@ -471,7 +471,9 @@ function init_gear_sets()
     sets.midcast.Pet['Enhancing Magic'] = {ear2="Enmerkar Earring",ear1="Burana Earring",back=Visucius.PetMagic,head="Tali'ah Turban +1",body="Tali'ah Manteel +1",hands="Naga Tekko",legs="Tali'ah Sera. +1",feet="Tali'ah Crackows +1",waist="Ukko Sash",neck="Adad Amulet"}
 
     -------------------------------------Idle
-    sets.idle.Pet = sets.idle
+    sets.idle.Pet = {} -- Initilization Keep Empty
+
+    sets.idle.PetRegen = {}
 
     -------------------------------------Enmity
     sets.pet.Enmity = {
@@ -490,62 +492,60 @@ function init_gear_sets()
         neck = "Empath Necklace",
         ear1 = "Burana Earring",
         ear2 = "Domes. Earring",
-        body = Relic_Body,
+        body = Relic_Pitre.Body_PTP,
         hands = "Tali'ah Gages +1",
         ring1 = "Varar Ring",
         ring2 = "Varar Ring",
-        back = JSECAPEPetHaste,
         waist = "Incarnation Sash",
-        legs = HercLegsPET,
         feet = "Herculean Boots"
     }
 
     sets.idle.Pet.Engaged = sets.idle.Pet.EngagedO
-    sets.idle.Pet.Engaged.Ranged = set_combine(sets.idle.Pet.Engaged, {legs = "Kara. Pantaloni +1"})
+
+    sets.idle.Pet.Engaged.Ranged = set_combine(sets.idle.Pet.Engaged, {legs = Empy_Karagoz.Legs_Combat})
 
     sets.idle.Pet.Engaged.Nuke =
-        set_combine(sets.idle.Pet.Engaged, {legs = Relic_Legs, feet = Relic_Feet, ear1 = "Burana Earring"})
+        set_combine(sets.idle.Pet.Engaged, {legs = Relic_Pitre.Legs_PMagic, feet = Relic_Pitre.Feet_PMagic, ear1 = "Burana Earring"})
     
     sets.idle.Pet.Engaged.Magic =
-        set_combine(sets.idle.Pet.Engaged, {legs = Relic_Legs, feet = Relic_Feet, ear1 = "Burana Earring"})
+        set_combine(sets.idle.Pet.Engaged, {legs = Relic_Pitre.Legs_PMagic, feet = Relic_Pitre.Feet_PMagic, ear1 = "Burana Earring"})
     
 
     -------------------------------------WS
     sets.midcast.Pet.WeaponSkillNoAcc = {
         neck = "Empath Necklace",
-        head = Empy_Head,
+        head = Empy_Karagoz.Head_PTPBonus,
         body = "Tali'ah Manteel +2",
         waist = "Incarnation Sash",
-        hands = Empy_Hands,
+        hands = Empy_Karagoz.Hands,
         ring1 = "Varar Ring",
         ring2 = "Varar Ring",
-        legs = HercLegsPET,
         feet = "Punchinellos",
         back = "Dispersal Mantle"
     }
 
     sets.midcast.Pet.WSNoFTP = {
         neck = "Empath Necklace",
-        head = Relic_Head,
+        head = Relic_Pitre.Head_PRegen,
         body = "Tali'ah Manteel +2",
         waist = "Incarnation Sash",
-        hands = Empy_Hands,
+        hands = Empy_Karagoz.Hands,
         ring1 = "Thurandaut Ring",
         ring2 = "Varar Ring +1",
-        legs = "Kara. Pantaloni +1",
+        legs = Empy_Karagoz.Legs_Combat,
         feet = "Naga Kyahan",
-        back = JSECAPEPetHaste
+        back = Visucius.PetDT
     }
 
     sets.midcast.Pet.WSFTP = {
         neck = "Empath Necklace",
-        head = Empy_Head,
+        head = Empy_Karagoz.Head_PTPBonus,
         body = "Tali'ah Manteel +2",
         waist = "Incarnation Sash",
-        hands = Empy_Hands,
+        hands = Empy_Karagoz.Hands,
         ring1 = "Thurandaut Ring",
         ring2 = "Varar Ring",
-        legs = "Kara. Pantaloni +1",
+        legs = Empy_Karagoz.Legs_Combat,
         feet = "Naga Kyahan",
         back = "Dispersal Mantle"
     }
@@ -558,15 +558,15 @@ function init_gear_sets()
     sets.midcast.Pet.WS["VIT"] =
         set_combine(
         sets.midcast.Pet.WeaponSkill,
-        {head = Empy_Head, legs = HercLegsPET, waist = "Incarnation Sash", feet = HercBootBone}
+        {head = Empy_Karagoz.Head_PTPBonus, waist = "Incarnation Sash"}
     )
     -- Cannibal Blade
     sets.midcast.Pet.WS["MND"] = set_combine(sets.midcast.Pet.WeaponSkill, {})
     -- Armor Piercer, Armor Shatterer
-    sets.midcast.Pet.WS["DEX"] = set_combine(sets.midcast.Pet.WeaponSkill, {legs = HercLegsPetDEX})
+    sets.midcast.Pet.WS["DEX"] = set_combine(sets.midcast.Pet.WeaponSkill, {legs = ""})
     -- Arcuballista, Daze
     sets.midcast.Pet.WS["DEXFTP"] =
-        set_combine(sets.midcast.Pet.WS["DEX"], {head = Empy_Head, back = "Dispersal Mantle"})
+        set_combine(sets.midcast.Pet.WS["DEX"], {head = Empy_Karagoz.Head_PTPBonus, back = "Dispersal Mantle"})
 
     ---------------------------------------------
     --  __  __ _             _____      _       
@@ -577,11 +577,11 @@ function init_gear_sets()
     -- |_|  |_|_|___/\___| |_____/ \___|\__|___/
     ---------------------------------------------
     -- Town Set
-    sets.idle.Town = sets.idle
+    sets.idle.Town = {}
 
     -- Resting sets
     sets.resting = {
-        head = Relic_Head,
+        head = Relic_Pitre.Head_PRegen,
         neck = "Wiglen Gorget",
         ring1 = "Sheltered Ring",
         ring2 = "Paguroidea Ring"
@@ -603,7 +603,7 @@ function init_gear_sets()
     }
 
     sets.defense.PDT = {
-        head = Relic_Head,
+        head = Relic_Pitre.Head_PRegen,
         body = "Udug Jacket",
         hands = "Herculean Gloves",
         legs = "Herculean Trousers",
@@ -618,7 +618,7 @@ function init_gear_sets()
     }
 
     sets.defense.MDT = {
-        head = Relic_Head,
+        head = Relic_Pitre.Head_PRegen,
         body = "Udug Jacket",
         hands = "Herculean Gloves",
         legs = "Herculean Trousers",
@@ -854,8 +854,7 @@ end
 --Used to calculate the Hybrid State of you and your pet
 function TotalSCalc()
 
-
-    if state.PetModeCycle.value == const_dd then
+    if state.PetModeCycle.current == const_dd then
         if buffactive['Overdrive'] then
             Hybrid_State = const_stateOverdrive
         elseif Master_State == const_stateIdle and Pet_State == const_stateIdle then
@@ -867,14 +866,13 @@ function TotalSCalc()
         elseif Master_State == const_stateEngaged and Pet_State == const_stateIdle then
             Hybrid_State = const_masterOnly
         end
-    elseif state.PetModeCycle.value == const_tank then
+    elseif state.PetModeCycle.current == const_tank then
         if Pet_State == const_stateIdle then
             Hybrid_State = const_stateIdle
         else
             Hybrid_State = const_tank
         end
-    else
-        Pet_State = const_mage
+    elseif state.PetModeCycle.current == const_mage then
         if Master_State == const_stateIdle then
             Hybrid_State = const_stateIdle
         else
@@ -885,7 +883,7 @@ end
 
 --Determines Gear based on that Hybrid Set
 function determineGearSet()
-    if state.PetModeCycle.value == const_tank then
+    if state.PetModeCycle.current == const_tank then
         equip(sets.pet.Tank)
     elseif Hybrid_State == const_stateIdle then
         equip(sets.idle)
@@ -1058,6 +1056,7 @@ end
 function job_aftercast(spell,action)
     
     if spell.name == null then
+        determineGearSet()
         return -- Cancel Aftercast for out of range/unable to see.
     end
 
@@ -1077,7 +1076,7 @@ function job_status_change(new,old)
         TotalSCalc()
         add_to_chat(392,'*-*-*-*-*-*-*-*-* [ Engaged ] *-*-*-*-*-*-*-*-*')
     else
-        Master_State=const_stateIdle
+        Master_State= const_stateIdle
         TotalSCalc()
         add_to_chat(392,'*-*-*-*-*-*-*-*-* [ Idle ] *-*-*-*-*-*-*-*-*')
     end
@@ -1092,7 +1091,7 @@ function job_pet_status_change(new,old)
         TotalSCalc()
         add_to_chat(392,'*-*-*-*-*-*-*-*-* [ Pet Engaged ] *-*-*-*-*-*-*-*-*')
     else
-        Pet_State=const_stateIdle
+        Pet_State = const_stateIdle
         TotalSCalc()
         add_to_chat(392,'*-*-*-*-*-*-*-*-* [ Pet Idle ] *-*-*-*-*-*-*-*-*')
     end
@@ -1146,16 +1145,22 @@ end
 -- Toggles -- SE Macros: /console gs c "command" [case sensitive]
 function job_self_command(command, eventArgs)
     
-    if command[1]:tolower() == 'automan' then
+    if command[1]:lower() == 'automan' then
         state.AutoMan:toggle()
         refreshWindow()
-    elseif command[1]:tolower() == 'debug' then
+    elseif command[1]:lower() == 'debug' then
         d_mode = not d_mode
         refreshWindow()
-    elseif command[1]:tolower() == 'predict' then
+    elseif command[1]:lower() == 'predict' then
         determinePuppetType()
         refreshWindow()
     end
+
+end
+
+-- Called any time we attempt to handle automatic gear equips (ie: engaged or idle gear).
+function job_handle_equipping_gear(playerStatus, eventArgs)    
+
 
 end
 
@@ -1165,7 +1170,7 @@ windower.register_event('prerender', function()
     if os.time() > time_start then
         time_start = os.time()
 
-        if ActualMode == const_tank and Pet_State == const_stateEngaged then
+        if state.PetModeCycle.current == const_tank and Pet_State == const_stateEngaged then
             if buffactive['Fire Maneuver'] and pet.attachments.strobe then
                 if Strobe_Recast == 0 then
                     equip(sets.pet.Enmity)
@@ -1274,10 +1279,8 @@ function job_state_change(stateField, newValue, oldValue)
             state.PetStyleCycle = state.PetStyleCycleDD
         end
 
-        ActualSubMode = state.PetStyleCycle.value
         refreshWindow()
     elseif stateField == const_PetStyleCycle then
-        ActualSubMode = newValue
         refreshWindow()
     elseif stateField == 'Auto Maneuver' then
         refreshWindow()
