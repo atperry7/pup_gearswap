@@ -10,7 +10,7 @@
 -----------------------------------------------------------------------------------------
 --Created By: Faloun
 --Modified By: Arrchie
---Contributions From: Kuroganashi, Xilkk
+--Contributions From: Kuroganashi, Xilkk, Byrne, Blackhalo714
 --ASCII Art Generator: http://www.network-science.de/ascii/
 
 --Auto Maneuvers Toggle:
@@ -39,6 +39,7 @@
 --Lock Pet DT Set
 --ALT+D Will disable all slots and lock your Pet DT set in place
 
+
 -- Initialization function for this job file.
 -- IMPORTANT: Make sure to also get the Mote-Include.lua file (and its supplementary files) to go with this.
 function get_sets()
@@ -62,6 +63,10 @@ function user_setup()
     -- Ctrl-F11 - Cycle Casting Mode.
     -- F12 - Update currently equipped gear, and report current status.
     -- Ctrl-F12 - Cycle Idle Mode.
+    state.OffenseMode:options('MasterAcc', 'PetAcc', 'MasterTP', 'PetTP')
+    state.HybridMode:options('Acc', 'TP', 'DT')
+    state.IdleMode:options('MasterDT', 'PetDT')
+    state.PhysicalDefenseMode:options('MasterDT', 'PetDT')
     
     --Various Cycles for the different types of PetModes
     state.PetStyleCycleTank = M{"NORMAL", "DD", "PDT", "MDT", "RANGE"}
@@ -992,8 +997,8 @@ end
 
 --Various Timers that get reset when you zone
 function reset_timers()
-    Current_Maneuver = 0
     state.AutoMan:reset()
+    Current_Maneuver = 0
     refreshWindow()
 end
 
@@ -1056,7 +1061,6 @@ end
 function job_aftercast(spell,action)
     
     if spell.name == null then
-        determineGearSet()
         return -- Cancel Aftercast for out of range/unable to see.
     end
 
@@ -1068,6 +1072,7 @@ function job_aftercast(spell,action)
     else
         determineGearSet()
     end
+
 end
  
 function job_status_change(new,old)
@@ -1122,7 +1127,8 @@ function job_buff_change(status,gain_or_loss, buff_table)
     end
 
     --Now we can turn on and off the functionailty of automatically maintaining manuevers
-    if state.AutoMan.value then
+    --Also, make sure your not dead, so we don't attempt to recast Maneuvers
+    if state.AutoMan.value and player.hp > 0 then
         if status:contains("Maneuver") and gain_or_loss == false and Current_Maneuver < 3 then
             send_command('input /ja "'..status..'" <me>')
         end
@@ -1171,13 +1177,13 @@ windower.register_event('prerender', function()
         time_start = os.time()
 
         if state.PetModeCycle.current == const_tank and Pet_State == const_stateEngaged then
-            if buffactive['Fire Maneuver'] and pet.attachments.strobe then
+            if buffactive['Fire Maneuver'] and pet.attachments.strobe == true then
                 if Strobe_Recast == 0 then
                     equip(sets.pet.Enmity)
                 end
             end
 
-            if buffactive['Light Maneuver'] and pet.attachments.flashbulb then
+            if buffactive['Light Maneuver'] and pet.attachments.flashbulb == true then
                 if Flashbulb_Recast == 0 then
                     equip(sets.pet.Enmity)
                 end
@@ -1192,14 +1198,8 @@ windower.register_event('prerender', function()
             Flashbulb_Recast = Flashbulb_Timer -(os.time() - Flashbulb_Time)
         end
 
-        if state.PetModeCycle.value == const_tank then
-            -- Nothing
-        elseif Hybrid_State == const_petOnly or Hybrid_State == const_stateOverdrive then
-            if pet.tp >= 950 then
-                equip(sets.midcast.Pet.WeaponSkill)
-            end
-        else
-            determineGearSet()
+        if pet.tp >= 1000 then
+            equip(sets.midcast.Pet.WeaponSkill)
         end
 
         TotalSCalc()
