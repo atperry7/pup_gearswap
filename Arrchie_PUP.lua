@@ -1,7 +1,17 @@
+----------------------------------------------------------------------------------------
+--  __  __           _                     __   _____                        _       
+-- |  \/  |         | |                   / _| |  __ \                      | |      
+-- | \  / | __ _ ___| |_ ___ _ __    ___ | |_  | |__) |   _ _ __  _ __   ___| |_ ___ 
+-- | |\/| |/ _` / __| __/ _ \ '__|  / _ \|  _| |  ___/ | | | '_ \| '_ \ / _ \ __/ __|
+-- | |  | | (_| \__ \ ||  __/ |    | (_) | |   | |   | |_| | |_) | |_) |  __/ |_\__ \
+-- |_|  |_|\__,_|___/\__\___|_|     \___/|_|   |_|    \__,_| .__/| .__/ \___|\__|___/
+--                                                         | |   | |                 
+--                                                         |_|   |_|                 
+-----------------------------------------------------------------------------------------
 --Created By: Faloun
 --Modified By: Arrchie
 --Contributions From: Kuroganashi, Xilkk
-local player = windower.ffxi.get_player()
+--ASCII Art Generator: http://www.network-science.de/ascii/
 
 --Auto Maneuvers Toggle:
 --Currently, the way this works is it will simply recast the maneuver that wears off. This way you can cast any maneuvers you want and it will simply attempt to maintain what you have active.
@@ -39,30 +49,42 @@ function get_sets()
 end
 
 function user_setup()
-    select_default_macro_book()
-    --Predict Puppet on initial Load
-    --Then attempt to Set the Pet Mode Cycle
-    --Then attempt to Set the Pet Style Cycle
+    -- Default Commands for Mote-Libs
+    -- F9 - Cycle Offense Mode (the offensive half of all 'hybrid' melee modes).
+    -- Ctrl-F9 - Cycle Hybrid Mode (the defensive half of all 'hybrid' melee modes).
+    -- Alt-F9 - Cycle Ranged Mode.
+    -- Win-F9 - Cycle Weaponskill Mode.
+    -- F10 - Activate emergency Physical Defense Mode. Replaces Magical Defense Mode, if that was active.
+    -- F11 - Activate emergency Magical Defense Mode. Replaces Physical Defense Mode, if that was active.
+    -- Ctrl-F10 - Cycle type of Physical Defense Mode in use.
+    -- Alt-F12 - Turns off any emergency defense mode.
+    -- Alt-F10 - Toggles Kiting Mode.
+    -- Ctrl-F11 - Cycle Casting Mode.
+    -- F12 - Update currently equipped gear, and report current status.
+    -- Ctrl-F12 - Cycle Idle Mode.
+    
+    --Various Cycles for the different types of PetModes
     state.PetStyleCycleTank = M{"NORMAL", "DD", "PDT", "MDT", "RANGE"}
     state.PetStyleCycleMage = M{"NORMAL", "HEAL", "SUPPORT", "MB", "DD"}
     state.PetStyleCycleDD = M{"NORMAL", "BONE", "SPAM", "OD", "ODACC"}
 
+    --The actual Pet Mode and Pet Style cycles
     state.PetModeCycle = M{"TANK", "DD", "MAGE"}
+    --Default to tanking set for now
     state.PetStyleCycle = state.PetStyleCycleTank
-
-    ActualMode = state.PetModeCycle.value
-    ActualSubMode = state.PetStyleCycle.value
- 
+    
+    --Toggles
     state.AutoMan = M(false, "Auto Maneuver")
     state.LockPetDT = M(false, "Lock Pet DT")
-
+    
     send_command('bind !f7 gs c cycle PetModeCycle')
     send_command('bind ^f7 gs c cycleback PetModeCycle')
     send_command('bind !f8 gs c cycle PetStyleCycle')
     send_command('bind ^f8 gs c cycleback PetStyleCycle')
     send_command('bind !e gs c toggle AutoMan')
     send_command('bind !d gs c toggle LockPetDT')
-
+    
+    select_default_macro_book()
 end
 
 function file_unload()
@@ -75,114 +97,74 @@ function file_unload()
 end
 
 function job_setup()
-    -- Attempts to figure what puppet you may have equipped
-    -- determinePuppetType()
-
     -- Adjust the X (horizontal) and Y (vertical) position here to adjust the window 
     setupTextWindow(1400, 600)
 end
 
 function init_gear_sets()
 
-    AF_Head = "Foire Taj +1"
-    AF_Body = "Foire Tobe"
-    AF_Hands = "Foire Dastanas"
-    AF_Legs = "Foire Churidars +1"
-    AF_Feet = "Foire Babouches"
+    --Table of Contents
+    ---Gear Variables
+    ---Master Only Sets
+    ---Hybrid Only Sets
+    ---Pet Only Sets
+    ---Misc Sets
 
-    Relic_Head = "Pitre Taj +1"
-    Relic_Body = "Pitre Tobe"
-    Relic_Hands = "Pitre Dastanas"
-    Relic_Legs = ""
-    Relic_Feet = ""
+    -------------------------------------------------------------------------
+    --  _____                  __      __        _       _     _           
+    -- / ____|                 \ \    / /       (_)     | |   | |          
+    --| |  __  ___  __ _ _ __   \ \  / /_ _ _ __ _  __ _| |__ | | ___  ___ 
+    --| | |_ |/ _ \/ _` | '__|   \ \/ / _` | '__| |/ _` | '_ \| |/ _ \/ __|
+    --| |__| |  __/ (_| | |       \  / (_| | |  | | (_| | |_) | |  __/\__ \
+    -- \_____|\___|\__,_|_|        \/ \__,_|_|  |_|\__,_|_.__/|_|\___||___/
+    -------------------------------------------------------------------------
+    --This section is best ultilized for defining gear that is used among multiple sets
 
-    Empy_Head = "Karagoz Capello"
-    Empy_Body = "Karagoz Farsetto"
-    Empy_Hands = "Cirque Guanti +1"
-    Empy_Legs = "Cirq. Pantaloni +1"
-    Empy_Feet = ""
+    Animators = {}
+    Animators.Range = "Animator P II"
+    Animators.Melee = "Animator P"
+
+    --Adjust to your reforge level
+    --Sets up a Key, Value Pair
+    Artifact_Foire = {}
+    Artifact_Foire.Head_PRegen = "Foire Taj +1"
+    Artifact_Foire.Body_WSD_PTank = "Foire Tobe"
+    Artifact_Foire.Hands_Mane_Overload = "Foire Dastanas"
+    Artifact_Foire.Legs_PCure = "Foire Churidars +1"
+    Artifact_Foire.Feet_Repair_PMagic = "Foire Babouches"
+
+    Relic_Pitre = {}
+    Relic_Pitre.Head_PRegen = "Pitre Taj +1" --Enhances Optimization
+    Relic_Pitre.Body_PTP = "Pitre Tobe" --Enhances Overdrive
+    Relic_Pitre.Hands_WSD = "Pitre Dastanas" --Enhances Fine-Tuning
+    Relic_Pitre.Legs_PMagic = "Pitre Churidars" --Enhances Ventriloquy
+    Relic_Pitre.Feet_PMagic = "Pitre Babouches" --Role Reversal 
+
+    Empy_Karagoz = {}
+    Empy_Karagoz.Head_PTPBonus = "Karagoz Capello"
+    Empy_Karagoz.Body_Overload = "Karagoz Farsetto"
+    Empy_Karagoz.Hands = "Karagoz Guanti"
+    Empy_Karagoz.Legs_Combat = "Karagoz Pantaloni"
+    Empy_Karagoz.Feet_Tatical = "Karagoz Scarpe"
 
     Visucius = {}
-    Visucius.DT = {
-        name = "Visucius's Mantle",
-        augments = {
-            "Pet: Acc.+20 Pet: R.Acc.+20 Pet: Atk.+20 Pet: R.Atk.+20",
-            "Accuracy+20 Attack+20",
-            "Pet: Accuracy+4 Pet: Rng. Acc.+4",
-            'Pet: "Regen"+10',
-            "Pet: Damage taken -5%"
-        }
-    }
+    Visucius.PetDT = { name = "Visucius's Mantle", augments = {"Pet: Acc.+20 Pet: R.Acc.+20 Pet: Atk.+20 Pet: R.Atk.+20","Accuracy+20 Attack+20","Pet: Accuracy+4 Pet: Rng. Acc.+4", 'Pet: "Regen"+10',"Pet: Damage taken -5%"  } }
+    Visucius.PetMagic = { name = "Visucius's Mantle", augments = {"Pet: Acc.+20 Pet: R.Acc.+20 Pet: Atk.+20 Pet: R.Atk.+20","Accuracy+20 Attack+20","Pet: Accuracy+4 Pet: Rng. Acc.+4", 'Pet: "Regen"+10',"Pet: Damage taken -5%"  } }
 
-    HercHeadSTR = {
-        name = "Herculean Helm",
-        augments = {"Accuracy+28", "Weapon skill damage +4%", "STR+11", "Attack+13"}
-    }
-    HercHeadPDT = {name = "Herculean Helm", augments = {"CHR+7", "Accuracy+29", "Phys. dmg. taken -4%"}}
-    HercHeadMAB = {
-        name = "Herculean Helm",
-        augments = {'Mag. Acc.+20 "Mag.Atk.Bns."+20', "Phys. dmg. taken -2%", '"Mag.Atk.Bns."+15'}
-    }
-    HercBootMAB = {
-        name = "Herculean Boots",
-        augments = {
-            'Mag. Acc.+18 "Mag.Atk.Bns."+18',
-            "Magic burst mdg.+4%",
-            "MND+2",
-            "Mag. Acc.+10",
-            '"Mag.Atk.Bns."+14'
-        }
-    }
-    HercBootAcc = {
-        name = "Herculean Boots",
-        augments = {"MND+9", "Pet: STR+8", '"Treasure Hunter"+2', "Accuracy+18 Attack+18"}
-    }
-    HercBootDEX = {name = "Herculean Boots", augments = {"Attack+18", '"Triple Atk."+3', "DEX+10"}}
 
-    --- DT
-    HercLegsPDT = {name = "Herculean Trousers", augments = {"Damage taken-3%", "Attack+3"}}
-    HercGlovesPDT = {name = "Herculean Gloves", augments = {"Phys. dmg. taken -5%", "Accuracy+2"}}
-    HercBootsPDT = {name = "Herculean Boots", augments = {"Damage taken-2%", "STR+9", "Attack+7"}}
+    --------------------------------------------------------------------------------
+    --  __  __           _               ____        _          _____      _       
+    -- |  \/  |         | |             / __ \      | |        / ____|    | |      
+    -- | \  / | __ _ ___| |_ ___ _ __  | |  | |_ __ | |_   _  | (___   ___| |_ ___ 
+    -- | |\/| |/ _` / __| __/ _ \ '__| | |  | | '_ \| | | | |  \___ \ / _ \ __/ __|
+    -- | |  | | (_| \__ \ ||  __/ |    | |__| | | | | | |_| |  ____) |  __/ |_\__ \
+    -- |_|  |_|\__,_|___/\__\___|_|     \____/|_| |_|_|\__, | |_____/ \___|\__|___/
+    --                                                  __/ |                      
+    --                                                 |___/                       
+    ---------------------------------------------------------------------------------
+    --This section is best utilized for Master Sets
 
-    HercBootBone = {
-        name = "Herculean Boots",
-        augments = {"Pet: Accuracy+5 Pet: Rng. Acc.+5", 'Pet: "Dbl.Atk."+2 Pet: Crit.hit rate +2', "Pet: VIT+5"}
-    }
-
-    HercLegsPET = {
-        name = "Herculean Trousers",
-        augments = {"Pet: Attack+21 Pet: Rng.Atk.+21", 'Pet: "Store TP"+10', "Pet: VIT+7"}
-    }
-    HercLegsPetDEX = {
-        name = "Herculean Trousers",
-        augments = {"Pet: Attack+10 Pet: Rng.Atk.+10", "Pet: DEX+10", 'Pet: "Mag.Atk.Bns."+3'}
-    }
-
-    JSECAPEPetHaste = {
-        name = "Visucius's Mantle",
-        augments = {
-            "Pet: Acc.+20 Pet: R.Acc.+20 Pet: Atk.+20 Pet: R.Atk.+20",
-            "Accuracy+20 Attack+20",
-            "Pet: Haste+10",
-            "System: 1 ID: 1247 Val: 2"
-        }
-    }
-    JSECAPESTR = {
-        name = "Visucius's Mantle",
-        augments = {"STR+20", "Accuracy+20 Attack+20", "STR+5", "Crit.hit rate+10"}
-    }
-
-    -- RAO WS
-    RAOWShead = {name = "Rao Kabuto", augments = {"STR+10", "DEX+10", "Attack+15"}}
-    RAOWShands = {name = "Rao Kote", augments = {"Accuracy+10", "Attack+10", "Evasion+15"}}
-    RAOWSlegs = {name = "Rao Haidate", augments = {"Accuracy+20", '"Dbl.Atk."+3', "Pet: Accuracy+20"}}
-    RAOWSfeet = {name = "Rao Sune-Ate", augments = {"Accuracy+10", "Attack+10", "Evasion+15"}}
-
-    sets.precast = {}
-
-    -- Precast Sets
-
-    -- Fast cast sets for spells
+    -------------------------------------Fastcast
     sets.precast.FC = {
         head = "Haruspex Hat",
         body = "Zendik Robe",
@@ -195,26 +177,44 @@ function init_gear_sets()
         neck = "Orunmila's Torque"
     }
 
+    -------------------------------------Midcast
+    sets.midcast = {} -- Initilization Keep Empty
+
+    sets.midcast.FastRecast = {
+        head = "Haruspex Hat",
+        ear2 = "Loquacious Earring",
+        body = "Otronif Harness +1",
+        hands = "Regimen Mittens",
+        legs = "Manibozho Brais",
+        feet = "Otronif Boots +1"
+    }
+
+    -------------------------------------Kiting
+    sets.Kiting = {feet = "Hermes' Sandals"}
+
+    -------------------------------------JA
     sets.precast.FC.Utsusemi = set_combine(sets.precast.FC, {neck = "Magoraga Beads"})
 
-    sets.precast.JA = {}
+    sets.precast.JA = {} -- Initilization Keep Empty
     -- Precast sets to enhance JAs
-    sets.precast.JA["Tactical Switch"] = {feet = Empy_Feet}
-    sets.precast.JA["Ventriloquy"] = {legs = Relic_Legs}
-    sets.precast.JA["Role Reversal"] = {feet = Relic_Feet}
-    sets.precast.JA["Overdrive"] = {feet = Relic_Body}
+    sets.precast.JA["Tactical Switch"] = {feet = Empy_Karagoz.Feet_PMagic}
+    sets.precast.JA["Ventriloquy"] = {legs = Relic_Pitre.Legs_PMagic}
+    sets.precast.JA["Role Reversal"] = {feet = Relic_Pitre.Feet_PMagic}
+    sets.precast.JA["Overdrive"] = {body = Relic_Pitre.Body_PTP}
 
-    sets.precast.JA["Repair"] = {feet = "Foire Babouches", "Guignol Earring"}
+    sets.precast.JA["Repair"] = {
+        feet = Artifact_Foire.Feet_Repair_PMagic, "Guignol Earring"
+    }
 
     sets.precast.JA.Maneuver = {
         neck = "Buffoon's Collar +1",
-        body = Empy_Body,
-        hands = AF_Hands,
-        back = Visucius.DT,
+        body = Empy_Karagoz.Body_Overload,
+        hands = Artifact_Foire.Hands_Mane_Overload,
+        back = Visucius.PetDT,
         ear1 = "Burana Earring"
     }
 
-    sets.precast.JA["Activate"] = {back = "Visucius's Mantle"}
+    sets.precast.JA["Activate"] = {back = Visucius.PetDT}
     sets.precast.JA["Deus Ex Automata"] = sets.precast.JA["Activate"]
 
     sets.precast.JA["Provoke"] = {
@@ -225,7 +225,7 @@ function init_gear_sets()
         ring1 = "Provocare Ring"
     }
 
-    -- Waltz set (chr and vit)
+    --Waltz set (chr and vit)
     sets.precast.Waltz = {
         head = "Whirlpool Mask",
         ear1 = "Roundel Earring",
@@ -237,9 +237,9 @@ function init_gear_sets()
         feet = "Thurandaut Boots +1"
     }
 
-    -- Don't need any special gear for Healing Waltz.
     sets.precast.Waltz["Healing Waltz"] = {}
 
+    -------------------------------------WS
     -- Weaponskill sets
     -- Default set for any weaponskill that isn't any more specifically defined
     sets.precast.WS = {
@@ -248,12 +248,11 @@ function init_gear_sets()
         ear1 = "Ishvara Earring",
         ear2 = "Moonshade Earring",
         body = "Abnoba Kaftan",
-        hands = Relic_Hands,
+        hands = Relic_Pitre.Hands_WSD,
         ring1 = "Shukuyu Ring",
         ring2 = "Rufescent Ring",
-        back = JSECAPESTR,
         waist = "Moonbow Belt",
-        legs = Relic_Legs,
+        legs = Relic_Pitre.Legs_PMagic,
         feet = "Ryuo Sune-Ate"
     } --"Hiza. Hizayoroi +2"
 
@@ -267,10 +266,10 @@ function init_gear_sets()
         set_combine(
         sets.precast.WS,
         {
-            head = Relic_Head,
-            body = Relic_Body,
-            hands = Relic_Hands,
-            legs = Relic_Legs,
+            head = Relic_Pitre.Head_PRegen,
+            body = Relic_Pitre.Body_PTP,
+            hands = Relic_Pitre.Hands_WSD,
+            legs = Relic_Pitre.Legs_PMagic,
             feet = "Heyoka leggings",
             ring1 = "Apate Ring",
             ring2 = "Petrov Ring"
@@ -278,112 +277,25 @@ function init_gear_sets()
     )
 
     sets.precast.WS["Howling Fist"] = {
-        head = RAOWShead,
         neck = "Fotia Gorget",
         ear1 = "Ishvara Earring",
         ear2 = "Moonshade Earring",
-        body = AF_Body,
-        hands = Relic_Hands,
+        body = Artifact_Foire.Body_WSD_PTank,
+        hands = Relic_Pitre.Hands_WSD,
         ring1 = "Shukuyu Ring",
         ring2 = "Rufescent Ring",
-        back = JSECAPESTR,
         waist = "Moonbow Belt",
         legs = "Hiza. Hizayoroi +2",
         feet = "Ryuo Sune-Ate"
     }
+    
+    -------------------------------------Idle
+    sets.idle = {} -- Initilization Keep Empty
 
-    -- Midcast Sets
-    sets.midcast = {}
-    sets.midcast.FastRecast = {
-        head = "Haruspex Hat",
-        ear2 = "Loquacious Earring",
-        body = "Otronif Harness +1",
-        hands = "Regimen Mittens",
-        legs = "Manibozho Brais",
-        feet = "Otronif Boots +1"
-    }
-
-    -- Midcast sets for pet actions
-    sets.midcast.Pet = {}
-    sets.midcast.Pet.Cure = {legs = AF_Legs}
-
-    sets.midcast.Pet["Elemental Magic"] = {
-        feet = "Naga Kyahan",
-        ear1 = "Burana Earring",
-        ear2 = "Cirque Earring",
-        legs = Relic_Legs
-    }
-
-    sets.midcast.Pet.WeaponSkillNoAcc = {
-        neck = "Empath Necklace",
-        head = Empy_Head,
-        body = "Tali'ah Manteel +2",
-        waist = "Incarnation Sash",
-        hands = Empy_Hands,
-        ring1 = "Varar Ring",
-        ring2 = "Varar Ring",
-        legs = HercLegsPET,
-        feet = "Punchinellos",
-        back = "Dispersal Mantle"
-    }
-    sets.midcast.Pet.WSNoFTP = {
-        neck = "Empath Necklace",
-        head = Relic_Head,
-        body = "Tali'ah Manteel +2",
-        waist = "Incarnation Sash",
-        hands = Empy_Hands,
-        ring1 = "Thurandaut Ring",
-        ring2 = "Varar Ring +1",
-        legs = "Kara. Pantaloni +1",
-        feet = "Naga Kyahan",
-        back = JSECAPEPetHaste
-    }
-    sets.midcast.Pet.WSFTP = {
-        neck = "Empath Necklace",
-        head = Empy_Head,
-        body = "Tali'ah Manteel +2",
-        waist = "Incarnation Sash",
-        hands = Empy_Hands,
-        ring1 = "Thurandaut Ring",
-        ring2 = "Varar Ring",
-        legs = "Kara. Pantaloni +1",
-        feet = "Naga Kyahan",
-        back = "Dispersal Mantle"
-    }
-    sets.midcast.Pet.WeaponSkill = sets.midcast.Pet.WSNoFTP
-    sets.midcast.Pet.WS = {}
-    --Chimera Ripper, String Clipper
-    sets.midcast.Pet.WS["STR"] = set_combine(sets.midcast.Pet.WeaponSkill, {})
-    -- Bone crusher, String Shredder
-    sets.midcast.Pet.WS["VIT"] =
-        set_combine(
-        sets.midcast.Pet.WeaponSkill,
-        {head = Empy_Head, legs = HercLegsPET, waist = "Incarnation Sash", feet = HercBootBone}
-    )
-    -- Cannibal Blade
-    sets.midcast.Pet.WS["MND"] = set_combine(sets.midcast.Pet.WeaponSkill, {})
-    -- Armor Piercer, Armor Shatterer
-    sets.midcast.Pet.WS["DEX"] = set_combine(sets.midcast.Pet.WeaponSkill, {legs = HercLegsPetDEX})
-    -- Arcuballista, Daze
-    sets.midcast.Pet.WS["DEXFTP"] =
-        set_combine(sets.midcast.Pet.WS["DEX"], {head = Empy_Head, back = "Dispersal Mantle"})
-
-    -- Sets to return to when not performing an action.
-
-    -- Resting sets
-    sets.resting = {
-        head = Relic_Head,
-        neck = "Wiglen Gorget",
-        ring1 = "Sheltered Ring",
-        ring2 = "Paguroidea Ring"
-    }
-
-    -- Idle sets
-
-    sets.idle = {
+    sets.idle.Normal = {
         range = "Animator P +1",
         ammo = "Automat. Oil +3",
-        head = Relic_Head,
+        head = Relic_Pitre.Head_PRegen,
         body = "Udug Jacket",
         hands = "Tali'ah Gages +1",
         legs = "Tali'ah Sera. +1",
@@ -395,120 +307,8 @@ function init_gear_sets()
         left_ring = "Thurandaut Ring",
         right_ring = "Varar Ring +1"
     }
-
-    sets.idle.Town = sets.idle
-
-    ------------------------------------------------------------------ PET SETS
-    -- Set for idle while pet is out (eg: pet regen gear)
-    sets.idle.Pet = sets.idle
-
-    -- Idle sets to wear while pet is engaged
-    sets.idle.Pet.EngagedO = {
-        head = "Tali'ah Turban +1",
-        neck = "Empath Necklace",
-        ear1 = "Burana Earring",
-        ear2 = "Domes. Earring",
-        body = Relic_Body,
-        hands = "Tali'ah Gages +1",
-        ring1 = "Varar Ring",
-        ring2 = "Varar Ring",
-        back = JSECAPEPetHaste,
-        waist = "Incarnation Sash",
-        legs = HercLegsPET,
-        feet = "Herculean Boots"
-    }
-
-    sets.idle.Pet.Engaged = sets.idle.Pet.EngagedO
-    sets.idle.Pet.Engaged.Ranged = set_combine(sets.idle.Pet.Engaged, {legs = "Kara. Pantaloni +1"})
-
-    sets.idle.Pet.Engaged.Nuke =
-        set_combine(sets.idle.Pet.Engaged, {legs = Relic_Legs, feet = Relic_Feet, ear1 = "Burana Earring"})
-
-    sets.idle.Pet.Engaged.Magic =
-        set_combine(sets.idle.Pet.Engaged, {legs = Relic_Legs, feet = Relic_Feet, ear1 = "Burana Earring"})
-
-    sets.petTank = {
-        ammo = "Automat. Oil +3",
-        head = {name = "Anwig Salade", augments = {"Attack+3", "Pet: Damage taken -10%", "Attack+3", 'Pet: "Regen"+1'}},
-        body = {name = "Taeon Tabard", augments = {"Pet: Evasion+21", 'Pet: "Dbl. Atk."+4', "Pet: Damage taken -4%"}},
-        hands = "Tali'ah Gages +1",
-        legs = "Tali'ah Sera. +1",
-        feet = "Tali'ah Crackows +1",
-        neck = "Pup. Collar",
-        waist = "Klouskap Sash",
-        left_ear = "Handler's Earring",
-        right_ear = "Handler's Earring +1",
-        left_ring = "Thurandaut Ring",
-        right_ring = "Varar Ring +1",
-        back = Visucius.DT
-    }
-
-    sets.petEnmity = {
-        head = "Heyoka Cap",
-        body = "Heyoka Harness",
-        hands = "Heyoka Mittens",
-        legs = "Heyoka Subligar",
-        feet = "Heyoka Leggings",
-        ear1 = "Domesticator's Earring"
-    }
-
-    -- Defense sets
-    sets.defense = {}
-    sets.defense.Evasion = {
-        head = "Whirlpool Mask",
-        neck = "Loricate Torque",
-        body = "Otronif Harness +1",
-        hands = "Otronif Gloves",
-        ring1 = "Defending Ring",
-        ring2 = "Beeline Ring",
-        back = "Ik Cape",
-        waist = "Incarnation Sash",
-        legs = "Nahtirah Trousers",
-        feet = "Otronif Boots +1"
-    }
-
-    sets.defense.PDT = {
-        head = Relic_Head,
-        body = "Udug Jacket",
-        hands = "Herculean Gloves",
-        legs = "Herculean Trousers",
-        feet = "Herculean Boots",
-        neck = "Warder's Charm +1",
-        waist = "Moonbow Belt",
-        left_ear = "Dominance Earring",
-        right_ear = "Handler's Earring +1",
-        left_ring = "Supershear Ring",
-        right_ring = "Kunaji Ring",
-        back = "Moonbeam Cape"
-    }
-
-    sets.defense.MDT = {
-        head = Relic_Head,
-        body = "Udug Jacket",
-        hands = "Herculean Gloves",
-        legs = "Herculean Trousers",
-        feet = "Herculean Boots",
-        neck = "Warder's Charm +1",
-        waist = "Moonbow Belt",
-        left_ear = "Dominance Earring",
-        right_ear = "Handler's Earring +1",
-        left_ring = "Supershear Ring",
-        right_ring = "Kunaji Ring",
-        back = "Moonbeam Cape"
-    }
-
-    sets.Kiting = {feet = "Hermes' Sandals"}
-
-    -- Engaged sets
-
-    -- Variations for TP weapon and (optional) offense/defense modes.  Code will fall back on previous
-    -- sets if more refined versions aren't defined.
-    -- If you create a set with both offense and defense modes, the offense mode should be first.
-    -- EG: sets.engaged.Dagger.Accuracy.Evasion
-
-    -- Normal melee group
-    sets.aftercast = sets.idle
-
+    
+    -------------------------------------Engaged
     sets.engaged = {
         head="Heyoka Cap",
         body="Tali'ah Manteel +2",
@@ -522,6 +322,7 @@ function init_gear_sets()
         left_ring="Varar Ring +1",
         right_ring="Chirich Ring",
     }
+    
     sets.engagedN = {
         head="Heyoka Cap",
         body="Tali'ah Manteel +2",
@@ -535,6 +336,7 @@ function init_gear_sets()
         left_ring="Varar Ring +1",
         right_ring="Chirich Ring",
     }
+    
     sets.engagedMO = {
         head="Heyoka Cap",
         body="Tali'ah Manteel +2",
@@ -562,8 +364,9 @@ function init_gear_sets()
         left_ring="Varar Ring +1",
         right_ring="Chirich Ring",
     }
+    
     sets.engaged.DT = {
-        head = Relic_Head,
+        head = Relic_Pitre.Head_PRegen,
         body = "Udug Jacket",
         hands = "Herculean Gloves",
         legs = "Herculean Trousers",
@@ -576,8 +379,9 @@ function init_gear_sets()
         right_ring = "Kunaji Ring",
         back = "Moonbeam Cape"
     }
+
     sets.engaged.Acc.DT = {
-        head = Relic_Head,
+        head = Relic_Pitre.Head_PRegen,
         body = "Udug Jacket",
         hands = "Herculean Gloves",
         legs = "Herculean Trousers",
@@ -590,6 +394,244 @@ function init_gear_sets()
         right_ring = "Kunaji Ring",
         back = "Moonbeam Cape"
     }
+
+    ----------------------------------------------------------------------------------
+    --  _    _       _          _     _    ____        _          _____      _       
+    -- | |  | |     | |        (_)   | |  / __ \      | |        / ____|    | |      
+    -- | |__| |_   _| |__  _ __ _  __| | | |  | |_ __ | |_   _  | (___   ___| |_ ___ 
+    -- |  __  | | | | '_ \| '__| |/ _` | | |  | | '_ \| | | | |  \___ \ / _ \ __/ __|
+    -- | |  | | |_| | |_) | |  | | (_| | | |__| | | | | | |_| |  ____) |  __/ |_\__ \
+    -- |_|  |_|\__, |_.__/|_|  |_|\__,_|  \____/|_| |_|_|\__, | |_____/ \___|\__|___/
+    --          __/ |                                     __/ |                      
+    --         |___/                                     |___/                       
+    -----------------------------------------------------------------------------------
+
+    -------------------------------------Idle
+    sets.hybrid = {}
+
+    -------------------------------------Engaged
+    sets.hybrid.engaged = {}
+    
+    -------------------------------------TP
+    sets.hybrid.engaged.TP = {}
+    
+    -------------------------------------Acc
+    sets.hybrid.engaged.Acc = {}
+    
+    -------------------------------------DT
+    sets.hybrid.DT = {}
+    
+    ----------------------------------------------------------------
+    --  _____     _      ____        _          _____      _       
+    -- |  __ \   | |    / __ \      | |        / ____|    | |      
+    -- | |__) |__| |_  | |  | |_ __ | |_   _  | (___   ___| |_ ___ 
+    -- |  ___/ _ \ __| | |  | | '_ \| | | | |  \___ \ / _ \ __/ __|
+    -- | |  |  __/ |_  | |__| | | | | | |_| |  ____) |  __/ |_\__ \
+    -- |_|   \___|\__|  \____/|_| |_|_|\__, | |_____/ \___|\__|___/
+    --                                  __/ |                      
+    --                                 |___/                       
+    ----------------------------------------------------------------
+    --This section for sets pretaining to Pets
+
+    sets.pet = {} -- Initilization Keep Empty
+
+    -------------------------------------TP
+
+    sets.pet.TP = {}
+
+    -------------------------------------DT
+    sets.pet.Tank = {
+        head={ name="Pitre Taj +1", augments={'Enhances "Optimization" effect',}},
+        body={ name="Taeon Tabard", augments={'Pet: Evasion+21','Pet: "Dbl. Atk."+4','Pet: Damage taken -4%',}},
+        hands={ name="Rao Kote", augments={'Pet: HP+100','Pet: Accuracy+15','Pet: Damage taken -3%',}},
+        legs="Tali'ah Sera. +1",
+        feet={ name="Rao Sune-Ate +1", augments={'Pet: HP+125','Pet: Accuracy+20','Pet: Damage taken -4%',}},
+        neck="Pup. Collar",
+        waist="Klouskap Sash",
+        left_ear="Handler's Earring",
+        right_ear="Handler's Earring +1",
+        left_ring="Thurandaut Ring",
+        right_ring="Tali'ah Ring",    
+        back = Visucius.DT
+    }
+    
+    -------------------------------------Magic Midcast
+    sets.midcast.Pet = {}
+    
+    sets.midcast.Pet.Cure = {ear2="Enmerkar Earring",ear1="Burana Earring",back=Visucius.PetMagic,legs="Foire Churidars +1",waist="Ukko Sash",neck="Adad Amulet"}
+ 
+    sets.midcast.Pet['Elemental Magic'] = {ear2="Enmerkar Earring",ear1="Burana Earring",back=Visucius.PetMagic,head="Tali'ah Turban +1",body="Tali'ah Manteel +1",hands="Naga Tekko",legs="Tali'ah Sera. +1",feet="Tali'ah Crackows +1",waist="Ukko Sash",neck="Adad Amulet"}
+
+    sets.midcast.Pet['Enfeebling Magic'] = {ear2="Enmerkar Earring",ear1="Burana Earring",back=Visucius.PetMagic,head="Tali'ah Turban +1",body="Tali'ah Manteel +1",hands="Naga Tekko",legs="Tali'ah Sera. +1",feet="Tali'ah Crackows +1",waist="Ukko Sash",neck="Adad Amulet"}
+ 
+    sets.midcast.Pet['Dark Magic'] = {ear2="Enmerkar Earring",ear1="Burana Earring",back=Visucius.PetMagic,head="Tali'ah Turban +1",body="Tali'ah Manteel +1",hands="Naga Tekko",legs="Tali'ah Sera. +1",feet="Tali'ah Crackows +1",waist="Ukko Sash",neck="Adad Amulet"}
+ 
+    sets.midcast.Pet['Divine Magic'] = {ear2="Enmerkar Earring",ear1="Burana Earring",back=Visucius.PetMagic,head="Tali'ah Turban +1",body="Tali'ah Manteel +1",hands="Naga Tekko",legs="Tali'ah Sera. +1",feet="Tali'ah Crackows +1",waist="Ukko Sash",neck="Adad Amulet"}
+ 
+    sets.midcast.Pet['Enhancing Magic'] = {ear2="Enmerkar Earring",ear1="Burana Earring",back=Visucius.PetMagic,head="Tali'ah Turban +1",body="Tali'ah Manteel +1",hands="Naga Tekko",legs="Tali'ah Sera. +1",feet="Tali'ah Crackows +1",waist="Ukko Sash",neck="Adad Amulet"}
+
+    -------------------------------------Idle
+    sets.idle.Pet = {} -- Initilization Keep Empty
+
+    sets.idle.PetRegen = {}
+
+    -------------------------------------Enmity
+    sets.pet.Enmity = {
+        head = "Heyoka Cap",
+        body = "Heyoka Harness",
+        hands = "Heyoka Mittens",
+        legs = "Heyoka Subligar",
+        feet = "Heyoka Leggings",
+        ear1 = "Domesticator's Earring"
+    }
+    
+    -------------------------------------Engaged
+    -- Idle sets to wear while pet is engaged
+    sets.idle.Pet.EngagedO = {
+        head = "Tali'ah Turban +1",
+        neck = "Empath Necklace",
+        ear1 = "Burana Earring",
+        ear2 = "Domes. Earring",
+        body = Relic_Pitre.Body_PTP,
+        hands = "Tali'ah Gages +1",
+        ring1 = "Varar Ring",
+        ring2 = "Varar Ring",
+        waist = "Incarnation Sash",
+        feet = "Herculean Boots"
+    }
+
+    sets.idle.Pet.Engaged = sets.idle.Pet.EngagedO
+
+    sets.idle.Pet.Engaged.Ranged = set_combine(sets.idle.Pet.Engaged, {legs = Empy_Karagoz.Legs_Combat})
+
+    sets.idle.Pet.Engaged.Nuke =
+        set_combine(sets.idle.Pet.Engaged, {legs = Relic_Pitre.Legs_PMagic, feet = Relic_Pitre.Feet_PMagic, ear1 = "Burana Earring"})
+    
+    sets.idle.Pet.Engaged.Magic =
+        set_combine(sets.idle.Pet.Engaged, {legs = Relic_Pitre.Legs_PMagic, feet = Relic_Pitre.Feet_PMagic, ear1 = "Burana Earring"})
+    
+
+    -------------------------------------WS
+    sets.midcast.Pet.WeaponSkillNoAcc = {
+        neck = "Empath Necklace",
+        head = Empy_Karagoz.Head_PTPBonus,
+        body = "Tali'ah Manteel +2",
+        waist = "Incarnation Sash",
+        hands = Empy_Karagoz.Hands,
+        ring1 = "Varar Ring",
+        ring2 = "Varar Ring",
+        feet = "Punchinellos",
+        back = "Dispersal Mantle"
+    }
+
+    sets.midcast.Pet.WSNoFTP = {
+        neck = "Empath Necklace",
+        head = Relic_Pitre.Head_PRegen,
+        body = "Tali'ah Manteel +2",
+        waist = "Incarnation Sash",
+        hands = Empy_Karagoz.Hands,
+        ring1 = "Thurandaut Ring",
+        ring2 = "Varar Ring +1",
+        legs = Empy_Karagoz.Legs_Combat,
+        feet = "Naga Kyahan",
+        back = Visucius.PetDT
+    }
+
+    sets.midcast.Pet.WSFTP = {
+        neck = "Empath Necklace",
+        head = Empy_Karagoz.Head_PTPBonus,
+        body = "Tali'ah Manteel +2",
+        waist = "Incarnation Sash",
+        hands = Empy_Karagoz.Hands,
+        ring1 = "Thurandaut Ring",
+        ring2 = "Varar Ring",
+        legs = Empy_Karagoz.Legs_Combat,
+        feet = "Naga Kyahan",
+        back = "Dispersal Mantle"
+    }
+
+    sets.midcast.Pet.WeaponSkill = sets.midcast.Pet.WSNoFTP
+    sets.midcast.Pet.WS = {}
+    --Chimera Ripper, String Clipper
+    sets.midcast.Pet.WS["STR"] = set_combine(sets.midcast.Pet.WeaponSkill, {})
+    -- Bone crusher, String Shredder
+    sets.midcast.Pet.WS["VIT"] =
+        set_combine(
+        sets.midcast.Pet.WeaponSkill,
+        {head = Empy_Karagoz.Head_PTPBonus, waist = "Incarnation Sash"}
+    )
+    -- Cannibal Blade
+    sets.midcast.Pet.WS["MND"] = set_combine(sets.midcast.Pet.WeaponSkill, {})
+    -- Armor Piercer, Armor Shatterer
+    sets.midcast.Pet.WS["DEX"] = set_combine(sets.midcast.Pet.WeaponSkill, {legs = ""})
+    -- Arcuballista, Daze
+    sets.midcast.Pet.WS["DEXFTP"] =
+        set_combine(sets.midcast.Pet.WS["DEX"], {head = Empy_Karagoz.Head_PTPBonus, back = "Dispersal Mantle"})
+
+    ---------------------------------------------
+    --  __  __ _             _____      _       
+    -- |  \/  (_)           / ____|    | |      
+    -- | \  / |_ ___  ___  | (___   ___| |_ ___ 
+    -- | |\/| | / __|/ __|  \___ \ / _ \ __/ __|
+    -- | |  | | \__ \ (__   ____) |  __/ |_\__ \
+    -- |_|  |_|_|___/\___| |_____/ \___|\__|___/
+    ---------------------------------------------
+    -- Town Set
+    sets.idle.Town = {}
+
+    -- Resting sets
+    sets.resting = {
+        head = Relic_Pitre.Head_PRegen,
+        neck = "Wiglen Gorget",
+        ring1 = "Sheltered Ring",
+        ring2 = "Paguroidea Ring"
+    }
+
+    -- Defense sets
+    sets.defense = {}
+    sets.defense.Evasion = {
+        head = "Whirlpool Mask",
+        neck = "Loricate Torque",
+        body = "Otronif Harness +1",
+        hands = "Otronif Gloves",
+        ring1 = "Defending Ring",
+        ring2 = "Beeline Ring",
+        back = "Ik Cape",
+        waist = "Incarnation Sash",
+        legs = "Nahtirah Trousers",
+        feet = "Otronif Boots +1"
+    }
+
+    sets.defense.PDT = {
+        head = Relic_Pitre.Head_PRegen,
+        body = "Udug Jacket",
+        hands = "Herculean Gloves",
+        legs = "Herculean Trousers",
+        feet = "Herculean Boots",
+        neck = "Warder's Charm +1",
+        waist = "Moonbow Belt",
+        left_ear = "Dominance Earring",
+        right_ear = "Handler's Earring +1",
+        left_ring = "Supershear Ring",
+        right_ring = "Kunaji Ring",
+        back = "Moonbeam Cape"
+    }
+
+    sets.defense.MDT = {
+        head = Relic_Pitre.Head_PRegen,
+        body = "Udug Jacket",
+        hands = "Herculean Gloves",
+        legs = "Herculean Trousers",
+        feet = "Herculean Boots",
+        neck = "Warder's Charm +1",
+        waist = "Moonbow Belt",
+        left_ear = "Dominance Earring",
+        right_ear = "Handler's Earring +1",
+        left_ring = "Supershear Ring",
+        right_ring = "Kunaji Ring",
+        back = "Moonbeam Cape"
+    }
+
 end
 
 -- Select default macro book on initial load or subjob change.
@@ -598,11 +640,11 @@ function select_default_macro_book()
 	if player.sub_job == 'WAR' then
 		set_macro_page(3, 1)
 	elseif player.sub_job == 'NIN' then
-		set_macro_page(1, 20)
+		set_macro_page(3, 1)
 	elseif player.sub_job == 'DNC' then
-		set_macro_page(2, 20)
+		set_macro_page(3, 1)
 	else
-		set_macro_page(5, 20)
+		set_macro_page(3, 1)
 	end
 end
  
@@ -614,7 +656,6 @@ end
 --------Global Variables-------
 -------------------------------
 Current_Maneuver = 0
-Auto_Maneuver = false
 OverPower = false
 OverCount = 0
 NextWS = ""
@@ -628,7 +669,6 @@ Strobe_Recast = 0
 Flashbulb_Recast = 0
 Flashbulb_Time = 0
 Strobe_Time = 0
-pdt = 0
 
 d_mode = false
 
@@ -636,164 +676,20 @@ visible = true
 
 time_start = os.time()
 
---Default To Set Up the Text Window
-function setupTextWindow(pos_x, pos_y)
-    tb_name = "pup_gs_helper"
-    bg_visible = true
-    textinbox = ' '
-
-    windower.text.create(tb_name)
-    -- table_name, x, y
-    windower.text.set_location(tb_name, pos_x, pos_y)
-    -- transparency, rgb
-    windower.text.set_bg_color(tb_name, 200, 40, 40, 55)
-    windower.text.set_color(tb_name, 255, 147, 161, 161)
-    windower.text.set_font(tb_name, "Arial")
-    windower.text.set_font_size(tb_name, 11)
-    windower.text.set_bold(tb_name, true)
-    windower.text.set_italic(tb_name, false)
-    windower.text.set_text(tb_name, textinbox)
-    windower.text.set_bg_visibility(tb_name, bg_visible)
-    windower.text.set_visibility(tb_name, visible)
-end
-
---Used to calculate the Hybrid State of you and your pet
-function TotalSCalc()
-    if ActualMode == "DD" then
-        if buffactive['Overdrive'] then
-            Hybrid_State = "Overdrive"
-        elseif Master_State == "Idle" and Pet_State == "Idle" then
-            Hybrid_State = "Idle"
-        elseif Master_State == "Idle" and Pet_State == "Engaged" then
-            Hybrid_State = "Pet Only"
-        elseif Master_State == "Engaged" and Pet_State == "Engaged" then
-            Hybrid_State = "Pet+Master"
-        elseif Master_State == "Engaged" and Pet_State == "Idle" then
-            Hybrid_State = "Master Only"
-        end
-    elseif ActualMode == "TANK" then
-        if Pet_State == "Idle" then
-            Hybrid_State = "Idle"
-        else
-            Hybrid_State = "Tank"
-        end
-    else
-        Pet_State = "MAGE"
-        if Master_State == "Idle" then
-            Hybrid_State = "Idle"
-        else
-            Hybrid_State = "Master Only"
-        end
-    end
-end
-
---Determines Gear based on that Hybrid Set
-function determineGearSet()
-    if ActualMode == "TANK" then
-        equip(sets.petTank)
-    elseif Hybrid_State == "Idle" then
-        equip(sets.idle)
-    elseif Hybrid_State == "Master Only" then
-        equip(sets.engagedMO)
-    elseif Hybrid_State == "Pet Only" then
-        equip(sets.idle.Pet.EngagedO)
-    elseif Hybrid_State == "Pet+Master" then
-        equip(sets.engagedN)
-    elseif Hybrid_State == "Overdrive" then
-        equip(sets.engaged)
-    else
-        handle_equipping_gear(player.status)
-    end
-
-end
-
-function refreshWindow()
-    textinbox = ' '
-    textColorNewLine = '\\cr \n'
-    textColorEnd = ' \\cr'
-    textColor = '\\cs(125, 125, 0)'
-
-    if pet.isvalid then
-        drawPetInfo()
-        drawPetSkills()
-    end
-
-    textinbox = textinbox..drawTitle('   Mode   ')
-    textinbox = textinbox..textColor..'Pet Mode : '..ActualMode..textColorNewLine
-    textinbox = textinbox..textColor..'Pet Style : '..ActualSubMode..textColorNewLine
-    
-    textinbox = textinbox..drawTitle('    State    ')
-    textinbox = textinbox..textColor..'Master : '..Master_State..textColorNewLine
-    textinbox = textinbox..textColor..'Pet : '..Pet_State..textColorNewLine
-    textinbox = textinbox..textColor..'Hybrid : '..Hybrid_State..textColorNewLine
-
-    textinbox = textinbox..drawTitle('  Options  ')
-    textinbox = textinbox..textColor..'Auto Maneuver : '..ternary(state.AutoMan.value, 'ON', 'OFF')..textColorNewLine
-    textinbox = textinbox..textColor..'Lock Pet DT Set: '..ternary(state.LockPetDT.value, 'ON', 'OFF')..textColorNewLine
+--Constants in case we decide to change names down the road, will be much easier
+const_dd = "DD"
+const_tank = "TANK"
+const_mage = "MAGE"
+const_PetModeCycle = "PetModeCycle"
+const_PetStyleCycle = "PetStyleCycle"
+const_stateIdle = "Idle"
+const_stateHybrid = "Pet+Master"
+const_stateEngaged = "Engaged"
+const_stateOverdrive = "Overdrive"
+const_petOnly = "Pet Only"
+const_masterOnly = "Master Only"
 
 
-    --Debug Variables that are used for testing
-    if d_mode then
-        textinbox = textinbox..drawTitle("DEBUG")
-        textinbox = textinbox..textColor..'Current Maneuvers : '..Current_Maneuver..textColorNewLine
-        textinbox = textinbox..textColor..'Strobe Attached : '..tostring(pet.attachments.strobe)..textColorNewLine
-        textinbox = textinbox..textColor..'Flashbulb Attached : '..tostring(pet.attachments.Flashbulb)..textColorNewLine
-        textinbox = textinbox..textColor..'AutoMan : '..tostring(state.AutoMan.value)..textColorNewLine
-    end
-
-    windower.text.set_text(tb_name, textinbox)
-end
-
---This handles drawing the Pet Infor for the Text Box
-function drawPetInfo()
-    textinbox = textinbox..drawTitle('Pet Info')
-    textinbox = textinbox..'- \\cs(0, 0, 125)HP : '..pet.hp..'/'..pet.max_hp..textColorNewLine
-    textinbox = textinbox..'- \\cs(0, 125, 0)MP : '..pet.mp..'/'..pet.max_mp..textColorNewLine
-    textinbox = textinbox..'- \\cs(255, 0, 0)TP : '..tostring(pet.tp)..textColorNewLine
-end
-
---This handles drawing the Pet Skills for the text box
-function drawPetSkills()
-    --- Recast for enmity gears
-    if ActualMode == "TANK" then
-        textinbox = textinbox..drawTitle("Pet Skills")
-        -- Strobe recast
-        if Strobe_Recast == 0 and pet.attachments.strobe then
-            if buffactive['Fire Maneuver'] then
-                textinbox = textinbox..'\\cs(125, 125, 125)-\\cr \\cs(125,0,0)Strobe\\cr \n'
-            else
-                textinbox = textinbox..'\\cs(125, 125, 125)- Strobe\\cr \n'
-            end
-        elseif pet.attachments.strobe ~= nil then
-            textinbox = textinbox..'\\cs(125, 125, 125)- Strobe ('..Strobe_Recast..')\\cr \n'
-        end
-        
-        -- Flashbulb recast    
-        if Flashbulb_Recast == 0 and pet.attachments.flashbulb then
-            if buffactive['Light Maneuver'] then
-                textinbox = textinbox..'\\cs(125, 125, 125)-\\cr \\cs(255,255,255)Flashbulb\\cr \n'
-            else
-                textinbox = textinbox..'\\cs(125, 125, 125)- Flashbulb\\cr \n'
-            end
-        elseif pet.attachments.flashbulb ~= nil then
-            textinbox = textinbox..'\\cs(125, 125, 125)- Flashbulb ('..Flashbulb_Recast..')\\cr \n'
-        end
-    end
-end
-
---Creates the Title for a section in the Text Screen
-function drawTitle(title)
-    return '\\cs(255, 115, 0)'..pad(tostring(title), 6, '=')..'\\cr \n'
-end
-
-function msg(str)
-    send_command('@input /echo *-*-*-*-*-*-*-*-* ' .. str .. ' *-*-*-*-*-*-*-*-*')
-end
-
-------------------------------------
-----------Utility Functions---------
-------------------------------------
- 
 --- SKILLCHAIN TABLE
 SC = {}
 SC['Valoredge Frame'] = {}
@@ -841,31 +737,267 @@ Colors["Light"] = "\\cs(255, 255, 255)"
 Colors["Earth"] = "\\cs(139, 69, 19)"
 Colors["Ice"] = "\\cs(0, 204, 204)"
 Colors["Thunder"] = "\\cs(51, 0, 102)"
- 
---- Pet modes references
-PetMode = S{"TANK", "DD", "MAGE"}
-PetSubMode = {}
-PetSubMode["TANK"] = S{"NORMAL", "DD", "PDT", "MDT", "RANGE"}
-PetSubMode["DD"] = S{"NORMAL", "BONE", "SPAM", "OD", "ODACC"}
-PetSubMode["MAGE"] = S{"NORMAL", "HEAL", "SUPPORT", "MB", "DD"}
-NSubMode = {}
-NSubMode["Tank"] = 3
-NSubMode["DD"] = 5
 
---- Styles Maneuvers and autocontrol
-Style={}
--- Tank Ones
-Style["PDT"] = {"paladin", "Light", "Fire", "Earth"}
-Style["MDT"] = {"runefencer", "Light", "Fire", "Water"}
-Style["Range"] = {"Paladin", "Light", "Fire", "Earth"}
--- DD Ones
-Style["Normal"] = {"dd", "Light", "Fire", "Wind"}
-Style["Bone"] = {"boneslayer", "Light", "Fire", "Wind"}
-Style["Spam"] = {"ddspam", "Light", "Fire", "Wind"}
-Style["OD"] = {"overdrive", "Light", "Fire", "Thunder"}
-Style["ODAcc"] = {"overdriveacc", "Light", "Fire", "Thunder"}
+------------------------------------
+------------Text Window-------------
+------------------------------------
+
+--Default To Set Up the Text Window
+function setupTextWindow(pos_x, pos_y)
+    tb_name = "pup_gs_helper"
+    bg_visible = true
+    textinbox = ' '
+
+    windower.text.create(tb_name)
+    -- table_name, x, y
+    windower.text.set_location(tb_name, pos_x, pos_y)
+    -- transparency, rgb
+    windower.text.set_bg_color(tb_name, 200, 40, 40, 55)
+    windower.text.set_color(tb_name, 255, 147, 161, 161)
+    windower.text.set_font(tb_name, "Arial")
+    windower.text.set_font_size(tb_name, 11)
+    windower.text.set_bold(tb_name, true)
+    windower.text.set_italic(tb_name, false)
+    windower.text.set_text(tb_name, textinbox)
+    windower.text.set_bg_visibility(tb_name, bg_visible)
+    windower.text.set_visibility(tb_name, visible)
+end
+
+--Hanldles refreshing the current text window
+function refreshWindow()
+    textinbox = ' '
+    textColorNewLine = '\\cr \n'
+    textColorEnd = ' \\cr'
+    textColor = '\\cs(125, 125, 0)'
+
+    if pet.isvalid then
+        drawPetInfo()
+        drawPetSkills()
+    end
+
+    textinbox = textinbox..drawTitle('   Mode   ')
+    textinbox = textinbox..textColor..'Pet Mode : '..state.PetModeCycle.value..textColorNewLine
+    textinbox = textinbox..textColor..'Pet Style : '..state.PetStyleCycle.value..textColorNewLine
+    
+    textinbox = textinbox..drawTitle('    State    ')
+    textinbox = textinbox..textColor..'Master : '..Master_State..textColorNewLine
+    textinbox = textinbox..textColor..'Pet : '..Pet_State..textColorNewLine
+    textinbox = textinbox..textColor..'Hybrid : '..Hybrid_State..textColorNewLine
+
+    textinbox = textinbox..drawTitle('  Options  ')
+    textinbox = textinbox..textColor..'Auto Maneuver : '..ternary(state.AutoMan.value, 'ON', 'OFF')..textColorNewLine
+    textinbox = textinbox..textColor..'Lock Pet DT Set: '..ternary(state.LockPetDT.value, 'ON', 'OFF')..textColorNewLine
 
 
+    --Debug Variables that are used for testing
+    if d_mode then
+        textinbox = textinbox..drawTitle("DEBUG")
+        textinbox = textinbox..textColor..'Current Maneuvers : '..Current_Maneuver..textColorNewLine
+        textinbox = textinbox..textColor..'Strobe II Attached : '..tostring(pet.attachments["strobe II"])..textColorNewLine
+        textinbox = textinbox..textColor..'Flashbulb Attached : '..tostring(pet.attachments.flashbulb)..textColorNewLine
+        textinbox = textinbox..textColor..'AutoMan : '..tostring(state.AutoMan.value)..textColorNewLine
+    end
+
+    windower.text.set_text(tb_name, textinbox)
+end
+
+--Handles drawing the Pet Info for the Text Box
+function drawPetInfo()
+    textinbox = textinbox..drawTitle('Pet Info')
+    textinbox = textinbox..'- \\cs(0, 0, 125)HP : '..pet.hp..'/'..pet.max_hp..textColorNewLine
+    textinbox = textinbox..'- \\cs(0, 125, 0)MP : '..pet.mp..'/'..pet.max_mp..textColorNewLine
+    textinbox = textinbox..'- \\cs(255, 0, 0)TP : '..tostring(pet.tp)..textColorNewLine
+end
+
+--This handles drawing the Pet Skills for the text box
+function drawPetSkills()
+    --- Recast for enmity gears
+
+        textinbox = textinbox..drawTitle("Pet Skills")
+        -- Strobe recast
+        if Strobe_Recast == 0 and pet.attachments.strobe then
+            if buffactive['Fire Maneuver'] then
+                textinbox = textinbox..'\\cs(125, 125, 125)-\\cr \\cs(125,0,0)Strobe\\cr \n'
+            else
+                textinbox = textinbox..'\\cs(125, 125, 125)- Strobe\\cr \n'
+            end
+        elseif pet.attachments.strobe ~= nil then
+            textinbox = textinbox..'\\cs(125, 125, 125)- Strobe ('..Strobe_Recast..')\\cr \n'
+        end
+        
+        -- Flashbulb recast    
+        if Flashbulb_Recast == 0 and pet.attachments.flashbulb then
+            if buffactive['Light Maneuver'] then
+                textinbox = textinbox..'\\cs(125, 125, 125)-\\cr \\cs(255,255,255)Flashbulb\\cr \n'
+            else
+                textinbox = textinbox..'\\cs(125, 125, 125)- Flashbulb\\cr \n'
+            end
+        elseif pet.attachments.flashbulb ~= nil then
+            textinbox = textinbox..'\\cs(125, 125, 125)- Flashbulb ('..Flashbulb_Recast..')\\cr \n'
+        end
+
+end
+
+--Creates the Title for a section in the Text Screen
+function drawTitle(title)
+    return '\\cs(255, 115, 0)'..pad(tostring(title), 6, '=')..'\\cr \n'
+end
+
+function msg(str)
+    send_command('@input /echo *-*-*-*-*-*-*-*-* ' .. str .. ' *-*-*-*-*-*-*-*-*')
+end
+
+------------------------------------
+----------Utility Functions---------
+------------------------------------
+
+--Used to calculate the Hybrid State of you and your pet
+function TotalSCalc()
+
+    if state.PetModeCycle.current == const_dd then
+        if buffactive['Overdrive'] then
+            Hybrid_State = const_stateOverdrive
+        elseif Master_State == const_stateIdle and Pet_State == const_stateIdle then
+            Hybrid_State = const_stateIdle
+        elseif Master_State == const_stateIdle and Pet_State == const_stateEngaged then
+            Hybrid_State = const_petOnly
+        elseif Master_State == const_stateEngaged and Pet_State == const_stateEngaged then
+            Hybrid_State = const_stateHybrid
+        elseif Master_State == const_stateEngaged and Pet_State == const_stateIdle then
+            Hybrid_State = const_masterOnly
+        end
+    elseif state.PetModeCycle.current == const_tank then
+        if Pet_State == const_stateIdle then
+            Hybrid_State = const_stateIdle
+        else
+            Hybrid_State = const_tank
+        end
+    elseif state.PetModeCycle.current == const_mage then
+        if Master_State == const_stateIdle then
+            Hybrid_State = const_stateIdle
+        else
+            Hybrid_State = const_masterOnly
+        end
+    end
+end
+
+--Determines Gear based on that Hybrid Set
+function determineGearSet()
+    if state.PetModeCycle.current == const_tank then
+        equip(sets.pet.Tank)
+    elseif Hybrid_State == const_stateIdle then
+        equip(sets.idle)
+    elseif Hybrid_State == const_masterOnly then
+        equip(sets.engagedMO)
+    elseif Hybrid_State == const_petOnly then
+        equip(sets.idle.Pet.EngagedO)
+    elseif Hybrid_State == const_stateHybrid then
+        equip(sets.engagedN)
+    elseif Hybrid_State == const_stateOverdrive then
+        equip(sets.engaged)
+    else
+        handle_equipping_gear(player.status)
+    end
+
+end
+
+--Attempts to determine the Puppet Mode and Style
+function determinePuppetType()
+    local head = pet.head
+    local frame = pet.frame
+
+    local ValHead = "Valoredge Head"
+    local ValFrame = "Valoredge Frame"
+    
+    local HarHead = "Harlequin Head"
+    local HarFrame = "Harlequin Frame"
+    
+    local SharpHead = "Sharpshot Head"
+    local SharpFrame = "Sharpshot Frame"
+    
+    local StormHead = "Stormwaker Head"
+    local StormFrame = "Stormwaker Frame"
+    
+    local SoulHead = "Soulsoother Head"
+    local SpiritHead = "Spiritreaver Head"
+    
+    --This is based mostly off of the frames from String Theory
+    --https://www.bg-wiki.com/bg/String_Theory#Automaton_Frame_Setups
+    
+    --Determine Head first, then further determine by body and attachments
+    --Tested and failed Set Command state.PetModeCycle:set('') // using this method won't invoke call to sub method needed to update items
+    if head == HarHead then --Harlequin Predictions
+        if frame == HarFrame and (pet.attachments.strobe == true or pet.attachments.flashbulb == true) then --Magic Tank
+            handle_set({const_PetModeCycle, const_tank})
+            handle_set({const_PetStyleCycle, "MDT"})
+        elseif frame == HarFrame then -- Default
+            handle_set({const_PetModeCycle, const_dd})
+            handle_set({const_PetStyleCycle, "NORMAL"})
+        else
+            msg('Unable to determine Mode/Style for Puppet Head: ('..head..') Puppet Frame: ('..frame..')')
+        end
+    elseif head == ValHead then --Valoredge Predictions
+        if frame == SharpFrame then
+            if (pet.attachments.strobe == true or pet.attachments.flashbulb == true) then -- DD Tank
+                handle_set({const_PetModeCycle, const_tank})
+                handle_set({const_PetStyleCycle, const_dd})
+            else -- Default
+                handle_set({const_PetModeCycle, const_dd})
+                handle_set({const_PetStyleCycle, "NORMAL"})
+            end
+        elseif frame == ValFrame then -- Default Standard Tank
+            handle_set({const_PetModeCycle, const_tank})
+            handle_set({const_PetStyleCycle, "NORMAL"})
+        else
+            msg('Unable to determine Mode/Style for Puppet Head: ('..head..') Puppet Frame: ('..frame..')')
+        end
+    elseif head == SharpHead then -- Sharpshooter Prediction
+        if frame == SharpFrame then -- SPAM DD
+            if (pet.attachments.inhibitor == true or pet.attachments["inhibitor II"] == true) then
+                handle_set({const_PetModeCycle, const_dd})
+                handle_set({const_PetStyleCycle, "NORMAL"})
+            else
+                handle_set({const_PetModeCycle, const_dd})
+                handle_set({const_PetStyleCycle, "SPAM"})
+            end
+        else
+            msg('Unable to determine Mode/Style for Puppet Head: ('..head..') Puppet Frame: ('..frame..')')
+        end
+    elseif head == StormHead then --Stormwaker Prediction
+        if frame == StormFrame then -- RDM
+            handle_set({const_PetModeCycle, const_mage})
+            handle_set({const_PetStyleCycle, "SUPPORT"})
+        else
+            msg('Unable to determine Mode/Style for Puppet Head: ('..head..') Puppet Frame: ('..frame..')')
+        end
+    elseif head == SoulHead then -- Soulsoother Prediction
+        if frame == StormFrame then -- WHM
+            handle_set({const_PetModeCycle, const_mage})
+            handle_set({const_PetStyleCycle, "HEAL"})
+        elseif frame == ValFrame then -- Turtle Tank
+            handle_set({const_PetModeCycle, const_tank})
+            handle_set({const_PetStyleCycle, "NORMAL"})
+        else
+            msg('Unable to determine Mode/Style for Puppet Head: ('..head..') Puppet Frame: ('..frame..')')
+        end
+    elseif head == SpiritHead then -- Spiritweaver Prediction
+        if frame == StormFrame then -- BLM
+            handle_set({const_PetModeCycle, const_mage})
+            handle_set({const_PetStyleCycle, const_dd})
+        else
+            msg('Unable to determine Mode/Style for Puppet Head: ('..head..') Puppet Frame: ('..frame..')')
+        end
+    end
+end
+
+--Various Timers that get reset when you zone
+function reset_timers()
+    Current_Maneuver = 0
+    state.AutoMan:reset()
+    refreshWindow()
+end
+
+--Traverses a table to see if it contains the given element
 function table.contains(table, element)
     for _, value in pairs(table) do
       if string.lower(value) == element then
@@ -875,23 +1007,18 @@ function table.contains(table, element)
     return false  
 end
 
-function round(num, dec)
-    local mult = 10^(dec or 0)
-    return math.floor(num * mult + 0.5) / mult
-end
-
-local srep = string.rep
-
--- pad on both sides (centering with left justification)
+--Pads a given chara on both sides (centering with left justification)
 function pad(s, l, c)
-	c = c or ' '
+    local srep = string.rep
+    local c = c or ' '
 
-    local res1 = srep(c, l) .. s -- pad to half-length + the length of s
+    local res1 = srep(c, l) .. s -- pad to half-length s
     local res2 = res1 .. srep(c,  l) -- right-pad our left-padded string to the full length
 
     return res2
 end
 
+--Takes a condition and returns a given value based on if it is true or false
 function ternary(cond , T , F)
     if cond then 
         return T 
@@ -900,85 +1027,15 @@ function ternary(cond , T , F)
     end
 end
 
---Attempts to determine the puppet type being used for Pet Mode
-function determinePuppetType()
-    local head = pet.head
-    local frame = pet.frame
-
-    ValHead = "Valoredge Head"
-    ValFrame = "Valoredge Frame"
-
-    HarHead = "Harlequin Head"
-    HarFrame = "Harlequin Frame"
-
-    SharpHead = "Sharpshoot Head"
-    SharpFrame = "Sharpshoot Frame"
-
-    StormHead = "Stormwaker Head"
-    StormFrame = "Stormwaker Frame"
-
-    SoulHead = "Soulsoother Head"
-    SpiritHead = "Spiritreaver Head"
-
-    --This is based mostly off of the frames from String Theory
-    --https://www.bg-wiki.com/bg/String_Theory#Automaton_Frame_Setups
-
-    if head == HarHead then
-        if frame == HarFrame then
-            ActualMode = "TANK"
-            ActualSubMode = "MDT"
-        else
-            ActualMode = 'DD'
-            ActualSubMode = 'NORMAL'
-        end
-    elseif head == SoulHead and frame == ValFrame then --Turle Tank (Default)
-        ActualMode = "TANK"
-        ActualSubMode = "PDT"
-    elseif head == ValHead and frame == SharpFrame and pet.attachments.strobe == true then
-        ActualMode = 'TANK'
-        ActualSubMode = 'PDT'
-    elseif head == ValHead and frame == SharpFrame then --DD (Default)
-        ActualMode = "DD"
-        ActualSubMode = "NORMAL"
-    elseif head == ValHead and frame == ValFrame then -- Bone Slayer
-        ActualMode = "DD"
-        ActualSubMode = "BONE"
-    elseif head == SharpHead and frame == SharpFrame then --Spam DD
-        ActualMode = "DD"
-        ActualSubMode = "SPAM"
-    elseif head == SoulHead and frame == StormFrame then --WHM
-        ActualMode = "MAGE"
-        ActualSubMode = "HEAL"
-    elseif head == StormHead and frame == StormFrame then --RDM
-        ActualMode = "MAGE"
-        ActualSubMode = "SUPPORT"
-    elseif head == SpiritHead and frame == StormFrame then --BLM
-        ActualMode = "MAGE"
-        ActualSubMode = "DD"
-    end
-
-end
-
---Various Timers that get reset when you zone
-function reset_timers()
-    Current_Maneuver = 0
-    handle_toggle({'AutoMan'})
-    refreshWindow()
-end
-
 ------------------------------------
 ----------Windower Hooks------------
 ------------------------------------
 
---Auto Boost on Certain WS
 function job_precast(spell,action)
 
     if spell.english == "Deploy" and pet.tp >= 950 then
-        if ActualMode == "TANK" then
-            -- Nothing
-        else
-            equip(sets.midcast.Pet.WeaponSkill)
-        end
+        equip(sets.midcast.Pet.WeaponSkill)
+
     elseif string.find(spell.english,'Maneuver') then
         equip(sets.precast.JA.Maneuver)
 
@@ -988,9 +1045,6 @@ function job_precast(spell,action)
     elseif sets.precast.WS[spell.english] then
         equip(sets.precast.WS[spell.english])
 
-        if Hybrid_State == "Pet+Master" then
-            sets.aftercast = sets.midcast.Pet.WeaponSkill
-        end
     else
         equip(sets.precast.FC)
     end
@@ -1000,34 +1054,29 @@ function job_midcast(spell,action)
 end
  
 function job_aftercast(spell,action)
-    enable("ear1")
     
     if spell.name == null then
+        determineGearSet()
         return -- Cancel Aftercast for out of range/unable to see.
     end
-   
+
     if (spell.english == "Shijin Spiral" or spell.english == "Victory Smite" or spell.english == "Stringing Pummel" or spell.english == "Howling Fist") and pet.tp >= 850 then
         ws = SC[pet.frame][spell.english]
         modif = Modifier[ws]
         add_to_chat(392,'*-*-*-*-*-*-*-*-* [ '..pet.name..' is about to '..ws..' ('..modif..') ] *-*-*-*-*-*-*-*-*')
         equip(sets.midcast.Pet.WS[modif])
     else
-        if sets.precast.WS[spell.english] and Hybrid_State == "Pet+Master" then
-            equip(sets.aftercast)
-        else
-            determineGearSet()
-        end
+        determineGearSet()
     end
-   
 end
  
 function job_status_change(new,old)
     if new == 'Engaged' then
-        Master_State = "Engaged"
+        Master_State = const_stateEngaged
         TotalSCalc()
         add_to_chat(392,'*-*-*-*-*-*-*-*-* [ Engaged ] *-*-*-*-*-*-*-*-*')
     else
-        Master_State="Idle"
+        Master_State= const_stateIdle
         TotalSCalc()
         add_to_chat(392,'*-*-*-*-*-*-*-*-* [ Idle ] *-*-*-*-*-*-*-*-*')
     end
@@ -1038,13 +1087,13 @@ end
  
 function job_pet_status_change(new,old)
     if new == 'Engaged' then
-        Pet_State = "Engaged"
+        Pet_State = const_stateEngaged
         TotalSCalc()
-        add_to_chat(392,'*-*-*-*-*-*-*-*-* [ PetEngaged ] *-*-*-*-*-*-*-*-*')
+        add_to_chat(392,'*-*-*-*-*-*-*-*-* [ Pet Engaged ] *-*-*-*-*-*-*-*-*')
     else
-        Pet_State="Idle"
+        Pet_State = const_stateIdle
         TotalSCalc()
-        add_to_chat(392,'*-*-*-*-*-*-*-*-* [ PetIdle ] *-*-*-*-*-*-*-*-*')
+        add_to_chat(392,'*-*-*-*-*-*-*-*-* [ Pet Idle ] *-*-*-*-*-*-*-*-*')
     end
     
     determineGearSet()
@@ -1053,7 +1102,6 @@ end
 function job_pet_aftercast(spell)
     determineGearSet()
 end
-
 
 function job_buff_change(status,gain_or_loss, buff_table)
     
@@ -1080,7 +1128,7 @@ function job_buff_change(status,gain_or_loss, buff_table)
         end
     end
 
-    if status == "Overdrive" then
+    if status == const_stateOverdrive then
         if gain_or_loss then
             OverPower = true
             OverCount = 1
@@ -1093,84 +1141,45 @@ function job_buff_change(status,gain_or_loss, buff_table)
     end
    
 end
-
-windower.raw_register_event('zone change', reset_timers)
  
 -- Toggles -- SE Macros: /console gs c "command" [case sensitive]
 function job_self_command(command, eventArgs)
-
-    if type(command) == 'table' then --We have a multiple inputs
-        if command[1]:upper() == "MODE" then
-            if PetMode[command[2]:upper()] then
-                msg("Changing Mode To: "..command[2]:upper())
-                ActualMode = command[2]:upper()
-
-                if command[2]:upper() == 'TANK' then
-                    if PetSubMode["TANK"][command[3]:upper()] then
-                        ActualSubMode = command[3]:upper()
-                    else
-                        ActualSubMode = "NORMAL"
-                    end
-
-                    msg("Changing Pet Style To "..ActualSubMode)
-                elseif command[2]:upper() == 'MAGE' then
-                    if PetSubMode["MAGE"][command[3]:upper()] then
-                        ActualSubMode = command[3]:upper()
-                    else
-                        ActualSubMode = "NORMAL"
-                    end
-
-                    msg("Changing Pet Style To "..ActualSubMode)
-                elseif command[2]:upper() == 'DD' then
-                    if PetSubMode["DD"][command[3]:upper()] then
-                        ActualSubMode = command[3]:upper()
-                    else
-                        ActualSubMode = "NORMAL"
-                    end
-
-                    msg("Changing Pet Style To "..ActualSubMode)
-                else
-                    msg("Unable to determine Pet Style: "..command[3]:upper())
-                end
-
-            else
-                msg("Unable to determine Pet Mode: ".. command[2]:upper())
-            end
-        end
-        
-        refreshWindow()
-    end
     
-    if command[1]:upper() == 'AUTOMAN' then
-        state.AutoMan.value = not state.AutoMan.value
+    if command[1]:lower() == 'automan' then
+        state.AutoMan:toggle()
         refreshWindow()
-    elseif command[1]:upper() == 'DEBUG' then
+    elseif command[1]:lower() == 'debug' then
         d_mode = not d_mode
         refreshWindow()
-    elseif command[1]:upper() == 'PREDICT' then
+    elseif command[1]:lower() == 'predict' then
         determinePuppetType()
         refreshWindow()
     end
 
 end
 
+-- Called any time we attempt to handle automatic gear equips (ie: engaged or idle gear).
+function job_handle_equipping_gear(playerStatus, eventArgs)    
+
+
+end
+
 windower.register_event('prerender', function()
 
     --Items we want to check every second
-    --TODO Further Testing
     if os.time() > time_start then
         time_start = os.time()
 
-        if ActualMode == "TANK" and Pet_State == 'Engaged' then
+        if state.PetModeCycle.current == const_tank and Pet_State == const_stateEngaged then
             if buffactive['Fire Maneuver'] and pet.attachments.strobe then
                 if Strobe_Recast == 0 then
-                    equip(sets.petEnmity)
+                    equip(sets.pet.Enmity)
                 end
             end
 
             if buffactive['Light Maneuver'] and pet.attachments.flashbulb then
                 if Flashbulb_Recast == 0 then
-                    equip(sets.petEnmity)
+                    equip(sets.pet.Enmity)
                 end
             end
         end
@@ -1183,9 +1192,9 @@ windower.register_event('prerender', function()
             Flashbulb_Recast = Flashbulb_Timer -(os.time() - Flashbulb_Time)
         end
 
-        if state.PetModeCycle.value == "TANK" then
+        if state.PetModeCycle.value == const_tank then
             -- Nothing
-        elseif Hybrid_State == "Pet Only" or Hybrid_State == "Overdrive" then
+        elseif Hybrid_State == const_petOnly or Hybrid_State == const_stateOverdrive then
             if pet.tp >= 950 then
                 equip(sets.midcast.Pet.WeaponSkill)
             end
@@ -1199,96 +1208,89 @@ windower.register_event('prerender', function()
    
 end)
  
-RWSTrigger = S{"Arcuballista", "Daze", "Armor Piercer", "Armor Shatterer"}
-MWSTrigger = S{"Slapstick", "Knockout", "Chimera Ripper", "String Clipper", "Cannibal Blade", "Bone Crusher", "String Shredder"}
-HPWSTrigger = S{"Magic Mortar"}
-wscount=0
---- Delve Assistant
 windower.register_event('incoming text', function(original, modified, mode)
     local match
 
         -- OVERDRIVE OPTIMIZER
             if buffactive["Overdrive"] then
                 match = original:match(pet.name..' readies ([%s%w]+)%.')
-                if match=="Daze" then
-                    sets.midcast.Pet.WeaponSkill = sets.midcast.Pet.WSFTP
+                if original:contains(pet.name) and original:contains("Daze") then
+                    equip(sets.midcast.Pet.WSFTP)
                     add_to_chat(204, '*-*-*-*-*-*-*-*-* [ '..match..' done ] *-*-*-*-*-*-*-*-*')
                     refreshWindow()
                     OverCount = 2
-                elseif match=="Arcuballista" then
-                    sets.midcast.Pet.WeaponSkill = sets.midcast.Pet.WSNoFTP
+                elseif original:contains(pet.name) and original:contains("Arcuballista") then
+                    equip(sets.midcast.Pet.WSNoFTP)
                     add_to_chat(204, '*-*-*-*-*-*-*-*-* [ '..match..' done ] *-*-*-*-*-*-*-*-*')
                     refreshWindow()
                     OverCount = 3
-                elseif match=="Armor Shatterer" then
-                    sets.midcast.Pet.WeaponSkill = sets.midcast.Pet.WSNoFTP
+                elseif original:contains(pet.name) and original:contains("Armor Shatterer") then
+                    equip(sets.midcast.Pet.WSNoFTP)
                     add_to_chat(204, '*-*-*-*-*-*-*-*-* [ '..match..' done ] *-*-*-*-*-*-*-*-*')
                     refreshWindow()
                     OverCount = 4
-                elseif match=="Armor Piercer" then
-                    sets.midcast.Pet.WeaponSkill = sets.midcast.Pet.WSFTP
+                elseif original:contains(pet.name) and original:contains("Armor Piercer") then
+                    equip(sets.midcast.Pet.WSFTP)
                     add_to_chat(204, '*-*-*-*-*-*-*-*-* [ '..match..' done ] *-*-*-*-*-*-*-*-*')
                     refreshWindow()
                     OverCount = 1
                 end
             end
+
             -- Checking timer for enmity sets
-            if ActualMode == "TANK" then
-                if buffactive['Fire Maneuver'] then
-                    if original:contains(pet.name) and original:contains("Provoke") then
-                        add_to_chat(204, '*-*-*-*-*-*-*-*-* [ Strobe done ] *-*-*-*-*-*-*-*-*')
-                        Strobe_Time = os.time()
-                        Strobe_Recast = Strobe_Timer
-                        refreshWindow()
-                        determineGearSet()
-                    end
-                end
-                
-                if buffactive['Light Maneuver'] then
-                    if original:contains(pet.name) and original:contains("Flashbulb") then
-                        add_to_chat(204, '*-*-*-*-*-*-*-*-* [ Flashbulb done ] *-*-*-*-*-*-*-*-*')
-                        Flashbulb_Time = os.time()
-                        Flashbulb_Recast = Flashbulb_Timer
-                        refreshWindow()
-                        determineGearSet()
-                    end
+            if buffactive['Fire Maneuver'] then
+                if original:contains(pet.name) and original:contains("Provoke") then
+                    add_to_chat(204, '*-*-*-*-*-*-*-*-* [ Strobe done ] *-*-*-*-*-*-*-*-*')
+                    Strobe_Time = os.time()
+                    Strobe_Recast = Strobe_Timer
+                    refreshWindow()
+                    determineGearSet()
                 end
             end
+            
+            if buffactive['Light Maneuver'] then
+                if original:contains(pet.name) and original:contains("Flashbulb") then
+                    add_to_chat(204, '*-*-*-*-*-*-*-*-* [ Flashbulb done ] *-*-*-*-*-*-*-*-*')
+                    Flashbulb_Time = os.time()
+                    Flashbulb_Recast = Flashbulb_Timer
+                    refreshWindow()
+                    determineGearSet()
+                end
+            end
+        
        
     return modified, mode
 end)
 
 --Passes state changes for cycle commands
 function job_state_change(stateField, newValue, oldValue)
+    local fullGearSlots = {'main','sub','range','ammo','head','neck','lear','rear','body','hands','lring','rring', 'ear1', 'ear2','back','waist','legs','feet'}
 
-    if stateField == 'PetModeCycle' then
-        ActualMode = newValue
+    if stateField == const_PetModeCycle then
         
-        if ActualMode == 'TANK' then
+        if newValue == const_tank then
             state.PetStyleCycle = state.PetStyleCycleTank
-        elseif ActualMode == 'DD' then
+        elseif newValue == const_dd then
             state.PetStyleCycle = state.PetStyleCycleDD
-        elseif ActualMode == 'MAGE' then
+        elseif newValue == const_mage then
             state.PetStyleCycle = state.PetStyleCycleMage
         else
-            msg("No Style found for: "..ActualMode..' Mode setting to default DD Mode')
+            msg("No Style found for: "..newValue..' Mode setting to default DD Mode')
             state.PetStyleCycle = state.PetStyleCycleDD
         end
 
-        ActualSubMode = state.PetStyleCycle.value
         refreshWindow()
-    elseif stateField == 'PetStyleCycle' then
-        ActualSubMode = newValue
+    elseif stateField == const_PetStyleCycle then
         refreshWindow()
     elseif stateField == 'Auto Maneuver' then
         refreshWindow()
     elseif stateField == 'Lock Pet DT' then
-        --If true the lock gearswap
+        --If true then lock all gear
         if newValue == true then
-            equip(sets.petTank)
-            disable({'main','sub','range','ammo','head','neck','lear','rear','body','hands','lring','rring', 'ear1', 'ear2','back','waist','legs','feet'})
+            equip(sets.pet.Tank)
+            disable(fullGearSlots)
         else
-            enable({'main','sub','range','ammo','head','neck','lear','rear','body','hands','lring','rring', 'ear1', 'ear2','back','waist','legs','feet'})
+            enable(fullGearSlots)
             determineGearSet()
         end
         refreshWindow()
@@ -1335,3 +1337,5 @@ end
 function sub_job_change(new,old)
     determinePuppetType()
 end
+
+windower.raw_register_event('zone change', reset_timers)
