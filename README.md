@@ -31,7 +31,7 @@ This allows the user to lock the DT set for the pet in place and block all other
   
 ## Predict:
 This will attempt to determine the currently equipped puppet and adjust the Pet Mode and Pet Style.
-- `//gs c predict`
+- `Alt+F6 or //gs c predict`
  
 ## Pet Mode:
 This will change the mode of the pet and the style of the pet.
