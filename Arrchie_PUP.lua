@@ -52,6 +52,7 @@ end
 function user_setup()
     -- F9 - Cycle Offense Mode (the offensive half of all 'hybrid' melee modes).
     state.OffenseMode:options('MasterAcc', 'PetAcc', 'MasterTP', 'PetTP')
+    
     -- Ctrl-F9 - Cycle Hybrid Mode (the defensive half of all 'hybrid' melee modes).
     state.HybridMode:options('MPAcc', 'MPTP', 'MPDT')
     
@@ -1347,7 +1348,7 @@ function job_handle_equipping_gear(playerStatus, eventArgs)
     if state.LockPetDT.current and Pet_State == const_stateEngaged then
         equip(sets.pet.Tank)
         disable(fullGearSlots)
-        eventArgs.handle = true
+        eventArgs.handled = true
         return
     else
         enable(fullGearSlots)
