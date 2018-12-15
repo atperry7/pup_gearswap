@@ -1125,7 +1125,9 @@ windower.register_event('prerender', function()
         time_start = os.time()
 
         if pet.isvalid then
-            if pet.tp >= 1000 then
+            --Only want to equip TP set in the event of the player not having enough.
+            --Otherwise this is handled when player has more TP in aftercast
+            if pet.tp >= 1000 and player.tp < 1000 then
                 equip(sets.midcast.Pet.WeaponSkill)
             end
         end
