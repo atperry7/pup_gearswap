@@ -56,5 +56,4 @@ This will change the mode of the pet and the style of the pet.
 - [X] Create better gear sets with better variable names
 - [X] Improve the functionality of the Predict Function
 - [X] Update gearsets with better naming convention
-- [ ] Set up gearsets for different Modes/Styles to offer more options for a puppet
-- [ ] Add a better list of planned functionality
+- [X] Set up gearsets for different Modes/Styles to offer more options for a puppet
