@@ -676,6 +676,7 @@ function refreshWindow()
     if d_mode then
         textinbox = textinbox .. drawTitle("DEBUG")
         textinbox = textinbox .. textColor .. "Last State : " .. tostring(lastStateActivated) .. textColorNewLine
+        textinbox = textinbox .. textColor .. "Last State : " .. ternary(justFinishedWeaponSkill, "TRUE", "FALSE") .. textColorNewLine
     end
 
     windower.text.set_text(tb_name, textinbox)
@@ -744,9 +745,11 @@ function TotalSCalc()
 
         elseif Master_State == const_stateEngaged and Pet_State == const_stateEngaged then
             Hybrid_State = const_stateHybrid
+            state.OffenseMode.set("MasterPet")
 
         elseif Master_State == const_stateEngaged and Pet_State == const_stateIdle then
             Hybrid_State = const_masterOnly
+            state.OffenseMode:set("Master")
 
         end
     elseif state.PetModeCycle.current == const_tank then
@@ -755,12 +758,14 @@ function TotalSCalc()
         else
             Hybrid_State = const_tank
             state.IdleMode:set("Idle")
+            state.HybridMode:set("DT")
         end
     elseif state.PetModeCycle.current == const_mage then
         if Master_State == const_stateIdle then
             Hybrid_State = const_stateIdle
         else
             Hybrid_State = const_masterOnly
+            state.OffenseMode:set("Master")
         end
     end
 end
@@ -864,7 +869,7 @@ end
 --Traverses a table to see if it contains the given element
 function table.contains(table, element)
     for _, value in pairs(table) do
-        if string.lower(value) == element then
+        if string.lower(value) == string.lower(element) then
             return true
         end
     end
@@ -916,8 +921,9 @@ function job_precast(spell, action)
     elseif sets.precast.WS[spell.english] then
         equip(sets.precast.WS[spell.english])
     else
-        equip(sets.pet.TP)
+        handle_equipping_gear(player.status, Pet_State)
     end
+
 end
 
 function job_midcast(spell, action)
@@ -936,7 +942,10 @@ function job_aftercast(spell, action)
             "*-*-*-*-*-*-*-*-* [ " .. pet.name .. " is about to " .. ws .. " (" .. modif .. ") ] *-*-*-*-*-*-*-*-*"
         )
         equip(sets.midcast.Pet.WS[modif])
+    else
+        handle_equipping_gear(player.status, Pet_State)
     end
+
 end
 
 function job_status_change(new, old)
@@ -968,6 +977,12 @@ function job_pet_status_change(new, old)
 end
 
 function job_pet_aftercast(spell)
+    AutomatonWeaponSkills = T{"Slapstick", "Knockout", "Magic Mortar", "Chimera Ripper", "String Clipper", "Cannibal Blade", "Bone Crusher", "String Shredder", "Arcuballista", "Daze", "Armor Piercer", "Armor Shatterer"}
+
+    if table.contains(AutomatonWeaponSkills, spell.name) then
+        justFinishedWeaponSkill = true
+    end
+
     handle_equipping_gear(player.status, Pet_State)
 end
 
@@ -1029,6 +1044,7 @@ function job_self_command(command, eventArgs)
     end
 end
 
+justFinishedWeaponSkill = false
 windower.register_event(
     "prerender",
     function()
@@ -1039,9 +1055,12 @@ windower.register_event(
             if pet.isvalid then
                 --Only want to equip TP set in the event of the player not having enough.
                 --Otherwise this is handled when player has more TP in aftercast
-                if pet.tp >= 1000 and Pet_State == const_stateEngaged then
+                if pet.tp >= 1000 and Pet_State == const_stateEngaged and justFinishedWeaponSkill == false then
                     equip(sets.midcast.Pet.WeaponSkill)
+                else
+                    justFinishedWeaponSkill = false
                 end
+
             end
 
             if state.PetModeCycle.current == const_tank and Pet_State == const_stateEngaged then
@@ -1066,7 +1085,6 @@ windower.register_event(
                 Flashbulb_Recast = Flashbulb_Timer - (os.time() - Flashbulb_Time)
             end
 
-            TotalSCalc()
             refreshWindow()
         end
     end
@@ -1231,6 +1249,9 @@ function display_current_job_state(eventArgs)
     if state.PetStyleCycle.value ~= "None" then
         msg = msg .. ", Pet Style: (" .. state.PetStyleCycle.value .. ")"
     end
+
+    TotalSCalc()
+    handle_equipping_gear(player.status, Pet_State)
 
     add_to_chat(122, msg)
 end
