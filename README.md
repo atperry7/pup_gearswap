@@ -4,6 +4,11 @@ Please keep in mind that this **currently** a work in progress and any feed back
 - [Puppet Gearswap for Windower](#puppet-gearswap-for-windower)
 - [Requirements](#requirements)
 - [Features](#features)
+  - [Offense Mode](#offense-mode)
+  - [Hybrid Mode](#hybrid-mode)
+  - [Defense Mode](#defense-mode)
+  - [Kiting Mode](#kiting-mode)
+  - [Idle Mode](#idle-mode)
   - [Auto Maneuvers Toggle:](#auto-maneuvers-toggle)
   - [Lock Pet DT Set](#lock-pet-dt-set)
   - [Predict:](#predict)
@@ -20,6 +25,36 @@ You can find and download from the below link:
 https://github.com/Kinematics/Mote-libs
 
 # Features
+
+## Offense Mode
+`F9` - Cycle Offense Mode (the offensive half of all 'hybrid' melee modes).
+
+These are for when you are fighting with or without Pet
+When you are IDLE and Pet is ENGAGED that is handled by the Idle Sets
+
+## Hybrid Mode
+`Ctrl+F9` - Cycle Hybrid Mode (the defensive half of all 'hybrid' melee modes).
+
+Used when you are Engaged with Pet
+Used when you are Idle and Pet is Engaged
+
+## Defense Mode
+`Ctrl+F10` - Cycle type of Physical Defense Mode in use.
+`F10` - Activate emergency Physical Defense Mode. Replaces Magical Defense Mode, if that was active.
+`Alt+F12` - Turns off any emergency defense mode.
+
+## Kiting Mode
+`Alt+F10` 
+
+## Idle Mode
+`F12` - Update currently equipped gear, and report current status.
+`Ctrl-F12` - Cycle Idle Mode.
+
+Defaults to PetDT for when set to Idle
+        
+Will set IdleMode to Idle when Pet becomes Engaged and you are Idle
+
+So, if you wish to go into a fight in MasterDT when first approaching to get Pet Engaged it will auto switch
 
 ## Auto Maneuvers Toggle:
 Currently, the way this works is it will simply recast the maneuver that wears off. This way you can cast any maneuvers you want and it will simply attempt to maintain what you have active.
@@ -38,6 +73,8 @@ This will change the mode of the pet and the style of the pet.
 
 
 #### Current Styles:
+`Plan is to get this working with AutoControl Addon for helping change attachments automatically`
+
 | Modes | Styles |||||
 |-------|--------|-------|---------|-------|-------|
 | Tank  | Normal | PDT   | MDT     | Range | DD    |
@@ -50,10 +87,5 @@ This will change the mode of the pet and the style of the pet.
 - `CTRL+F8` Cycles backward on Pet Styles
 
 # TODO
-- [x] Update Readme with better format
-- [X] Test cycle commands for various Mode and Styles
-- [X] Test Auto Maneuvers with new toggle feature
-- [X] Create better gear sets with better variable names
-- [X] Improve the functionality of the Predict Function
-- [X] Update gearsets with better naming convention
-- [X] Set up gearsets for different Modes/Styles to offer more options for a puppet
+- [ ] Testing as needed for changes to gearsets
+- [ ] Add the ability to change Attachments with AutoControl Windower Addon
