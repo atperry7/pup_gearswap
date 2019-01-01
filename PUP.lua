@@ -8,7 +8,7 @@
 --                                                         | |   | |
 --                                                         |_|   |_|
 -----------------------------------------------------------------------------------------
---Created By: Faloun
+--Originally Created By: Faloun
 --Modified By: Arrchie
 --Contributions From: Kuroganashi, Xilkk, Byrne, Blackhalo714
 --ASCII Art Generator: http://www.network-science.de/ascii/

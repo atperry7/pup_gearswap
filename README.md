@@ -30,7 +30,7 @@ https://github.com/Kinematics/Mote-libs
 `F9` - Cycle Offense Mode (the offensive half of all 'hybrid' melee modes).
 
 These are for when you are fighting with or without Pet
-When you are IDLE and Pet is ENGAGED that is handled by the Idle Sets
+When you are IDLE and Pet is ENGAGED that is handled by the Idle Mode
 
 ## Hybrid Mode
 `Ctrl+F9` - Cycle Hybrid Mode (the defensive half of all 'hybrid' melee modes).
