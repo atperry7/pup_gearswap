@@ -57,7 +57,7 @@ function user_setup()
         These are for when you are fighting with or without Pet
         When you are IDLE and Pet is ENGAGED that is handled by the Idle Sets
     ]]
-    state.OffenseMode:options("Master", "MasterPet")
+    state.OffenseMode:options("MasterPet", "Master")
 
     --[[
         Ctrl-F9 - Cycle Hybrid Mode (the defensive half of all 'hybrid' melee modes).
@@ -104,6 +104,7 @@ function user_setup()
     --Toggles
     state.AutoMan = M(false, "Auto Maneuver")
     state.LockPetDT = M(false, "Lock Pet DT")
+    state.LockWeapon = M(false, "Lock Weapon")
 
     send_command("bind !f7 gs c cycle PetModeCycle")
     send_command("bind ^f7 gs c cycleback PetModeCycle")
@@ -112,7 +113,8 @@ function user_setup()
     send_command("bind !e gs c toggle AutoMan")
     send_command("bind !d gs c toggle LockPetDT")
     send_command("bind !f6 gs c predict")
-
+    send_command("bind ^` gs c toggle LockWeapon")
+    
     select_default_macro_book()
 end
 
@@ -124,6 +126,7 @@ function file_unload()
     send_command("unbind !e")
     send_command("unbind !d")
     send_command("unbind !f6")
+    send_command("unbind ^`")
 end
 
 function job_setup()
@@ -904,10 +907,12 @@ function user_customize_idle_set(idleSet)
     --Custom Idle Group when Pet is Engaged and Master is Idle
     if Master_State == const_stateIdle and Pet_State == const_stateEngaged then
         if state.HybridMode.current == "Normal" then
-            return
+            return idleSet
         else
-            equip(idleSet[state.HybridMode.current])
+            return idleSet .. '.' .. state.HybridMode.current
         end
+    else
+        return idleSet
     end
 end
 
@@ -1235,7 +1240,14 @@ function job_state_change(stateField, newValue, oldValue)
             )
         end
         refreshWindow()
+    elseif stateField == "Lock Weapon" then
+        if newValue == true then
+            disable("main")
+        else
+            enable("main")
+        end
     end
+
 end
 
 -- Set eventArgs.handled to true if we don't want the automatic display to be run.

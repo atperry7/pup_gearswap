@@ -56,6 +56,9 @@ Will set IdleMode to Idle when Pet becomes Engaged and you are Idle
 
 So, if you wish to go into a fight in MasterDT when first approaching to get Pet Engaged it will auto switch
 
+## Lock Weapon
+`Ctrl+` ` This will lock your current weapon in place.
+
 ## Auto Maneuvers Toggle:
 Currently, the way this works is it will simply recast the maneuver that wears off. This way you can cast any maneuvers you want and it will simply attempt to maintain what you have active.
 - `ALT + E`
