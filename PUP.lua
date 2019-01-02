@@ -678,8 +678,8 @@ function refreshWindow()
     textinbox = textinbox .. drawTitle("  Options  ")
     textinbox =
         textinbox .. textColor .. "Auto Maneuver : " .. ternary(state.AutoMan.value, "ON", "OFF") .. textColorNewLine
-    textinbox =
-        textinbox .. textColor .. "Lock Pet DT Set: " .. ternary(state.LockPetDT.value, "ON", "OFF") .. textColorNewLine
+    textinbox = textinbox .. textColor .. "Lock Pet DT Set: " .. ternary(state.LockPetDT.value, "ON", "OFF") .. textColorNewLine
+    textinbox = textinbox .. textColor .. "Lock Weapon: " .. ternary(state.LockWeapon.value, "ON", "OFF") .. textColorNewLine
 
     --Debug Variables that are used for testing
     if d_mode then
@@ -750,22 +750,27 @@ function TotalSCalc()
 
         elseif Master_State == const_stateIdle and Pet_State == const_stateEngaged then
             Hybrid_State = const_petOnly
+            handle_set({'IdleMode', 'Idle'})
             -- state.IdleMode:set("Idle")
 
         elseif Master_State == const_stateEngaged and Pet_State == const_stateEngaged then
             Hybrid_State = const_stateHybrid
+            handle_set({"OffenseMode", 'MasterPet'})
             -- state.OffenseMode.set("MasterPet")
 
         elseif Master_State == const_stateEngaged and Pet_State == const_stateIdle then
             Hybrid_State = const_masterOnly
+            handle_set({"OffenseMode", 'Master'})
             -- state.OffenseMode:set("Master")
-
+            
         end
     elseif state.PetModeCycle.current == const_tank then
         if Pet_State == const_stateIdle then
             Hybrid_State = const_stateIdle
         else
             Hybrid_State = const_tank
+            handle_set({'IdleMode', 'Idle'})
+            handle_set({'HybridMode', 'DT'})
             -- state.IdleMode:set("Idle")
             -- state.HybridMode:set("DT")
         end
@@ -774,6 +779,7 @@ function TotalSCalc()
             Hybrid_State = const_stateIdle
         else
             Hybrid_State = const_masterOnly
+            handle_set({"OffenseMode", 'Master'})
             -- state.OffenseMode:set("Master")
         end
     end
