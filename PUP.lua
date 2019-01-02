@@ -8,10 +8,16 @@
 --                                                         | |   | |
 --                                                         |_|   |_|
 -----------------------------------------------------------------------------------------
---Originally Created By: Faloun
---Modified By: Arrchie
---Contributions From: Kuroganashi, Xilkk, Byrne, Blackhalo714
---ASCII Art Generator: http://www.network-science.de/ascii/
+--[[
+
+    Originally Created By: Faloun
+    Programmers: Arrchie, Kuroganashi, Byrne
+    Testers:Arrchie, Kuroganashi, Haxetc
+    Contributors: Xilkk, Byrne, Blackhalo714
+
+    ASCII Art Generator: http://www.network-science.de/ascii/
+    
+]]
 
 --Auto Maneuvers Toggle:
 --Currently, the way this works is it will simply recast the maneuver that wears off. This way you can cast any maneuvers you want and it will simply attempt to maintain what you have active.
