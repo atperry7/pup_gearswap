@@ -1259,6 +1259,7 @@ function job_state_change(stateField, newValue, oldValue)
         else
             enable("main")
         end
+        refreshWindow()
     end
 
 end
