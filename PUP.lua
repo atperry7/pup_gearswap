@@ -909,7 +909,8 @@ function user_customize_idle_set(idleSet)
         if state.HybridMode.current == "Normal" then
             return idleSet
         else
-            return idleSet .. '.' .. state.HybridMode.current
+            idleSet = idleSet[state.HybridMode.current]
+            return idleSet
         end
     else
         return idleSet
