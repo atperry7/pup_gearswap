@@ -741,15 +741,15 @@ function TotalSCalc()
 
         elseif Master_State == const_stateIdle and Pet_State == const_stateEngaged then
             Hybrid_State = const_petOnly
-            state.IdleMode:set("Idle")
+            -- state.IdleMode:set("Idle")
 
         elseif Master_State == const_stateEngaged and Pet_State == const_stateEngaged then
             Hybrid_State = const_stateHybrid
-            state.OffenseMode.set("MasterPet")
+            -- state.OffenseMode.set("MasterPet")
 
         elseif Master_State == const_stateEngaged and Pet_State == const_stateIdle then
             Hybrid_State = const_masterOnly
-            state.OffenseMode:set("Master")
+            -- state.OffenseMode:set("Master")
 
         end
     elseif state.PetModeCycle.current == const_tank then
@@ -757,15 +757,15 @@ function TotalSCalc()
             Hybrid_State = const_stateIdle
         else
             Hybrid_State = const_tank
-            state.IdleMode:set("Idle")
-            state.HybridMode:set("DT")
+            -- state.IdleMode:set("Idle")
+            -- state.HybridMode:set("DT")
         end
     elseif state.PetModeCycle.current == const_mage then
         if Master_State == const_stateIdle then
             Hybrid_State = const_stateIdle
         else
             Hybrid_State = const_masterOnly
-            state.OffenseMode:set("Master")
+            -- state.OffenseMode:set("Master")
         end
     end
 end
