@@ -686,6 +686,10 @@ function refreshWindow()
         textinbox = textinbox .. drawTitle("DEBUG")
         textinbox = textinbox .. textColor .. "Last State : " .. tostring(lastStateActivated) .. textColorNewLine
         textinbox = textinbox .. textColor .. "Last State : " .. ternary(justFinishedWeaponSkill, "TRUE", "FALSE") .. textColorNewLine
+        textinbox = textinbox .. textColor .. "Master State : " .. Master_State .. textColorNewLine
+        textinbox = textinbox .. textColor .. "Pet State : " .. Pet_State .. textColorNewLine
+
+
     end
 
     windower.text.set_text(tb_name, textinbox)
@@ -948,18 +952,22 @@ function job_midcast(spell, action)
 end
 
 function job_aftercast(spell, action)
-    if
+
+    if pet.isvalid then
+        if
         (spell.english == "Shijin Spiral" or spell.english == "Victory Smite" or spell.english == "Stringing Pummel" or
             spell.english == "Howling Fist") and
             pet.tp >= 850
-     then
-        ws = SC[pet.frame][spell.english]
-        modif = Modifier[ws]
-        add_to_chat(
-            392,
-            "*-*-*-*-*-*-*-*-* [ " .. pet.name .. " is about to " .. ws .. " (" .. modif .. ") ] *-*-*-*-*-*-*-*-*"
-        )
-        equip(sets.midcast.Pet.WS[modif])
+        then
+            ws = SC[pet.frame][spell.english]
+            modif = Modifier[ws]
+            add_to_chat(
+                392,
+                "*-*-*-*-*-*-*-*-* [ " .. pet.name .. " is about to " .. ws .. " (" .. modif .. ") ] *-*-*-*-*-*-*-*-*"
+            )
+            equip(sets.midcast.Pet.WS[modif])
+        end
+
     else
         handle_equipping_gear(player.status, Pet_State)
     end
@@ -1070,7 +1078,8 @@ windower.register_event(
         if os.time() > time_start then
             time_start = os.time()
 
-            if pet.isvalid then
+            --If the player is engaged equipping of Pet Weaponskill set is handled in player aftercast we can skip this
+            if pet.isvalid and Master_State ~= const_stateEngaged then
                 --Only want to equip TP set in the event of the player not having enough.
                 --Otherwise this is handled when player has more TP in aftercast
                 if pet.tp >= 1000 and Pet_State == const_stateEngaged and justFinishedWeaponSkill == false then
@@ -1081,7 +1090,7 @@ windower.register_event(
 
             end
 
-            if state.PetModeCycle.current == const_tank and Pet_State == const_stateEngaged then
+            if state.PetModeCycle.value == const_tank and Pet_State == const_stateEngaged then
                 if buffactive["Fire Maneuver"] and (pet.attachments.strobe or pet.attachments["strobe II"]) then
                     if Strobe_Recast <= 2 then
                         equip(sets.pet.Enmity)
