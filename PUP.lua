@@ -413,6 +413,8 @@ function init_gear_sets()
     }
 
     -------------------------------------Enmity
+    sets.pet = {} -- Not Used
+    
     sets.pet.Enmity = {
         -- Add your set here
     }
