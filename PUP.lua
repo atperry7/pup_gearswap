@@ -374,21 +374,6 @@ function init_gear_sets()
     ----------------------------------------------------------------
     --This section for sets pretaining to Pets
 
-    sets.pet = {
-        -- Add your set here
-    }
-
-    -------------------------------------TP
-
-    sets.pet.TP = {
-        -- Add your set here
-    }
-
-    -------------------------------------DT
-    sets.idle.PetDT = {
-        -- Add your set here
-    }
-
     -------------------------------------Magic Midcast
     sets.midcast.Pet = {
         -- Add your set here
@@ -419,9 +404,17 @@ function init_gear_sets()
     }
 
     -------------------------------------Idle
-    sets.idle.Pet = sets.idle
+    sets.idle.Pet = {
+        -- Add your set here
+    }
+
+    sets.idle.PetDT = {
+        -- Add your set here
+    }
 
     -------------------------------------Enmity
+    sets.pet = {} -- Not Used
+    
     sets.pet.Enmity = {
         -- Add your set here
     }
@@ -440,13 +433,13 @@ function init_gear_sets()
         -- Add your set here
     }
 
-    sets.idle.Pet.Engaged.TP = set_combine(sets.pet.TP, {
+    sets.idle.Pet.Engaged.TP = {
         -- Add your set here
-    })
+    }
 
-    sets.idle.Pet.Engaged.DT = set_combine(sets.idle.PetDT, {
+    sets.idle.Pet.Engaged.DT = {
         -- Add your set here
-    })
+    }
 
     sets.idle.Pet.Engaged.Regen = {
         -- Add your set here
@@ -678,14 +671,18 @@ function refreshWindow()
     textinbox = textinbox .. drawTitle("  Options  ")
     textinbox =
         textinbox .. textColor .. "Auto Maneuver : " .. ternary(state.AutoMan.value, "ON", "OFF") .. textColorNewLine
-    textinbox =
-        textinbox .. textColor .. "Lock Pet DT Set: " .. ternary(state.LockPetDT.value, "ON", "OFF") .. textColorNewLine
+    textinbox = textinbox .. textColor .. "Lock Pet DT Set: " .. ternary(state.LockPetDT.value, "ON", "OFF") .. textColorNewLine
+    textinbox = textinbox .. textColor .. "Lock Weapon: " .. ternary(state.LockWeapon.value, "ON", "OFF") .. textColorNewLine
 
     --Debug Variables that are used for testing
     if d_mode then
         textinbox = textinbox .. drawTitle("DEBUG")
         textinbox = textinbox .. textColor .. "Last State : " .. tostring(lastStateActivated) .. textColorNewLine
         textinbox = textinbox .. textColor .. "Last State : " .. ternary(justFinishedWeaponSkill, "TRUE", "FALSE") .. textColorNewLine
+        textinbox = textinbox .. textColor .. "Master State : " .. Master_State .. textColorNewLine
+        textinbox = textinbox .. textColor .. "Pet State : " .. Pet_State .. textColorNewLine
+
+
     end
 
     windower.text.set_text(tb_name, textinbox)
@@ -750,22 +747,27 @@ function TotalSCalc()
 
         elseif Master_State == const_stateIdle and Pet_State == const_stateEngaged then
             Hybrid_State = const_petOnly
+            handle_set({'IdleMode', 'Idle'})
             -- state.IdleMode:set("Idle")
 
         elseif Master_State == const_stateEngaged and Pet_State == const_stateEngaged then
             Hybrid_State = const_stateHybrid
+            handle_set({"OffenseMode", 'MasterPet'})
             -- state.OffenseMode.set("MasterPet")
 
         elseif Master_State == const_stateEngaged and Pet_State == const_stateIdle then
             Hybrid_State = const_masterOnly
+            handle_set({"OffenseMode", 'Master'})
             -- state.OffenseMode:set("Master")
-
+            
         end
     elseif state.PetModeCycle.current == const_tank then
         if Pet_State == const_stateIdle then
             Hybrid_State = const_stateIdle
         else
             Hybrid_State = const_tank
+            handle_set({'IdleMode', 'Idle'})
+            handle_set({'HybridMode', 'DT'})
             -- state.IdleMode:set("Idle")
             -- state.HybridMode:set("DT")
         end
@@ -774,6 +776,7 @@ function TotalSCalc()
             Hybrid_State = const_stateIdle
         else
             Hybrid_State = const_masterOnly
+            handle_set({"OffenseMode", 'Master'})
             -- state.OffenseMode:set("Master")
         end
     end
@@ -942,18 +945,22 @@ function job_midcast(spell, action)
 end
 
 function job_aftercast(spell, action)
-    if
+
+    if pet.isvalid then
+        if
         (spell.english == "Shijin Spiral" or spell.english == "Victory Smite" or spell.english == "Stringing Pummel" or
             spell.english == "Howling Fist") and
             pet.tp >= 850
-     then
-        ws = SC[pet.frame][spell.english]
-        modif = Modifier[ws]
-        add_to_chat(
-            392,
-            "*-*-*-*-*-*-*-*-* [ " .. pet.name .. " is about to " .. ws .. " (" .. modif .. ") ] *-*-*-*-*-*-*-*-*"
-        )
-        equip(sets.midcast.Pet.WS[modif])
+        then
+            ws = SC[pet.frame][spell.english]
+            modif = Modifier[ws]
+            add_to_chat(
+                392,
+                "*-*-*-*-*-*-*-*-* [ " .. pet.name .. " is about to " .. ws .. " (" .. modif .. ") ] *-*-*-*-*-*-*-*-*"
+            )
+            equip(sets.midcast.Pet.WS[modif])
+        end
+
     else
         handle_equipping_gear(player.status, Pet_State)
     end
@@ -1064,7 +1071,8 @@ windower.register_event(
         if os.time() > time_start then
             time_start = os.time()
 
-            if pet.isvalid then
+            --If the player is engaged equipping of Pet Weaponskill set is handled in player aftercast we can skip this
+            if pet.isvalid and Master_State ~= const_stateEngaged then
                 --Only want to equip TP set in the event of the player not having enough.
                 --Otherwise this is handled when player has more TP in aftercast
                 if pet.tp >= 1000 and Pet_State == const_stateEngaged and justFinishedWeaponSkill == false then
@@ -1075,7 +1083,7 @@ windower.register_event(
 
             end
 
-            if state.PetModeCycle.current == const_tank and Pet_State == const_stateEngaged then
+            if state.PetModeCycle.value == const_tank and Pet_State == const_stateEngaged then
                 if buffactive["Fire Maneuver"] and (pet.attachments.strobe or pet.attachments["strobe II"]) then
                     if Strobe_Recast <= 2 then
                         equip(sets.pet.Enmity)
@@ -1207,7 +1215,7 @@ function job_state_change(stateField, newValue, oldValue)
         --This command overrides everything and blocks all gear changes
         --Will lock until turned off or Pet is disengaged
         if newValue == true then
-            equip(sets.idle.PetDT)
+            equip(sets.idle.Pet.Engaged.DT)
             disable(
                 "main",
                 "sub",
@@ -1253,6 +1261,7 @@ function job_state_change(stateField, newValue, oldValue)
         else
             enable("main")
         end
+        refreshWindow()
     end
 
 end
