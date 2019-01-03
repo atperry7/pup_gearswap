@@ -374,21 +374,6 @@ function init_gear_sets()
     ----------------------------------------------------------------
     --This section for sets pretaining to Pets
 
-    sets.pet = {
-        -- Add your set here
-    }
-
-    -------------------------------------TP
-
-    sets.pet.TP = {
-        -- Add your set here
-    }
-
-    -------------------------------------DT
-    sets.idle.PetDT = {
-        -- Add your set here
-    }
-
     -------------------------------------Magic Midcast
     sets.midcast.Pet = {
         -- Add your set here
@@ -419,7 +404,13 @@ function init_gear_sets()
     }
 
     -------------------------------------Idle
-    sets.idle.Pet = sets.idle
+    sets.idle.Pet = {
+        -- Add your set here
+    }
+
+    sets.idle.PetDT = {
+        -- Add your set here
+    }
 
     -------------------------------------Enmity
     sets.pet.Enmity = {
@@ -440,13 +431,13 @@ function init_gear_sets()
         -- Add your set here
     }
 
-    sets.idle.Pet.Engaged.TP = set_combine(sets.pet.TP, {
+    sets.idle.Pet.Engaged.TP = {
         -- Add your set here
-    })
+    }
 
-    sets.idle.Pet.Engaged.DT = set_combine(sets.idle.PetDT, {
+    sets.idle.Pet.Engaged.DT = {
         -- Add your set here
-    })
+    }
 
     sets.idle.Pet.Engaged.Regen = {
         -- Add your set here
@@ -1222,7 +1213,7 @@ function job_state_change(stateField, newValue, oldValue)
         --This command overrides everything and blocks all gear changes
         --Will lock until turned off or Pet is disengaged
         if newValue == true then
-            equip(sets.idle.PetDT)
+            equip(sets.idle.Pet.Engaged.DT)
             disable(
                 "main",
                 "sub",
