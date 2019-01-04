@@ -414,7 +414,7 @@ function init_gear_sets()
 
     -------------------------------------Enmity
     sets.pet = {} -- Not Used
-    
+
     sets.pet.Enmity = {
         -- Add your set here
     }
@@ -764,7 +764,7 @@ function TotalSCalc()
     elseif state.PetModeCycle.current == const_tank then
         if Pet_State == const_stateIdle then
             Hybrid_State = const_stateIdle
-        else
+        elseif state.PetStyleCycle.value ~= "DD" then
             Hybrid_State = const_tank
             handle_set({'IdleMode', 'Idle'})
             handle_set({'HybridMode', 'DT'})
