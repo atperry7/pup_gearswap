@@ -12,7 +12,7 @@
 
     Originally Created By: Faloun
     Programmers: Arrchie, Kuroganashi, Byrne
-    Testers:Arrchie, Kuroganashi, Haxetc
+    Testers:Arrchie, Kuroganashi, Haxetc, Patb, Whirlin
     Contributors: Xilkk, Byrne, Blackhalo714
 
     ASCII Art Generator: http://www.network-science.de/ascii/
@@ -97,7 +97,7 @@ function user_setup()
     state.IdleMode:options("Idle", "MasterDT")
 
     --Various Cycles for the different types of PetModes
-    state.PetStyleCycleTank = M {"NORMAL", "DD", "PDT", "MDT", "RANGE"}
+    state.PetStyleCycleTank = M {"NORMAL", "DD", "MAGIC", "SPAM"}
     state.PetStyleCycleMage = M {"NORMAL", "HEAL", "SUPPORT", "MB", "DD"}
     state.PetStyleCycleDD = M {"NORMAL", "BONE", "SPAM", "OD", "ODACC"}
 
@@ -383,6 +383,10 @@ function init_gear_sets()
         -- Add your set here
     }
 
+    sets.midcast.Pet["Healing Magic"] = {
+        --Add your set here
+    }
+
     sets.midcast.Pet["Elemental Magic"] = {
         -- Add your set here
     }
@@ -537,7 +541,6 @@ end
 --------Global Variables-------
 -------------------------------
 Current_Maneuver = 0
-OverPower = false
 OverCount = 0
 NextWS = ""
 
@@ -658,11 +661,11 @@ function refreshWindow()
     textinbox = textinbox .. drawTitle("   State   ")
     textinbox = textinbox .. textColor .. "Pet Mode : " .. state.PetModeCycle.value .. textColorNewLine
     textinbox = textinbox .. textColor .. "Pet Style : " .. state.PetStyleCycle.value .. textColorNewLine
-
-    textinbox = textinbox .. drawTitle("    Mode    ")
     -- textinbox = textinbox .. textColor .. "Master : " .. Master_State .. textColorNewLine
     -- textinbox = textinbox .. textColor .. "Pet : " .. Pet_State .. textColorNewLine
-    -- textinbox = textinbox .. textColor .. "Hybrid : " .. Hybrid_State .. textColorNewLine
+    textinbox = textinbox .. textColor .. "Hybrid : " .. Hybrid_State .. textColorNewLine
+
+    textinbox = textinbox .. drawTitle("    Mode    ")
     textinbox = textinbox .. textColor .. "Idle Mode : " .. tostring(state.IdleMode.current) .. textColorNewLine
     textinbox = textinbox .. textColor .. "Offense Mode : " .. tostring(state.OffenseMode.current) .. textColorNewLine
     textinbox = textinbox .. textColor .. "Physical Mode : " .. tostring(state.PhysicalDefenseMode.current) .. textColorNewLine
@@ -743,39 +746,39 @@ end
 
 --Used to calculate the Hybrid State of you and your pet
 function TotalSCalc()
-    if state.PetModeCycle.current == const_dd then
+    if state.PetModeCycle.current:lower() == const_dd:lower() then
         if buffactive["Overdrive"] then
             Hybrid_State = const_stateOverdrive
-        elseif Master_State == const_stateIdle and Pet_State == const_stateIdle then
+        elseif Master_State:lower() == const_stateIdle:lower() and Pet_State:lower() == const_stateIdle:lower() then
             Hybrid_State = const_stateIdle
 
-        elseif Master_State == const_stateIdle and Pet_State == const_stateEngaged then
+        elseif Master_State:lower() == const_stateIdle:lower() and Pet_State:lower() == const_stateEngaged:lower() then
             Hybrid_State = const_petOnly
             handle_set({'IdleMode', 'Idle'})
             -- state.IdleMode:set("Idle")
 
-        elseif Master_State == const_stateEngaged and Pet_State == const_stateEngaged then
+        elseif Master_State:lower() == const_stateEngaged:lower() and Pet_State:lower() == const_stateEngaged:lower() then
             Hybrid_State = const_stateHybrid
             handle_set({"OffenseMode", 'MasterPet'})
             -- state.OffenseMode.set("MasterPet")
 
-        elseif Master_State == const_stateEngaged and Pet_State == const_stateIdle then
+        elseif Master_State:lower() == const_stateEngaged:lower() and Pet_State:lower() == const_stateIdle:lower() then
             Hybrid_State = const_masterOnly
             handle_set({"OffenseMode", 'Master'})
             -- state.OffenseMode:set("Master")
             
         end
-    elseif state.PetModeCycle.current == const_tank then
+    elseif state.PetModeCycle.current:lower() == const_tank:lower() then
         if Pet_State == const_stateIdle then
             Hybrid_State = const_stateIdle
-        elseif state.PetStyleCycle.value ~= "DD" then
+        elseif state.PetStyleCycle.value:lower() ~= "dd" then
             Hybrid_State = const_tank
             handle_set({'IdleMode', 'Idle'})
             handle_set({'HybridMode', 'DT'})
             -- state.IdleMode:set("Idle")
             -- state.HybridMode:set("DT")
         end
-    elseif state.PetModeCycle.current == const_mage then
+    elseif state.PetModeCycle.current:lower() == const_mage:lower() then
         if Master_State == const_stateIdle then
             Hybrid_State = const_stateIdle
         else
@@ -810,11 +813,10 @@ function determinePuppetType()
     --https://www.bg-wiki.com/bg/String_Theory#Automaton_Frame_Setups
 
     --Determine Head first, then further determine by body and attachments
-    --Tested and failed Set Command state.PetModeCycle:set('') // using this method won't invoke call to sub method needed to update items
     if head == HarHead then --Harlequin Predictions
         if frame == HarFrame and (pet.attachments.strobe == true or pet.attachments.flashbulb == true) then --Magic Tank
             handle_set({const_PetModeCycle, const_tank})
-            handle_set({const_PetStyleCycle, "MDT"})
+            handle_set({const_PetStyleCycle, "MAGIC"})
         elseif frame == HarFrame then -- Default
             handle_set({const_PetModeCycle, const_dd})
             handle_set({const_PetStyleCycle, "NORMAL"})
@@ -912,13 +914,13 @@ function ternary(cond, T, F)
     end
 end
 
-------------------------------------
-----------Windower Hooks------------
-------------------------------------
+----------------------------------------------------
+----------Windower Hooks/Custom Gearswap------------
+----------------------------------------------------
 
 function user_customize_idle_set(idleSet)
     --Custom Idle Group when Pet is Engaged and Master is Idle
-    if Master_State == const_stateIdle and Pet_State == const_stateEngaged then
+    if Master_State:lower() == const_stateIdle:lower() and Pet_State:lower() == const_stateEngaged:lower() then
         if state.HybridMode.current == "Normal" then
             return idleSet
         else
@@ -931,7 +933,10 @@ function user_customize_idle_set(idleSet)
 end
 
 function job_precast(spell, action)
-    if spell.english == "Deploy" and pet.tp >= 950 then
+
+    if spell.english == "Activate" or spell.english == "Deus Ex Automata" then
+        determinePuppetType()
+    elseif spell.english == "Deploy" and pet.tp >= 950 then
         equip(sets.midcast.Pet.WeaponSkill)
     elseif string.find(spell.english, "Maneuver") then
         equip(sets.precast.JA.Maneuver)
@@ -949,13 +954,8 @@ function job_midcast(spell, action)
 end
 
 function job_aftercast(spell, action)
-
     if pet.isvalid then
-        if
-        (spell.english == "Shijin Spiral" or spell.english == "Victory Smite" or spell.english == "Stringing Pummel" or
-            spell.english == "Howling Fist") and
-            pet.tp >= 850
-        then
+        if SC[pet.frame][spell.english] and pet.tp >= 850 then
             ws = SC[pet.frame][spell.english]
             modif = Modifier[ws]
             add_to_chat(
@@ -968,7 +968,6 @@ function job_aftercast(spell, action)
     else
         handle_equipping_gear(player.status, Pet_State)
     end
-
 end
 
 function job_status_change(new, old)
@@ -1011,12 +1010,12 @@ end
 
 --Anytime you change equipment you need to set eventArgs.handled or else you may get overwritten
 function job_buff_change(status, gain_or_loss, eventArgs)
-    if status == "sleep" and gain_or_loss then
-        equip(set_combine(sets.defense.PDT, {neck = "Opo-opo Necklace"}))
+    if status:lower() == "sleep" and gain_or_loss then
+        equip(set_combine(sets.defense.MasterDT, {neck = "Opo-opo Necklace"}))
         eventArgs.handled = true
-    elseif status == "doom" and gain_or_loss then
+    elseif status:lower() == "doom" and gain_or_loss then
         send_command("/p I have befallen to ~~~DOOM~~~ may my end not come to quickly.")
-    elseif status == "doom" and gain_or_loss == false then
+    elseif status:lower() == "doom" and gain_or_loss == false then
         send_command("/p I have avoided the grips of ~~~DOOM~~~ may Altana be praised! ")
     end
 
@@ -1040,12 +1039,10 @@ function job_buff_change(status, gain_or_loss, eventArgs)
 
     if status == const_stateOverdrive then
         if gain_or_loss then
-            OverPower = true
             OverCount = 1
             equip(sets.midcast.Pet.WSFTP)
             eventArgs.handled = true
         else
-            OverPower = false
             OverCount = 0
             equip(sets.midcast.Pet.WSNoFTP)
             eventArgs.handled = true
@@ -1075,14 +1072,20 @@ windower.register_event(
         if os.time() > time_start then
             time_start = os.time()
 
-            --If the player is engaged equipping of Pet Weaponskill set is handled in player aftercast we can skip this
-            if pet.isvalid and Master_State ~= const_stateEngaged then
-                --Only want to equip TP set in the event of the player not having enough.
-                --Otherwise this is handled when player has more TP in aftercast
+            --This reads if pet is active and 
+            --player has less than 1000 TP or pet style is SPAM or DD
+            --then we may equip Weaponskill Gear for pet
+            --Otherwise this is handled when player has more TP in aftercast
+            if pet.isvalid and 
+            (player.tp < 1000 or state.PetStyleCycle.value:lower() == "spam" or state.PetStyleCycle.value:lower() == "dd") then
+                --Now if pet has more than 1000 tp and pet is engaged and didn't just finish a weaponskill
+                --Then we may equip the Weaponskill gear for pet
                 if pet.tp >= 1000 and Pet_State == const_stateEngaged and justFinishedWeaponSkill == false then
-                    if state.PetModeCycle.value == const_tank and state.PetModeCycle ~= const_dd then
-                        --Ignore swapping in WeaponSkill set if we are tank, but our style is not DD
-                    elseif state.PetModeCycle.value == const_mage then
+                    --Now as tank pet we may not always want the weaponskill gear equipping
+                    if state.PetModeCycle.value:lower() == const_tank:lower() 
+                    and (state.PetStyleCycle.value:lower() ~= const_dd:lower() or state.PetStyleCycle.value:lower() ~= "spam") then
+                        --Ignore swapping in WeaponSkill set if we are tank, but our style is not DD or SPAM
+                    elseif state.PetModeCycle.value:lower() == const_mage:lower() then
                         --Ignore swapping in Weaponskill set if we are a mage
                     else
                         equip(sets.midcast.Pet.WeaponSkill)
@@ -1093,7 +1096,7 @@ windower.register_event(
 
             end
 
-            if state.PetModeCycle.value == const_tank and Pet_State == const_stateEngaged then
+            if Pet_State:lower() == const_stateEngaged:lower() then
                 if buffactive["Fire Maneuver"] and (pet.attachments.strobe or pet.attachments["strobe II"]) then
                     if Strobe_Recast <= 2 then
                         equip(sets.pet.Enmity)
@@ -1123,30 +1126,28 @@ windower.register_event(
 windower.register_event(
     "incoming text",
     function(original, modified, mode)
-        local match
 
         -- OVERDRIVE OPTIMIZER
-        if buffactive["Overdrive"] then
-            match = original:match(pet.name .. " readies ([%s%w]+)%.")
+        --I believe the original intent for this was if the player was not engaged and
+        --the pet is fighting on its own in Overdrive.
+        --With that thought this now activates when the master is not engaged or if the master is engaged
+        --and the PetStyleCycle is set to SPAM then it will also activate
+        if buffactive["Overdrive"] and (Master_State:lower() ~= const_stateEngaged:lower() or state.PetStyleCycle.value:lower() == "spam") then
             if original:contains(pet.name) and original:contains("Daze") then
                 equip(sets.midcast.Pet.WSFTP)
-                add_to_chat(204, "*-*-*-*-*-*-*-*-* [ " .. match .. " done ] *-*-*-*-*-*-*-*-*")
-                refreshWindow()
+                add_to_chat(204, "*-*-*-*-*-*-*-*-* [ " .. "Daze" .. " done ] *-*-*-*-*-*-*-*-*")
                 OverCount = 2
             elseif original:contains(pet.name) and original:contains("Arcuballista") then
                 equip(sets.midcast.Pet.WSNoFTP)
-                add_to_chat(204, "*-*-*-*-*-*-*-*-* [ " .. match .. " done ] *-*-*-*-*-*-*-*-*")
-                refreshWindow()
+                add_to_chat(204, "*-*-*-*-*-*-*-*-* [ " .. "Arcuballista" .. " done ] *-*-*-*-*-*-*-*-*")
                 OverCount = 3
             elseif original:contains(pet.name) and original:contains("Armor Shatterer") then
                 equip(sets.midcast.Pet.WSNoFTP)
-                add_to_chat(204, "*-*-*-*-*-*-*-*-* [ " .. match .. " done ] *-*-*-*-*-*-*-*-*")
-                refreshWindow()
+                add_to_chat(204, "*-*-*-*-*-*-*-*-* [ " .. "Armor Shatterer" .. " done ] *-*-*-*-*-*-*-*-*")
                 OverCount = 4
             elseif original:contains(pet.name) and original:contains("Armor Piercer") then
                 equip(sets.midcast.Pet.WSFTP)
-                add_to_chat(204, "*-*-*-*-*-*-*-*-* [ " .. match .. " done ] *-*-*-*-*-*-*-*-*")
-                refreshWindow()
+                add_to_chat(204, "*-*-*-*-*-*-*-*-* [ " .. "Armor Piercer" .. " done ] *-*-*-*-*-*-*-*-*")
                 OverCount = 1
             end
         end
@@ -1181,27 +1182,6 @@ windower.register_event(
 --Best to adjust gear in job_handle_update which is an override for the job file
 lastStateActivated = ""
 function job_state_change(stateField, newValue, oldValue)
-    local fullGearSlots = {
-        "main",
-        "sub",
-        "range",
-        "ammo",
-        "head",
-        "neck",
-        "lear",
-        "rear",
-        "body",
-        "hands",
-        "lring",
-        "rring",
-        "ear1",
-        "ear2",
-        "back",
-        "waist",
-        "legs",
-        "feet"
-    }
-
     lastStateActivated = stateField
 
     if stateField == const_PetModeCycle then
@@ -1280,11 +1260,11 @@ end
 function display_current_job_state(eventArgs)
     local msg = ""
 
-    if state.PetModeCycle.value ~= "None" then
+    if state.PetModeCycle.value:lower() ~= "None" then
         msg = msg .. "Pet Mode: (" .. state.PetModeCycle.value .. ")"
     end
 
-    if state.PetStyleCycle.value ~= "None" then
+    if state.PetStyleCycle.value:lower() ~= "None" then
         msg = msg .. ", Pet Style: (" .. state.PetStyleCycle.value .. ")"
     end
 
