@@ -495,6 +495,10 @@ function init_gear_sets()
     -- | |  | | \__ \ (__   ____) |  __/ |_\__ \
     -- |_|  |_|_|___/\___| |_____/ \___|\__|___/
     ---------------------------------------------
+    
+    --Default Idle set to PetDT
+    sets.idle = sets.idle.PetDT
+
     -- Town Set
     sets.idle.Town = {
         -- Add your set here
