@@ -383,6 +383,10 @@ function init_gear_sets()
         -- Add your set here
     }
 
+	sets.midcast.Pet["Healing Magic"] = {
+        -- Add your set here
+    }
+	
     sets.midcast.Pet["Elemental Magic"] = {
         -- Add your set here
     }
@@ -404,13 +408,9 @@ function init_gear_sets()
     }
 
     -------------------------------------Idle
-    sets.idle.Pet = {
+    sets.idle.Pet = set_combine(sets.idle,  {
         -- Add your set here
-    }
-
-    sets.idle.PetDT = {
-        -- Add your set here
-    }
+    })
 
     -------------------------------------Enmity
     sets.pet = {} -- Not Used
