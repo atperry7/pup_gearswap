@@ -408,6 +408,8 @@ function init_gear_sets()
         -- Add your set here
     }
 
+    sets.idle = sets.idle.Pet
+
     sets.idle.PetDT = {
         -- Add your set here
     }
