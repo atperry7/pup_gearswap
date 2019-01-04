@@ -1076,7 +1076,11 @@ windower.register_event(
                 --Only want to equip TP set in the event of the player not having enough.
                 --Otherwise this is handled when player has more TP in aftercast
                 if pet.tp >= 1000 and Pet_State == const_stateEngaged and justFinishedWeaponSkill == false then
-                    equip(sets.midcast.Pet.WeaponSkill)
+                    if state.PetModeCycle.value == const_tank and state.PetModeCycle ~= const_dd then
+                        --Ignore swapping in WeaponSkill set if we are tank, but our style is not DD
+                    else
+                        equip(sets.midcast.Pet.WeaponSkill)
+                    end
                 else
                     justFinishedWeaponSkill = false
                 end
