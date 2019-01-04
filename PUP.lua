@@ -414,7 +414,7 @@ function init_gear_sets()
 
     -------------------------------------Enmity
     sets.pet = {} -- Not Used
-    
+
     sets.pet.Enmity = {
         -- Add your set here
     }
@@ -722,6 +722,10 @@ function drawPetSkills()
     elseif pet.attachments.flashbulb ~= nil then
         textinbox = textinbox .. "\\cs(125, 125, 125)- Flashbulb (" .. Flashbulb_Recast .. ")\\cr \n"
     end
+
+    if not pet.attachments.strobe and not pet.attachments["strobe II"] and not pet.attachments.flashbulb then
+        textinbox = textinbox .. "\\cs(125, 125, 125)-No Skills To Track\\cr \n"
+    end
 end
 
 --Creates the Title for a section in the Text Screen
@@ -764,7 +768,7 @@ function TotalSCalc()
     elseif state.PetModeCycle.current == const_tank then
         if Pet_State == const_stateIdle then
             Hybrid_State = const_stateIdle
-        else
+        elseif state.PetStyleCycle.value ~= "DD" then
             Hybrid_State = const_tank
             handle_set({'IdleMode', 'Idle'})
             handle_set({'HybridMode', 'DT'})
@@ -1076,7 +1080,13 @@ windower.register_event(
                 --Only want to equip TP set in the event of the player not having enough.
                 --Otherwise this is handled when player has more TP in aftercast
                 if pet.tp >= 1000 and Pet_State == const_stateEngaged and justFinishedWeaponSkill == false then
-                    equip(sets.midcast.Pet.WeaponSkill)
+                    if state.PetModeCycle.value == const_tank and state.PetModeCycle ~= const_dd then
+                        --Ignore swapping in WeaponSkill set if we are tank, but our style is not DD
+                    elseif state.PetModeCycle.value == const_mage then
+                        --Ignore swapping in Weaponskill set if we are a mage
+                    else
+                        equip(sets.midcast.Pet.WeaponSkill)
+                    end
                 else
                     justFinishedWeaponSkill = false
                 end
