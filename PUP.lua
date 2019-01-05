@@ -428,13 +428,9 @@ function init_gear_sets()
     }
 
     -------------------------------------Idle
-    sets.idle.Pet = {
+    sets.idle.Pet = set_combine(sets.idle,  {
         -- Add your set here
-    }
-
-    sets.idle.PetDT = {
-        -- Add your set here
-    }
+    })
 
     -------------------------------------Enmity
     sets.pet = {} -- Not Used
