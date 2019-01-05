@@ -345,10 +345,10 @@ function init_gear_sets()
 		--Add your Gear here 
 	})
 	sets.engaged.Aftermath2 = set_combine(sets.engaged.Master, {
-	--Add your Gear here
+	    --Add your Gear here
 	})
 	sets.engaged.Aftermath1 = set_combine(sets.engaged.Master, {
-	--Add your Gear here
+	    --Add your Gear here
 	})
 	
     ----------------------------------------------------------------------------------
@@ -381,6 +381,22 @@ function init_gear_sets()
     sets.engaged.MasterPet.Regen = {
         -- Add your set here
     }
+
+    -----------------------
+	-------    -    -------
+	-----    -- --	  -----
+	---    ---   ---	---
+	-----------------------
+	--Special SET for Aftermath
+	sets.engaged.MasterPet.Aftermath3 = set_combine(sets.engaged.Master, {
+		-- Add your set here
+	})
+	sets.engaged.MasterPet.Aftermath2 = set_combine(sets.engaged.Master, {
+	    -- Add your set here
+	})
+	sets.engaged.MasterPet.Aftermath1 = set_combine(sets.engaged.Master, {
+	    -- Add your set here
+	})
 
     ----------------------------------------------------------------
     --  _____     _      ____        _          _____      _
@@ -1029,19 +1045,23 @@ function job_pet_aftercast(spell)
 end
 
 --Anytime you change equipment you need to set eventArgs.handled or else you may get overwritten
-function job_buff_change(status, gain_or_loss, eventArgs)
-    if status:lower() == "sleep" and gain_or_loss then
+function job_buff_change(buff, gain_or_loss, eventArgs)
+    if state.Buff[buff] ~= nil then
+        state.Buff[buff] = gain
+    end
+
+    if buff:lower() == "sleep" and gain_or_loss then
         equip(set_combine(sets.defense.MasterDT, {neck = "Opo-opo Necklace"}))
         eventArgs.handled = true
-    elseif status:lower() == "doom" and gain_or_loss then
+    elseif buff:lower() == "doom" and gain_or_loss then
         send_command("/p I have befallen to ~~~DOOM~~~ may my end not come to quickly.")
-    elseif status:lower() == "doom" and gain_or_loss == false then
+    elseif buff:lower() == "doom" and gain_or_loss == false then
         send_command("/p I have avoided the grips of ~~~DOOM~~~ may Altana be praised! ")
     end
 
     --When you are at 3 Maneuvers and you use the ability you will temporarily go to 4
     --This helps prevent you from trying to cast on losing a buff
-    if status:contains("Maneuver") and gain_or_loss then
+    if buff:contains("Maneuver") and gain_or_loss then
         Current_Maneuver = Current_Maneuver + 1
         refreshWindow()
     elseif Current_Maneuver > 0 then -- We don't want to see a negative count
@@ -1052,12 +1072,12 @@ function job_buff_change(status, gain_or_loss, eventArgs)
     --Now we can turn on and off the functionailty of automatically maintaining manuevers
     --Also, make sure your not dead, so we don't attempt to recast Maneuvers
     if state.AutoMan.value and player.hp > 0 and pet.isvalid then
-        if status:contains("Maneuver") and gain_or_loss == false and Current_Maneuver < 3 then
-            send_command('input /ja "' .. status .. '" <me>')
+        if buff:contains("Maneuver") and gain_or_loss == false and Current_Maneuver < 3 then
+            send_command('input /ja "' .. buff .. '" <me>')
         end
     end
 
-    if status == const_stateOverdrive then
+    if buff == const_stateOverdrive then
         if gain_or_loss then
             OverCount = 1
             equip(sets.midcast.Pet.WSFTP)
@@ -1066,6 +1086,45 @@ function job_buff_change(status, gain_or_loss, eventArgs)
             OverCount = 0
             equip(sets.midcast.Pet.WSNoFTP)
             eventArgs.handled = true
+        end
+    end
+
+    if state.Buff[buff] ~= nil then
+        state.Buff[buff] = gain
+    end
+    
+    -- If we gain or lose any haste buffs, adjust which gear set we target.
+    if S{}:contains(buff:lower()) then
+        determine_haste_group()
+        if not midaction() then
+            handle_equipping_gear(player.status)
+        end
+    end
+    if buff:startswith('Aftermath') then
+        if player.equipment.main == 'Kenkonken' then
+            classes.CustomMeleeGroups:clear()
+
+            if (buff == "Aftermath: Lv.3" and gain) or buffactive['Aftermath: Lv.3'] then
+				classes.CustomMeleeGroups:append('Aftermath3')--Determines which Set it equips
+				equip(sets.engaged.Aftermath3)
+                msg('-------AM3 UP(Occ. Attacks x2 to x3)-------')
+            end
+
+			if (buff == "Aftermath: Lv.2" and gain) or buffactive['Aftermath: Lv.2'] then
+                classes.CustomMeleeGroups:append('AM2')--Determines which Set it equips
+				equip(sets.engaged.Aftermath2)
+                msg('-------------AM2 UP(M.ACC+)-------------')
+            end
+			
+			if (buff == "Aftermath: Lv.1" and gain) or buffactive['Aftermath: Lv.1'] then
+                classes.CustomMeleeGroups:append('AM1')--Determines which Set it equips
+                equip(sets.engaged.Aftermath1)
+				msg('-------------AM1 UP(ACC+)-------------')
+            end
+			
+            if not midaction() then
+                handle_equipping_gear(player.status)
+            end
         end
     end
 end
@@ -1322,54 +1381,6 @@ function job_handle_equipping_gear(playerStatus, eventArgs)
         enable("lring")
     end
 end
-
-
------------------------------------------------------------------------------------------------Aftermath:
-
--- Called when a player gains or loses a buff.
--- buff == buff gained or lost
--- gain == true if the buff was gained, false if it was lost.
-function job_buff_change(buff, gain)
-    if state.Buff[buff] ~= nil then
-        state.Buff[buff] = gain
-    end
-    -- If we gain or lose any haste buffs, adjust which gear set we target.
-    if S{}:contains(buff:lower()) then
-        determine_haste_group()
-        if not midaction() then
-            handle_equipping_gear(player.status)
-        end
-    end
-    if buff:startswith('Aftermath') then
-        if player.equipment.main == 'Kenkonken' then
-            classes.CustomMeleeGroups:clear()
-
-            if (buff == "Aftermath: Lv.3" and gain) or buffactive['Aftermath: Lv.3'] then
-				classes.CustomMeleeGroups:append('Aftermath3')--Determines which Set it equips
-				equip(sets.engaged.Aftermath3)
-                add_to_chat(8, '-------AM3 UP(Occ. Attacks x2 to x3)-------')
-            end
-
-			if (buff == "Aftermath: Lv.2" and gain) or buffactive['Aftermath: Lv.2'] then
-                classes.CustomMeleeGroups:append('AM2')--Determines which Set it equips
-				equip(sets.engaged.Aftermath2)
-                add_to_chat(8, '-------------AM2 UP(M.ACC+)-------------')
-            end
-			
-			if (buff == "Aftermath: Lv.1" and gain) or buffactive['Aftermath: Lv.1'] then
-                classes.CustomMeleeGroups:append('AM1')--Determines which Set it equips
-                equip(sets.engaged.Aftermath1)
-				add_to_chat(8, '-------------AM1 UP(ACC+)-------------')
-            end
-			
-            if not midaction() then
-                handle_equipping_gear(player.status)
-            end
-        end
-    end
-
-end
-
 	
 function determine_haste_group()
 
