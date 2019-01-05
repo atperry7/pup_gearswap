@@ -514,13 +514,9 @@ function init_gear_sets()
     -- Defense sets
     sets.defense = {}
 
-    sets.defense.MasterDT = {
-        -- Add your set here
-    }
+    sets.defense.MasterDT = sets.idle.MasterDT
 
-    sets.defense.PetDT = {
-        -- Add your set here
-    }
+    sets.defense.PetDT = sets.idle.PetDT
 end
 
 -- Select default macro book on initial load or subjob change.
