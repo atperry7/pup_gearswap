@@ -790,29 +790,22 @@ function TotalSCalc()
 
         elseif Master_State:lower() == const_stateIdle:lower() and Pet_State:lower() == const_stateEngaged:lower() then
             Hybrid_State = const_petOnly
-            handle_set({'IdleMode', 'Idle'})
-            -- state.IdleMode:set("Idle")
 
         elseif Master_State:lower() == const_stateEngaged:lower() and Pet_State:lower() == const_stateEngaged:lower() then
             Hybrid_State = const_stateHybrid
-            handle_set({"OffenseMode", 'MasterPet'})
-            -- state.OffenseMode.set("MasterPet")
 
         elseif Master_State:lower() == const_stateEngaged:lower() and Pet_State:lower() == const_stateIdle:lower() then
             Hybrid_State = const_masterOnly
             handle_set({"OffenseMode", 'Master'})
-            -- state.OffenseMode:set("Master")
             
         end
     elseif state.PetModeCycle.current:lower() == const_tank:lower() then
         if Pet_State == const_stateIdle then
             Hybrid_State = const_stateIdle
-        elseif state.PetStyleCycle.value:lower() ~= "dd" then
+        elseif state.PetStyleCycle.value:lower() ~= "dd" and state.PetStyleCycle.value:lower() ~= "spam" then
             Hybrid_State = const_tank
             handle_set({'IdleMode', 'Idle'})
             handle_set({'HybridMode', 'DT'})
-            -- state.IdleMode:set("Idle")
-            -- state.HybridMode:set("DT")
         end
     elseif state.PetModeCycle.current:lower() == const_mage:lower() then
         if Master_State == const_stateIdle then
@@ -820,7 +813,6 @@ function TotalSCalc()
         else
             Hybrid_State = const_masterOnly
             handle_set({"OffenseMode", 'Master'})
-            -- state.OffenseMode:set("Master")
         end
     end
 end
