@@ -278,6 +278,9 @@ function init_gear_sets()
         -- Add your set here
     }
 
+	--Special Set for TP over 2,750
+	sets.TP_Bonus = {ear2="Cessance Earring"}
+	
     -- Specific weaponskill sets.  Uses the base set if an appropriate WSMod version isn't found.
     sets.precast.WS["Stringing Pummel"] = set_combine( sets.precast.WS, {
             -- Add your set here
@@ -331,6 +334,23 @@ function init_gear_sets()
        -- Add your set here
     }
 
+	
+	-----------------------
+	-------    -    -------
+	-----    -- --	  -----
+	---    ---   ---	---
+	-----------------------
+	--Special SET for Aftermath
+	sets.engaged.Aftermath3 = set_combine(sets.engaged.Master, {
+		--Add your Gear here 
+	})
+	sets.engaged.Aftermath2 = set_combine(sets.engaged.Master, {
+	--Add your Gear here
+	})
+	sets.engaged.Aftermath1 = set_combine(sets.engaged.Master, {
+	--Add your Gear here
+	})
+	
     ----------------------------------------------------------------------------------
     --  __  __         _           ___     _     ___      _
     -- |  \/  |__ _ __| |_ ___ _ _| _ \___| |_  / __| ___| |_ ___
@@ -1302,5 +1322,83 @@ function job_handle_equipping_gear(playerStatus, eventArgs)
         enable("lring")
     end
 end
+
+
+-----------------------------------------------------------------------------------------------Aftermath:
+
+-- Called when a player gains or loses a buff.
+-- buff == buff gained or lost
+-- gain == true if the buff was gained, false if it was lost.
+function job_buff_change(buff, gain)
+    if state.Buff[buff] ~= nil then
+        state.Buff[buff] = gain
+    end
+    -- If we gain or lose any haste buffs, adjust which gear set we target.
+    if S{}:contains(buff:lower()) then
+        determine_haste_group()
+        if not midaction() then
+            handle_equipping_gear(player.status)
+        end
+    end
+    if buff:startswith('Aftermath') then
+        if player.equipment.main == 'Kenkonken' then
+            classes.CustomMeleeGroups:clear()
+
+            if (buff == "Aftermath: Lv.3" and gain) or buffactive['Aftermath: Lv.3'] then
+				classes.CustomMeleeGroups:append('Aftermath3')--Determines which Set it equips
+				equip(sets.engaged.Aftermath3)
+                add_to_chat(8, '-------AM3 UP(Occ. Attacks x2 to x3)-------')
+            end
+
+			if (buff == "Aftermath: Lv.2" and gain) or buffactive['Aftermath: Lv.2'] then
+                classes.CustomMeleeGroups:append('AM2')--Determines which Set it equips
+				equip(sets.engaged.Aftermath2)
+                add_to_chat(8, '-------------AM2 UP(M.ACC+)-------------')
+            end
+			
+			if (buff == "Aftermath: Lv.1" and gain) or buffactive['Aftermath: Lv.1'] then
+                classes.CustomMeleeGroups:append('AM1')--Determines which Set it equips
+                equip(sets.engaged.Aftermath1)
+				add_to_chat(8, '-------------AM1 UP(ACC+)-------------')
+            end
+			
+            if not midaction() then
+                handle_equipping_gear(player.status)
+            end
+        end
+    end
+
+end
+
+	
+function determine_haste_group()
+
+    classes.CustomMeleeGroups:clear()
+    -- mythic AM	
+    if player.equipment.main == 'Kenkonken' then
+		if buffactive['Aftermath: Lv.2'] then
+		classes.CustomMeleeGroups:append('AM2')
+		equip(sets.engaged.Aftermath2)
+		end
+		if buffactive['Aftermath: Lv.1'] then
+		classes.CustomMeleeGroups:append('AM1')
+		equip(sets.engaged.Aftermath1)
+		end
+        if buffactive['Aftermath: Lv.3'] then
+            classes.CustomMeleeGroups:append('AM3')
+			equip(sets.engaged.Aftermath3)
+        end
+    end
+end
+-------------------------------------------------------------------------------------------------------------------End of Aftermath
+
+-------------------------------------------------------------------------------------------------------------------TP Rules for WS
+
+function job_post_precast(spell, action, spellMap, eventArgs)
+		if player.tp > 2750 then
+            equip(sets.TP_Bonus)	
+		end
+end
+-------------------------------------------------------------------------------------------------------------------End of TP Rules for WS
 
 windower.raw_register_event("zone change", reset_timers)
