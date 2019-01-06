@@ -451,7 +451,7 @@ function init_gear_sets()
     }
 
     sets.idle.Pet.Engaged.Regen = {
-        h--Add your set here
+        --Add your set here
     }
 
     sets.idle.Pet.Engaged.Ranged = set_combine(sets.idle.Pet.Engaged, {legs = Empy_Karagoz.Legs_Combat})
@@ -782,7 +782,7 @@ function TotalSCalc()
     elseif state.PetModeCycle.current == const_tank then
         if Pet_State == const_stateIdle then
             Hybrid_State = const_stateIdle
-        elseif state.PetStyleCycle.value ~= "DD" then
+        elseif state.PetStyleCycle.value ~= "DD" and state.PetStyleCycle.value ~= 'SPAM' then
             Hybrid_State = const_tank
             handle_set({'IdleMode', 'Idle'})
             handle_set({'HybridMode', 'DT'})
