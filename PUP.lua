@@ -139,7 +139,7 @@ end
 
 function job_setup()
     -- Adjust the X (horizontal) and Y (vertical) position here to adjust the window
-    setupTextWindow(1400, 600)
+    setupTextWindow(0, 0)
 end
 
 function init_gear_sets()
