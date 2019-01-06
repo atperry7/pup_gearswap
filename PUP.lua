@@ -579,6 +579,7 @@ SC = {}
 SC["Valoredge Frame"] = {}
 SC["Sharpshot Frame"] = {}
 SC["Harlequin Frame"] = {}
+SC["Stormwaker Frame"] = {}
 
 SC["Valoredge Frame"]["Stringing Pummel"] = "String Shredder"
 SC["Valoredge Frame"]["Victory Smite"] = "String Shredder"
@@ -598,6 +599,11 @@ SC["Harlequin Frame"]["Stringing Pummel"] = "Slapstick"
 SC["Harlequin Frame"]["Victory Smite"] = "Magic Mortar"
 SC["Harlequin Frame"]["Shijin Spiral"] = "Slapstick"
 SC["Harlequin Frame"]["Howling Fist"] = "Knockout"
+
+SC["Stormwaker Frame"]["Stringing Pummel"] = "Slapstick"
+SC["Stormwaker Frame"]["Victory Smite"] = "Magic Mortar"
+SC["Stormwaker Frame"]["Shijin Spiral"] = "Slapstick"
+SC["Stormwaker Frame"]["Howling Fist"] = "Knockout"
 
 --Puppet Weaponskill Modifiers
 Modifier = {}
@@ -1229,7 +1235,7 @@ function job_state_change(stateField, newValue, oldValue)
         --This command overrides everything and blocks all gear changes
         --Will lock until turned off or Pet is disengaged
         if newValue == true then
-            equip(sets.idle.Pet.Engaged.DT)
+            equip(sets.idle.PetDT)
             disable(
                 "main",
                 "sub",
