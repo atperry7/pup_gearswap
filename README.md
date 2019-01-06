@@ -43,6 +43,7 @@ When you are IDLE and Pet is ENGAGED that is handled by the Idle Mode
 
 Cycle Offense Mode (the offensive half of all 'hybrid' melee modes).
 - `F9`
+- `gs c cycle OffenseMode`
 
 [Jump To Table of Contents](#puppet-gearswap-for-windower)
 
@@ -52,6 +53,7 @@ Used when you are Idle and Pet is Engaged
 
 Cycle Hybrid Mode (the defensive half of all 'hybrid' melee modes).
 - `Ctrl+F9`
+- `gs c cycle HybridMode`
 
 
 [Jump To Table of Contents](#puppet-gearswap-for-windower)
@@ -82,30 +84,35 @@ So, if you wish to go into a fight in MasterDT when first approaching to get Pet
 
 - `F12` - Update currently equipped gear, and report current status.
 - `Ctrl-F12` - Cycle Idle Mode.
+- `gs c update`
 
 [Jump To Table of Contents](#puppet-gearswap-for-windower)
 
 ## Lock Weapon
 This will lock your current weapon in place.
 - `Ctrl+tilda`
+- `gs c toggle LockWeapon`
 
 [Jump To Table of Contents](#puppet-gearswap-for-windower)
 
 ## Auto Maneuvers Toggle
 Currently, the way this works is it will simply recast the maneuver that wears off. This way you can cast any maneuvers you want and it will simply attempt to maintain what you have active.
 - `ALT + E`
+- `gs c toggle AutoMan`
 
 [Jump To Table of Contents](#puppet-gearswap-for-windower)
 
 ## Emergency Lock Pet DT Set
 This allows the user to lock the DT set for the pet in place and block all other gearswapping.
 - `ALT + D`
+- `gs c toggle LockPetDT`
 
 [Jump To Table of Contents](#puppet-gearswap-for-windower)
   
 ## Predict
 This will attempt to determine the currently equipped puppet and adjust the Pet Mode and Pet Style.
-- `Alt+F6 or //gs c predict`
+- `Alt+F6` 
+- `gs c predict`
 
 [Jump To Table of Contents](#puppet-gearswap-for-windower)
  
@@ -130,15 +137,19 @@ These are the current styles that each Pet Mode contains:
 
 Cycles forward on Pet Modes
 - `ALT+F7` 
+- `gs c cycle PetModeCycle`
 
 Cycles back on Pet Modes 
 - `CTRL+F7`
+- `gs c cycleback PetModecycle`
 
 Cycles forward on Pet Styles
 - `ALT+F8` 
+- `gs c cycle PetStyleCycle`
 
 Cycles backward on Pet Styles
 - `CTRL+F8` 
+- `gs c cycleback PetStyleCycle`
 
 [Jump To Table of Contents](#puppet-gearswap-for-windower)
 
