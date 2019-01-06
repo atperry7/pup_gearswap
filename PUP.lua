@@ -1349,8 +1349,10 @@ function debug(message)
     if not d_mode then
         return
     end
-        
-    debug_file = io.open("C:\\Users\\aeper\\OneDrive\\Desktop\\Windower4\\addons\\GearSwap\\data\\puppet_debug.log", "a")
+    
+    --Default location ..\PlayOnline\SquareEnix\FINAL FANTASY XI
+    --Are welcome to add a custom path to the front for example C:\\users\\puppet_debug.log
+    debug_file = io.open("puppet_debug.log", "a")
 
     io.output(debug_file)
     
