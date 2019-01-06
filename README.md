@@ -1,5 +1,6 @@
 # Puppet Gearswap for Windower
 
+- [Puppet Gearswap for Windower](#puppet-gearswap-for-windower)
 - [Requirements](#requirements)
 - [Features](#features)
   - [Offense Mode](#offense-mode)
@@ -7,14 +8,17 @@
   - [Defense Mode](#defense-mode)
   - [Kiting Mode](#kiting-mode)
   - [Idle Mode](#idle-mode)
+  - [Lock Weapon](#lock-weapon)
   - [Auto Maneuvers Toggle](#auto-maneuvers-toggle)
   - [Emergency Lock Pet DT Set](#emergency-lock-pet-dt-set)
   - [Predict](#predict)
-  - [Pet Mode and Pet Styles:](#pet-mode-and-pet-styles)
+  - [Pet Mode and Pet Styles](#pet-mode-and-pet-styles)
       - [Current Styles](#current-styles)
+  - [SET FTP](#set-ftp)
+  - [Hide Window](#hide-window)
   - [Notes On Pet Equipping Weaponskill Gear](#notes-on-pet-equipping-weaponskill-gear)
   - [Notes on Equipping Enmity Gear](#notes-on-equipping-enmity-gear)
-- [TODO](#todo)
+  - [TODO](#todo)
 
 This has become much more stable. Gearsets are in a place where they will not likely change. 
 
@@ -137,6 +141,23 @@ Cycles backward on Pet Styles
 - `CTRL+F8` 
 
 [Jump To Table of Contents](#puppet-gearswap-for-windower)
+
+## SET FTP
+If player is idle and puppet is engaged while in DD Mode or a DD Style the puppet will now switch between a NO FTP and FTP set based on your choosing.
+
+Now have the ability to switch to FTP with the below command:
+- `//gs c setftp`
+
+
+## Hide Window
+You can hide the entire Window by using the below command
+- `//gs c hide window`
+
+You can hide the State from the Window by using the below command:
+- `//gs c hide state` 
+
+You can hide the Mode from the Window by using the below command
+- `//gs c hide mode`
 
 ## Notes On Pet Equipping Weaponskill Gear
 This is currently how we determine when to equip a pets Weaponskill Gear prior to it using:

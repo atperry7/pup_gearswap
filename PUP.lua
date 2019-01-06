@@ -111,6 +111,9 @@ function user_setup()
     state.AutoMan = M(false, "Auto Maneuver")
     state.LockPetDT = M(false, "Lock Pet DT")
     state.LockWeapon = M(false, "Lock Weapon")
+    state.SetFTP = M(false, "Set FTP")
+    state.textHideMode = M(false, "Hide Mode")
+    state.textHideState = M(false, "Hide State")
 
     send_command("bind !f7 gs c cycle PetModeCycle")
     send_command("bind ^f7 gs c cycleback PetModeCycle")
@@ -340,14 +343,14 @@ function init_gear_sets()
 	-----    -- --	  -----
 	---    ---   ---	---
 	-----------------------
-	--Special SET for Aftermath
-	sets.engaged.Aftermath3 = set_combine(sets.engaged.Master, {
+	--Special SET for Aftermath IN DEVELOPMENT
+	sets.engaged.Master.AM3 = set_combine(sets.engaged.Master, {
 		--Add your Gear here 
 	})
-	sets.engaged.Aftermath2 = set_combine(sets.engaged.Master, {
+	sets.engaged.Master.AM2 = set_combine(sets.engaged.Master, {
 	    --Add your Gear here
 	})
-	sets.engaged.Aftermath1 = set_combine(sets.engaged.Master, {
+	sets.engaged.Master.AM1 = set_combine(sets.engaged.Master, {
 	    --Add your Gear here
 	})
 	
@@ -387,14 +390,16 @@ function init_gear_sets()
 	-----    -- --	  -----
 	---    ---   ---	---
 	-----------------------
-	--Special SET for Aftermath
-	sets.engaged.MasterPet.Aftermath3 = set_combine(sets.engaged.Master, {
+	--Special SET for Aftermath IN DEVELOPMENT
+	sets.engaged.MasterPet.AM3 = set_combine(sets.engaged.Master, {
 		-- Add your set here
 	})
-	sets.engaged.MasterPet.Aftermath2 = set_combine(sets.engaged.Master, {
+    
+    sets.engaged.MasterPet.AM2 = set_combine(sets.engaged.Master, {
 	    -- Add your set here
 	})
-	sets.engaged.MasterPet.Aftermath1 = set_combine(sets.engaged.Master, {
+    
+    sets.engaged.MasterPet.AM1 = set_combine(sets.engaged.Master, {
 	    -- Add your set here
 	})
 
@@ -484,6 +489,24 @@ function init_gear_sets()
     sets.idle.Pet.Engaged.Regen = {
         -- Add your set here
     }
+
+    -----------------------
+	-------    -    -------
+	-----    -- --	  -----
+	---    ---   ---	---
+	-----------------------
+	--Special SET for Aftermath
+	sets.idle.Pet.Engaged.AM3 = set_combine(sets.idle.Pet.Engaged.TP, {
+		-- Add your set here
+    })
+    
+	sets.idle.Pet.Engaged.AM2 = set_combine(sets.idle.Pet.Engaged.TP, {
+	    -- Add your set here
+	})
+    
+    sets.idle.Pet.Engaged.AM1 = set_combine(sets.idle.Pet.Engaged.TP, {
+	    -- Add your set here
+	})
 
     sets.idle.Pet.Engaged.Ranged = set_combine(sets.idle.Pet.Engaged, {legs = Empy_Karagoz.Legs_Combat})
 
@@ -695,29 +718,40 @@ function refreshWindow()
     textColorEnd = " \\cr"
     textColor = "\\cs(125, 125, 0)"
 
+    if not visible then
+        textinbox = ''
+        windower.text.set_text(tb_name, textinbox)
+        return
+    end
+
     if pet.isvalid then
         drawPetInfo()
         drawPetSkills()
     end
 
-    textinbox = textinbox .. drawTitle("   State   ")
-    textinbox = textinbox .. textColor .. "Pet Mode : " .. state.PetModeCycle.value .. textColorNewLine
-    textinbox = textinbox .. textColor .. "Pet Style : " .. state.PetStyleCycle.value .. textColorNewLine
-    -- textinbox = textinbox .. textColor .. "Master : " .. Master_State .. textColorNewLine
-    -- textinbox = textinbox .. textColor .. "Pet : " .. Pet_State .. textColorNewLine
-    textinbox = textinbox .. textColor .. "Hybrid : " .. Hybrid_State .. textColorNewLine
+    if not state.textHideState.value then
+        textinbox = textinbox .. drawTitle("    State    ")
+        textinbox = textinbox .. textColor .. "Pet Mode : " .. state.PetModeCycle.value .. textColorNewLine
+        textinbox = textinbox .. textColor .. "Pet Style : " .. state.PetStyleCycle.value .. textColorNewLine
+        -- textinbox = textinbox .. textColor .. "Master : " .. Master_State .. textColorNewLine
+        -- textinbox = textinbox .. textColor .. "Pet : " .. Pet_State .. textColorNewLine
+        textinbox = textinbox .. textColor .. "Hybrid : " .. Hybrid_State .. textColorNewLine
+    end
 
-    textinbox = textinbox .. drawTitle("    Mode    ")
-    textinbox = textinbox .. textColor .. "Idle Mode : " .. tostring(state.IdleMode.current) .. textColorNewLine
-    textinbox = textinbox .. textColor .. "Offense Mode : " .. tostring(state.OffenseMode.current) .. textColorNewLine
-    textinbox = textinbox .. textColor .. "Physical Mode : " .. tostring(state.PhysicalDefenseMode.current) .. textColorNewLine
-    textinbox = textinbox .. textColor .. "Hybrid Mode : " .. tostring(state.HybridMode.current) .. textColorNewLine
+    if not state.textHideMode.value then
+        textinbox = textinbox .. drawTitle("     Mode     ")
+        textinbox = textinbox .. textColor .. "Idle Mode : " .. tostring(state.IdleMode.current) .. textColorNewLine
+        textinbox = textinbox .. textColor .. "Offense Mode : " .. tostring(state.OffenseMode.current) .. textColorNewLine
+        textinbox = textinbox .. textColor .. "Physical Mode : " .. tostring(state.PhysicalDefenseMode.current) .. textColorNewLine
+        textinbox = textinbox .. textColor .. "Hybrid Mode : " .. tostring(state.HybridMode.current) .. textColorNewLine    
+    end
 
     textinbox = textinbox .. drawTitle("  Options  ")
     textinbox =
         textinbox .. textColor .. "Auto Maneuver : " .. ternary(state.AutoMan.value, "ON", "OFF") .. textColorNewLine
     textinbox = textinbox .. textColor .. "Lock Pet DT Set: " .. ternary(state.LockPetDT.value, "ON", "OFF") .. textColorNewLine
     textinbox = textinbox .. textColor .. "Lock Weapon: " .. ternary(state.LockWeapon.value, "ON", "OFF") .. textColorNewLine
+    textinbox = textinbox .. textColor .. "Weaponskill FTP: " .. ternary(state.SetFTP.value, "ON", "OFF") .. textColorNewLine
 
     --Debug Variables that are used for testing
     if d_mode then
@@ -727,7 +761,6 @@ function refreshWindow()
         textinbox = textinbox .. textColor .. "Master State : " .. Master_State .. textColorNewLine
         textinbox = textinbox .. textColor .. "Pet State : " .. Pet_State .. textColorNewLine
 
-
     end
 
     windower.text.set_text(tb_name, textinbox)
@@ -735,7 +768,7 @@ end
 
 --Handles drawing the Pet Info for the Text Box
 function drawPetInfo()
-    textinbox = textinbox .. drawTitle("Pet Info")
+    textinbox = textinbox .. drawTitle("   Pet Info   ")
     textinbox = textinbox .. "- \\cs(0, 0, 125)HP : " .. pet.hp .. "/" .. pet.max_hp .. textColorNewLine
     textinbox = textinbox .. "- \\cs(0, 125, 0)MP : " .. pet.mp .. "/" .. pet.max_mp .. textColorNewLine
     textinbox = textinbox .. "- \\cs(255, 0, 0)TP : " .. tostring(pet.tp) .. textColorNewLine
@@ -745,7 +778,7 @@ end
 function drawPetSkills()
     --- Recast for enmity gears
 
-    textinbox = textinbox .. drawTitle("Pet Skills")
+    textinbox = textinbox .. drawTitle("  Pet Skills  ")
     -- Strobe recast
     if Strobe_Recast == 0 and (pet.attachments.strobe or pet.attachments["strobe II"]) then
         if buffactive["Fire Maneuver"] then
@@ -1044,9 +1077,6 @@ end
 
 --Anytime you change equipment you need to set eventArgs.handled or else you may get overwritten
 function job_buff_change(buff, gain_or_loss, eventArgs)
-    if state.Buff[buff] ~= nil then
-        state.Buff[buff] = gain
-    end
 
     if buff:lower() == "sleep" and gain_or_loss then
         equip(set_combine(sets.defense.MasterDT, {neck = "Opo-opo Necklace"}))
@@ -1086,45 +1116,6 @@ function job_buff_change(buff, gain_or_loss, eventArgs)
             eventArgs.handled = true
         end
     end
-
-    if state.Buff[buff] ~= nil then
-        state.Buff[buff] = gain
-    end
-    
-    -- If we gain or lose any haste buffs, adjust which gear set we target.
-    if S{}:contains(buff:lower()) then
-        determine_haste_group()
-        if not midaction() then
-            handle_equipping_gear(player.status)
-        end
-    end
-    if buff:startswith('Aftermath') then
-        if player.equipment.main == 'Kenkonken' then
-            classes.CustomMeleeGroups:clear()
-
-            if (buff == "Aftermath: Lv.3" and gain) or buffactive['Aftermath: Lv.3'] then
-				classes.CustomMeleeGroups:append('Aftermath3')--Determines which Set it equips
-				equip(sets.engaged.Aftermath3)
-                msg('-------AM3 UP(Occ. Attacks x2 to x3)-------')
-            end
-
-			if (buff == "Aftermath: Lv.2" and gain) or buffactive['Aftermath: Lv.2'] then
-                classes.CustomMeleeGroups:append('AM2')--Determines which Set it equips
-				equip(sets.engaged.Aftermath2)
-                msg('-------------AM2 UP(M.ACC+)-------------')
-            end
-			
-			if (buff == "Aftermath: Lv.1" and gain) or buffactive['Aftermath: Lv.1'] then
-                classes.CustomMeleeGroups:append('AM1')--Determines which Set it equips
-                equip(sets.engaged.Aftermath1)
-				msg('-------------AM1 UP(ACC+)-------------')
-            end
-			
-            if not midaction() then
-                handle_equipping_gear(player.status)
-            end
-        end
-    end
 end
 
 -- Toggles -- SE Macros: /console gs c "command" [case sensitive]
@@ -1138,7 +1129,23 @@ function job_self_command(command, eventArgs)
     elseif command[1]:lower() == "predict" then
         determinePuppetType()
         refreshWindow()
+    elseif command[1]:lower() == "hide" then
+
+        if command[2]:lower() == 'mode' then
+            state.textHideMode:toggle()
+            refreshWindow()
+        elseif command[2]:lower() == 'state' then
+            state.textHideState:toggle()
+            refreshWindow()    
+        elseif command[2]:lower() == 'window' then
+            visible = not visible
+            refreshWindow()
+        end
+    elseif command[1]:lower() == 'setftp' then
+        state.SetFTP:toggle()
+        refreshWindow()
     end
+
 end
 
 justFinishedWeaponSkill = false
@@ -1165,7 +1172,11 @@ windower.register_event(
                     elseif state.PetModeCycle.value:lower() == const_mage:lower() then
                         --Ignore swapping in Weaponskill set if we are a mage
                     else
-                        equip(sets.midcast.Pet.WeaponSkill)
+                        if state.SetFTP.value then
+                            equip(sets.midcast.Pet.WSFTP)
+                        else
+                            equip(sets.midcast.Pet.WeaponSkill)
+                        end
                     end
                 else
                     justFinishedWeaponSkill = false
@@ -1346,6 +1357,7 @@ function display_current_job_state(eventArgs)
     end
 
     TotalSCalc()
+    determinePuppetType()
     handle_equipping_gear(player.status, Pet_State)
 
     add_to_chat(122, msg)
@@ -1379,30 +1391,61 @@ function job_handle_equipping_gear(playerStatus, eventArgs)
         enable("lring")
     end
 end
-	
+
+function user_customize_melee_set(meleeSet)
+    -- local buildNewMeleeSet = sets.engaged
+
+    -- if buffactive['Aftermath: Lv.1'] or buffactive['Aftermath: Lv.2'] or buffactive['Aftermath: Lv.3'] then
+
+    --     buildNewMeleeSet = buildNewMeleeSet[state.OffenseMode.value]
+        
+    --     if buffactive['Aftermath: Lv.1'] then
+    --         msg('Aftermath Lv.1 in Melee Set')
+    --         buildNewMeleeSet = buildNewMeleeSet["AM1"]
+    --         return buildNewMeleeSet
+    --     elseif buffactive['Aftermath: Lv.2'] then
+    --         msg('Aftermath Lv.2 in Melee Set')
+    --         buildNewMeleeSet = buildNewMeleeSet["AM2"]
+    --         return buildNewMeleeSet
+    --     elseif buffactive['Aftermath: Lv.3'] then
+    --         msg('Aftermath Lv.3 in Melee Set')
+    --         buildNewMeleeSet = buildNewMeleeSet["AM3"]
+    --        return buildNewMeleeSet 
+    --     end
+    -- end
+
+    return meleeSet
+end
+
 function determine_haste_group()
+    -- High haste buffs:
+    -- 2x Marches + Haste
+    -- 2x Marches + Haste Samba
+    -- 1x March + Haste + Haste Samba
+    -- Embrava + any other haste buff
+
+    -- For max haste, we probably need to consider dropping all DW gear.
+    -- Max haste buffs:
+    -- Embrava + Haste/March + Haste Samba
+    -- 2x March + Haste + Haste Samba
 
     classes.CustomMeleeGroups:clear()
-    -- mythic AM	
-    if player.equipment.main == 'Kenkonken' then
-		if buffactive['Aftermath: Lv.2'] then
-		classes.CustomMeleeGroups:append('AM2')
-		equip(sets.engaged.Aftermath2)
-		end
-		if buffactive['Aftermath: Lv.1'] then
-		classes.CustomMeleeGroups:append('AM1')
-		equip(sets.engaged.Aftermath1)
-		end
-        if buffactive['Aftermath: Lv.3'] then
-            classes.CustomMeleeGroups:append('AM3')
-			equip(sets.engaged.Aftermath3)
-        end
+
+    if buffactive.embrava and (buffactive.haste or buffactive.march) and buffactive["haste samba"] then
+        classes.CustomMeleeGroups:append("MaxHaste")
+    elseif buffactive.march == 2 and buffactive.haste and buffactive["haste samba"] then
+        classes.CustomMeleeGroups:append("MaxHaste")
+    elseif buffactive.embrava and (buffactive.haste or buffactive.march or buffactive["haste samba"]) then
+        classes.CustomMeleeGroups:append("HighHaste")
+    elseif buffactive.march == 1 and buffactive.haste and buffactive["haste samba"] then
+        classes.CustomMeleeGroups:append("HighHaste")
+    elseif buffactive.march == 2 and (buffactive.haste or buffactive["haste samba"]) then
+        classes.CustomMeleeGroups:append("HighHaste")
     end
+
 end
--------------------------------------------------------------------------------------------------------------------End of Aftermath
 
 -------------------------------------------------------------------------------------------------------------------TP Rules for WS
-
 function job_post_precast(spell, action, spellMap, eventArgs)
 		if player.tp > 2750 then
             equip(sets.TP_Bonus)	
