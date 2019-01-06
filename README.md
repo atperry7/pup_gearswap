@@ -3,6 +3,7 @@
 - [Puppet Gearswap for Windower](#puppet-gearswap-for-windower)
 - [Requirements](#requirements)
 - [Features](#features)
+  - [Window Position](#window-position)
   - [Offense Mode](#offense-mode)
   - [Hybrid Mode](#hybrid-mode)
   - [Defense Mode](#defense-mode)
@@ -36,6 +37,17 @@ https://github.com/Kinematics/Mote-libs
 [Jump To Table of Contents](#puppet-gearswap-for-windower)
 
 # Features
+
+## Window Position
+To adjust the window position you change the values in job_setup
+
+    Adjust the X (horizontal) and Y (vertical) position here to adjust the window
+    
+    Default:
+    setupTextWindow(0, 0)  
+    
+    Example:
+    setupTextWindow(1400, 600)
 
 ## Offense Mode
 These are for when you are fighting with or without Pet
