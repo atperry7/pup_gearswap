@@ -1111,7 +1111,8 @@ windower.register_event(
             --then we may equip Weaponskill Gear for pet
             --Otherwise this is handled when player has more TP in aftercast
             if pet.isvalid and 
-            (player.tp < 1000 or state.PetStyleCycle.value:lower() == "spam" or state.PetStyleCycle.value:lower() == "dd") then
+            (player.tp < 1000 or state.PetStyleCycle.value:lower() == "spam" or state.PetStyleCycle.value:lower() == "dd")
+            and Master_State:lower() == "idle" then
                 --Now if pet has more than 1000 tp and pet is engaged and didn't just finish a weaponskill
                 --Then we may equip the Weaponskill gear for pet
                 if pet.tp >= 1000 and Pet_State == const_stateEngaged and justFinishedWeaponSkill == false then
