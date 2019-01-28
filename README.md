@@ -182,6 +182,9 @@ You can hide the State from the Window by using the below command:
 You can hide the Mode from the Window by using the below command
 - `//gs c hide mode`
 
+You can toggle default keybinds set up for cycles/modes on menu by using the below command
+- `//gs c hide keybinds`
+
 ## Notes On Pet Equipping Weaponskill Gear
 This is currently how we determine when to equip a pets Weaponskill Gear prior to it using:
 
