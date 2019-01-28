@@ -12,7 +12,7 @@
 
     Originally Created By: Faloun
     Programmers: Arrchie, Kuroganashi, Byrne
-    Testers:Arrchie, Kuroganashi, Haxetc, Patb, Whirlin
+    Testers:Arrchie, Kuroganashi, Haxetc, Patb, Whirlin, Petsmart
     Contributors: Xilkk, Byrne, Blackhalo714
 
     ASCII Art Generator: http://www.network-science.de/ascii/
@@ -113,6 +113,7 @@ function user_setup()
     state.SetFTP = M(false, "Set FTP")
     state.textHideMode = M(false, "Hide Mode")
     state.textHideState = M(false, "Hide State")
+    state.Keybinds = M(false, "Hide Keybinds")
 
     send_command("bind !f7 gs c cycle PetModeCycle")
     send_command("bind ^f7 gs c cycleback PetModeCycle")
@@ -288,7 +289,7 @@ function init_gear_sets()
             -- Add your set here
         }
     )
-    --Caro Necklace / Grunfeld Rope
+    
     sets.precast.WS["Stringing Pummel"].Mod = set_combine(sets.precast.WS, {
             -- Add your set here
         }
@@ -298,7 +299,6 @@ function init_gear_sets()
             -- Add your set here
         }
     )
-    --Rao Haidate/Hiza. Hizayoroi +1/Abnoba Kaftan
 
     sets.precast.WS["Shijin Spiral"] = set_combine( sets.precast.WS, {
             -- Add your set here
@@ -673,8 +673,8 @@ function refreshWindow()
 
     if not state.textHideState.value then
         textinbox = textinbox .. drawTitle("    State    ")
-        textinbox = textinbox .. textColor .. "Pet Mode : " .. state.PetModeCycle.value .. textColorNewLine
-        textinbox = textinbox .. textColor .. "Pet Style : " .. state.PetStyleCycle.value .. textColorNewLine
+        textinbox = textinbox .. textColor .. "Pet Mode " .. ternary(state.Keybinds.value, "(ALT+F7)", "") .. " : " .. state.PetModeCycle.value .. textColorNewLine
+        textinbox = textinbox .. textColor .. "Pet Style " .. ternary(state.Keybinds.value, "(ALT+F7)", "") .. " : " .. state.PetStyleCycle.value .. textColorNewLine
         -- textinbox = textinbox .. textColor .. "Master : " .. Master_State .. textColorNewLine
         -- textinbox = textinbox .. textColor .. "Pet : " .. Pet_State .. textColorNewLine
         textinbox = textinbox .. textColor .. "Hybrid : " .. Hybrid_State .. textColorNewLine
@@ -682,17 +682,17 @@ function refreshWindow()
 
     if not state.textHideMode.value then
         textinbox = textinbox .. drawTitle("     Mode     ")
-        textinbox = textinbox .. textColor .. "Idle Mode : " .. tostring(state.IdleMode.current) .. textColorNewLine
-        textinbox = textinbox .. textColor .. "Offense Mode : " .. tostring(state.OffenseMode.current) .. textColorNewLine
-        textinbox = textinbox .. textColor .. "Physical Mode : " .. tostring(state.PhysicalDefenseMode.current) .. textColorNewLine
-        textinbox = textinbox .. textColor .. "Hybrid Mode : " .. tostring(state.HybridMode.current) .. textColorNewLine    
+        textinbox = textinbox .. textColor .. "Idle Mode " .. ternary(state.Keybinds.value, "(CTRL+F12)", "") .. " : " .. tostring(state.IdleMode.current) .. textColorNewLine
+        textinbox = textinbox .. textColor .. "Offense Mode " .. ternary(state.Keybinds.value, "(F9)", "") .. " : " .. tostring(state.OffenseMode.current) .. textColorNewLine
+        textinbox = textinbox .. textColor .. "Physical Mode " .. ternary(state.Keybinds.value, "(CTRL-F10)", "") .. " : " .. tostring(state.PhysicalDefenseMode.current) .. textColorNewLine
+        textinbox = textinbox .. textColor .. "Hybrid Mode : " .. ternary(state.Keybinds.value, "(CTRL-F9)", "") .. " : " .. tostring(state.HybridMode.current) .. textColorNewLine    
     end
 
     textinbox = textinbox .. drawTitle("  Options  ")
     textinbox =
-        textinbox .. textColor .. "Auto Maneuver : " .. ternary(state.AutoMan.value, "ON", "OFF") .. textColorNewLine
-    textinbox = textinbox .. textColor .. "Lock Pet DT Set: " .. ternary(state.LockPetDT.value, "ON", "OFF") .. textColorNewLine
-    textinbox = textinbox .. textColor .. "Lock Weapon: " .. ternary(state.LockWeapon.value, "ON", "OFF") .. textColorNewLine
+        textinbox .. textColor .. "Auto Maneuver " .. ternary(state.Keybinds.value, "(ALT+E)", "") .. " : " .. ternary(state.AutoMan.value, "ON", "OFF") .. textColorNewLine
+    textinbox = textinbox .. textColor .. "Lock Pet DT Set " .. ternary(state.Keybinds.value, "(ALT+D)", "") .. " : " .. ternary(state.LockPetDT.value, "ON", "OFF") .. textColorNewLine
+    textinbox = textinbox .. textColor .. "Lock Weapon " .. ternary(state.Keybinds.value, "(ALT+~)", "") .. " : " .. ternary(state.LockWeapon.value, "ON", "OFF") .. textColorNewLine
     textinbox = textinbox .. textColor .. "Weaponskill FTP: " .. ternary(state.SetFTP.value, "ON", "OFF") .. textColorNewLine
 
     --Debug Variables that are used for testing
@@ -940,7 +940,7 @@ function user_customize_idle_set(idleSet)
     end
 end
 
-function job_precast(spell, action)
+function job_precast(spell, action, spellMap, eventArgs)
 
     if spell.english == "Activate" or spell.english == "Deus Ex Automata" then
         TotalSCalc()
@@ -954,24 +954,30 @@ function job_precast(spell, action)
     elseif pet.isvalid then
         if spell.english == "Deploy" and pet.tp >= 950 then
             equip(sets.midcast.Pet.WeaponSkill)
+            eventArgs.handled = true
         end
     end
 
 end
 
-function job_midcast(spell, action)
+function job_midcast(spell, action, spellMap, eventArgs)
 end
 
-function job_aftercast(spell, action)
+function job_aftercast(spell, action, spellMap, eventArgs)
     if pet.isvalid then
         if SC[pet.frame][spell.english] and pet.tp >= 850 then
             ws = SC[pet.frame][spell.english]
             modif = Modifier[ws]
+            equip(sets.midcast.Pet.WS[modif])
+            
             add_to_chat(
                 392,
                 "*-*-*-*-*-*-*-*-* [ " .. pet.name .. " is about to " .. ws .. " (" .. modif .. ") ] *-*-*-*-*-*-*-*-*"
             )
-            equip(sets.midcast.Pet.WS[modif])
+            
+            eventArgs.handled = true
+        else
+            handle_equipping_gear(player.status, Pet_State)
         end
 
     else
@@ -1007,8 +1013,17 @@ function job_pet_status_change(new, old)
     handle_equipping_gear(player.status, Pet_State)
 end
 
+AutomatonWeaponSkills = T{"Slapstick", "Knockout", "Magic Mortar", "Chimera Ripper", "String Clipper", "Cannibal Blade", "Bone Crusher", "String Shredder", "Arcuballista", "Daze", "Armor Piercer", "Armor Shatterer"}
+
+function job_pet_midcast(spell)
+    
+    if table.contains(AutomatonWeaponSkills, spell.name) then
+        modif = Modifier[spell.name]
+        equip(sets.midcast.Pet.WS[modif])
+    end
+end
+
 function job_pet_aftercast(spell)
-    AutomatonWeaponSkills = T{"Slapstick", "Knockout", "Magic Mortar", "Chimera Ripper", "String Clipper", "Cannibal Blade", "Bone Crusher", "String Shredder", "Arcuballista", "Daze", "Armor Piercer", "Armor Shatterer"}
 
     if table.contains(AutomatonWeaponSkills, spell.name) then
         justFinishedWeaponSkill = true
@@ -1023,9 +1038,9 @@ function job_buff_change(status, gain_or_loss, eventArgs)
         equip(set_combine(sets.defense.PDT, {neck = "Opo-opo Necklace"}))
         eventArgs.handled = true
     elseif status == "doom" and gain_or_loss then
-        send_command("/p I have befallen to ~~~DOOM~~~ may my end not come to quickly.")
+        send_command("input /p I have befallen to ~~~DOOM~~~ may my end not come to quickly.")
     elseif status == "doom" and gain_or_loss == false then
-        send_command("/p I have avoided the grips of ~~~DOOM~~~ may Altana be praised! ")
+        send_command("input /p I have avoided the grips of ~~~DOOM~~~ may Altana be praised! ")
     end
 
     --When you are at 3 Maneuvers and you use the ability you will temporarily go to 4
@@ -1082,6 +1097,9 @@ function job_self_command(command, eventArgs)
             refreshWindow()    
         elseif command[2]:lower() == 'window' then
             visible = not visible
+            refreshWindow()
+        elseif command[2]:lower() == 'keybinds' then
+            state.Keybinds:toggle()
             refreshWindow()
         end
     elseif command[1]:lower() == 'setftp' then
@@ -1363,6 +1381,7 @@ function debug(message)
 
 end
 
+--Dump the contents of a table
 function dump(o)
     if type(o) == 'table' then
        local s = '{ '
