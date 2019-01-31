@@ -674,7 +674,7 @@ function refreshWindow()
     if not state.textHideState.value then
         textinbox = textinbox .. drawTitle("    State    ")
         textinbox = textinbox .. textColor .. "Pet Mode " .. ternary(state.Keybinds.value, "(ALT+F7)", "") .. " : " .. state.PetModeCycle.value .. textColorNewLine
-        textinbox = textinbox .. textColor .. "Pet Style " .. ternary(state.Keybinds.value, "(ALT+F7)", "") .. " : " .. state.PetStyleCycle.value .. textColorNewLine
+        textinbox = textinbox .. textColor .. "Pet Style " .. ternary(state.Keybinds.value, "(ALT+F8)", "") .. " : " .. state.PetStyleCycle.value .. textColorNewLine
         -- textinbox = textinbox .. textColor .. "Master : " .. Master_State .. textColorNewLine
         -- textinbox = textinbox .. textColor .. "Pet : " .. Pet_State .. textColorNewLine
         textinbox = textinbox .. textColor .. "Hybrid : " .. Hybrid_State .. textColorNewLine
