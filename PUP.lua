@@ -1015,14 +1015,6 @@ end
 
 AutomatonWeaponSkills = T{"Slapstick", "Knockout", "Magic Mortar", "Chimera Ripper", "String Clipper", "Cannibal Blade", "Bone Crusher", "String Shredder", "Arcuballista", "Daze", "Armor Piercer", "Armor Shatterer"}
 
-function job_pet_midcast(spell)
-    
-    if table.contains(AutomatonWeaponSkills, spell.name) then
-        modif = Modifier[spell.name]
-        equip(sets.midcast.Pet.WS[modif])
-    end
-end
-
 function job_pet_aftercast(spell)
 
     if table.contains(AutomatonWeaponSkills, spell.name) then
