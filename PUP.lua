@@ -70,7 +70,7 @@ function user_setup()
         Used when you are Engaged with Pet
         Used when you are Idle and Pet is Engaged
     ]]
-    state.HybridMode:options("Normal", "Acc", "TP", "DT", "Regen")
+    state.HybridMode:options("Normal", "Acc", "TP", "DT", "Regen", "Ranged")
 
     --[[
         Alt-F12 - Turns off any emergency defense mode.
@@ -224,6 +224,9 @@ function init_gear_sets()
     --                                                 |___/
     ---------------------------------------------------------------------------------
     --This section is best utilized for Master Sets
+    --[[
+        Will be activated when Pet is not active, otherwise refer to sets.idle.Pet
+    ]]
     sets.idle = {
         -- Add your set here
     }
@@ -234,7 +237,7 @@ function init_gear_sets()
     }
 
     -------------------------------------Midcast
-    sets.midcast = {} -- Initilization Keep Empty
+    sets.midcast = {} --Can be left empty
 
     sets.midcast.FastRecast = {
         -- Add your set here
@@ -246,11 +249,15 @@ function init_gear_sets()
     -------------------------------------JA
     sets.precast.FC.Utsusemi = set_combine(sets.precast.FC, {neck = "Magoraga Beads", body = "Passion Jacket"})
 
-    sets.precast.JA = {} -- Initilization Keep Empty
     -- Precast sets to enhance JAs
+    sets.precast.JA = {} -- Can be left empty
+    
     sets.precast.JA["Tactical Switch"] = {feet = Empy_Karagoz.Feet_Tatical}
+    
     sets.precast.JA["Ventriloquy"] = {legs = Relic_Pitre.Legs_PMagic}
+    
     sets.precast.JA["Role Reversal"] = {feet = Relic_Pitre.Feet_PMagic}
+    
     sets.precast.JA["Overdrive"] = {body = Relic_Pitre.Body_PTP}
 
     sets.precast.JA["Repair"] = {
@@ -264,6 +271,7 @@ function init_gear_sets()
     }
 
     sets.precast.JA["Activate"] = { back = "Visucius's Mantle" }
+    
     sets.precast.JA["Deus Ex Automata"] = sets.precast.JA["Activate"]
 
     sets.precast.JA["Provoke"] = {
@@ -286,52 +294,71 @@ function init_gear_sets()
 
     -- Specific weaponskill sets.  Uses the base set if an appropriate WSMod version isn't found.
     sets.precast.WS["Stringing Pummel"] = set_combine( sets.precast.WS, {
-            -- Add your set here
+            -- Add armor here specific to the weapon skill not included in the sets.precast.WS
         }
     )
     
     sets.precast.WS["Stringing Pummel"].Mod = set_combine(sets.precast.WS, {
-            -- Add your set here
+            -- Add armor here specific to the weapon skill not included in the sets.precast.WS
         }
     )
 
     sets.precast.WS["Victory Smite"] = set_combine( sets.precast.WS, {
-            -- Add your set here
+            -- Add armor here specific to the weapon skill not included in the sets.precast.WS
         }
     )
 
     sets.precast.WS["Shijin Spiral"] = set_combine( sets.precast.WS, {
-            -- Add your set here
+            -- Add armor here specific to the weapon skill not included in the sets.precast.WS
         }
     )
 
     sets.precast.WS["Howling Fist"] = set_combine( sets.precast.WS, {
-            -- Add your set here
+            -- Add armor here specific to the weapon skill not included in the sets.precast.WS
         }
     )
 
     -------------------------------------Idle
+    --[[
+        Pet is not active
+        Idle Mode = MasterDT
+    ]]
     sets.idle.MasterDT = {
         -- Add your set here
     }
 
     -------------------------------------Engaged
-    --Default set when your first engage, further changed by the Hybrid Mode
+    --[[
+        Offense Mode = Master
+        Hybrid Mode = Normal
+    ]]
     sets.engaged.Master = {
         -- Add your set here
     }
 
-    --Hybrid Master Acc
+    -------------------------------------Acc
+    --[[
+        Offense Mode = Master
+        Hybrid Mode = Acc
+    ]]
     sets.engaged.Master.Acc = {
         -- Add your set here
     }
 
-    --Hybrid Master TP
+    -------------------------------------TP
+    --[[
+        Offense Mode = Master
+        Hybrid Mode = TP
+    ]]
     sets.engaged.Master.TP = {
         -- Add your set here
     }
 
-    --Hyrbid Master DT
+    -------------------------------------DT
+    --[[
+        Offense Mode = Master
+        Hybrid Mode = DT
+    ]]
     sets.engaged.Master.DT = {
        -- Add your set here
     }
@@ -343,26 +370,52 @@ function init_gear_sets()
     -- |_|  |_\__,_/__/\__\___|_| |_| \___|\__| |___/\___|\__/__/
     -----------------------------------------------------------------------------------
 
+    --[[
+        These sets are designed to be a hybrid of player and pet gear for when you are
+        fighting along side your pet. Basically gear used here should benefit both the player
+        and the pet.
+    ]]
+
+    --[[
+        Offense Mode = MasterPet
+        Hybrid Mode = Normal
+    ]]
     sets.engaged.MasterPet = {
         -- Add your set here
     }
 
     -------------------------------------Acc
+    --[[
+        Offense Mode = MasterPet
+        Hybrid Mode = Acc
+    ]]
     sets.engaged.MasterPet.Acc = {
         -- Add your set here
     }
 
     -------------------------------------TP
+    --[[
+        Offense Mode = MasterPet
+        Hybrid Mode = TP
+    ]]
     sets.engaged.MasterPet.TP = {
         -- Add your set here
     }
 
     -------------------------------------DT
+    --[[
+        Offense Mode = MasterPet
+        Hybrid Mode = DT
+    ]]
     sets.engaged.MasterPet.DT = {
         -- Add your set here
     }
     
     -------------------------------------Regen
+    --[[
+        Offense Mode = MasterPet
+        Hybrid Mode = Regen
+    ]]
     sets.engaged.MasterPet.Regen = {
         -- Add your set here
     }
@@ -377,7 +430,6 @@ function init_gear_sets()
     --                                  __/ |
     --                                 |___/
     ----------------------------------------------------------------
-    --This section for sets pretaining to Pets
 
     -------------------------------------Magic Midcast
     sets.midcast.Pet = {
@@ -413,86 +465,153 @@ function init_gear_sets()
     }
 
     -------------------------------------Idle
+    --[[
+        This set will become default Idle Set when the Pet is Active 
+        and sets.idle will be ignored
+        Player = Idle and not fighting
+        Pet = Idle and not fighting
+
+        Idle Mode = Idle
+    ]]
     sets.idle.Pet = {
 
     }
 
-    sets.idle.PetDT = {
-        --Add your set here
+    --[[
+        If pet is active and you are idle and pet is idle
+        Player = idle and not fighting
+        Pet = idle and not fighting
+
+        Idle Mode = MasterDT
+    ]]
+    sets.idle.Pet.MasterDT = {
+
     }
 
     -------------------------------------Enmity
     sets.pet = {} -- Not Used
 
+    --Equipped automatically
     sets.pet.Enmity = {
+        --Add your set here
+    }
+
+    --[[
+        Activated by Alt+D or
+        F10 if Physical Defense Mode = PetDT
+    ]]
+    sets.pet.EmergencyDT = {
         --Add your set here
     }
 
     -------------------------------------Engaged for Pet Only
     --[[
-      So, after studying Motes files the way that a pet set is built is as follows
+      For Technical Users - This is layout of below
       sets.idle[idleScope][state.IdleMode][ Pet[Engaged] ][CustomIdleGroups] 
+
+      For Non-Technical Users:
+      If you the player is not fighting and your pet is fighting the first set that will activate is sets.idle.Pet.Engaged
+      You can further adjust this by changing the HyrbidMode using Ctrl+F9 to activate the Acc/TP/DT/Regen/Ranged sets
     ]]
-    -- Idle sets to wear while pet is engaged and you are idle
+
+    --[[
+        Idle Mode = Idle
+        Hybrid Mode = Normal
+    ]]
     sets.idle.Pet.Engaged = {
         --Add your set here
     }
 
+    --[[
+        Idle Mode = Idle
+        Hybrid Mode = Acc
+    ]]
     sets.idle.Pet.Engaged.Acc = {
         --Add your set here
     }
 
+    --[[
+        Idle Mode = Idle
+        Hybrid Mode = TP
+    ]]
     sets.idle.Pet.Engaged.TP = {
         --Add your set here
     }
 
+    --[[
+        Idle Mode = Idle
+        Hybrid Mode = DT
+    ]]
     sets.idle.Pet.Engaged.DT = {
         --Add your set here
     }
 
+    --[[
+        Idle Mode = Idle
+        Hybrid Mode = Regen
+    ]]
     sets.idle.Pet.Engaged.Regen = {
         --Add your set here
     }
 
-    sets.idle.Pet.Engaged.Ranged = set_combine(sets.idle.Pet.Engaged, {legs = Empy_Karagoz.Legs_Combat})
-
-    sets.idle.Pet.Engaged.Nuke = set_combine(sets.idle.Pet.Engaged,{
-            -- Add your set here
-        }
-    )
-
-    sets.idle.Pet.Engaged.Magic =set_combine(sets.idle.Pet.Engaged, {
-            -- Add your set here
-        }
-    )
+    --[[
+        Idle Mode = Idle
+        Hybrid Mode = Ranged
+    ]]
+    sets.idle.Pet.Engaged.Ranged = set_combine(sets.idle.Pet.Engaged, {
+        legs = Empy_Karagoz.Legs_Combat
+    })
 
     -------------------------------------WS
-    sets.midcast.Pet.WeaponSkillNoAcc = {
-        -- Add your set here
-    }
-
+    --[[
+        WSNoFTP is the default weaponskill set used
+    ]]
     sets.midcast.Pet.WSNoFTP = {
         -- Add your set here
     }
 
+    --[[
+        If we have a pet weaponskill that can benefit from WSFTP
+        then this set will be equipped
+    ]]
     sets.midcast.Pet.WSFTP = {
         -- Add your set here
     }
 
-    sets.midcast.Pet.WeaponSkill = sets.midcast.Pet.WSNoFTP
+    --[[
+        Base Weapon Skill Set
+        Used by default if no modifier is found
+    ]]
     sets.midcast.Pet.WS = {}
+    
     --Chimera Ripper, String Clipper
-    sets.midcast.Pet.WS["STR"] = set_combine(sets.midcast.Pet.WeaponSkill, {})
+    sets.midcast.Pet.WS["STR"] = set_combine(sets.midcast.Pet.WSNoFTP, {
+        -- Add your gear here that would be different from sets.midcast.Pet.WSNoFTP
+    })
+    
     -- Bone crusher, String Shredder
     sets.midcast.Pet.WS["VIT"] =
-        set_combine(sets.midcast.Pet.WeaponSkill, {head = Empy_Karagoz.Head_PTPBonus, waist = "Incarnation Sash"})
+        set_combine(sets.midcast.Pet.WSNoFTP, {
+            -- Add your gear here that would be different from sets.midcast.Pet.WSNoFTP
+            head = Empy_Karagoz.Head_PTPBonus, waist = "Incarnation Sash"
+        })
+    
     -- Cannibal Blade
-    sets.midcast.Pet.WS["MND"] = set_combine(sets.midcast.Pet.WeaponSkill, {})
+    sets.midcast.Pet.WS["MND"] = set_combine(sets.midcast.Pet.WSNoFTP, {
+        -- Add your gear here that would be different from sets.midcast.Pet.WSNoFTP
+    })
+    
     -- Armor Piercer, Armor Shatterer
-    sets.midcast.Pet.WS["DEX"] = set_combine(sets.midcast.Pet.WeaponSkill, {legs = ""})
+    sets.midcast.Pet.WS["DEX"] = set_combine(sets.midcast.Pet.WSNoFTP, {
+        -- Add your gear here that would be different from sets.midcast.Pet.WSNoFTP
+    })
+    
     -- Arcuballista, Daze
     sets.midcast.Pet.WS["DEXFTP"] =
-        set_combine(sets.midcast.Pet.WS["DEX"], {head = Empy_Karagoz.Head_PTPBonus, back = "Dispersal Mantle"})
+        set_combine(sets.midcast.Pet.WSFTP, {
+            -- Add your gear here that would be different from sets.midcast.Pet.WSFTP
+            head = Empy_Karagoz.Head_PTPBonus, back = "Dispersal Mantle"
+        })
 
     ---------------------------------------------
     --  __  __ _             _____      _
@@ -517,7 +636,7 @@ function init_gear_sets()
 
     sets.defense.MasterDT = sets.idle.MasterDT
 
-    sets.defense.PetDT = sets.idle.PetDT
+    sets.defense.PetDT = sets.pet.EmergencyDT
 end
 
 -- Select default macro book on initial load or subjob change.
@@ -932,7 +1051,7 @@ function user_customize_idle_set(idleSet)
         if state.HybridMode.current == "Normal" then
             return idleSet
         else
-            idleSet = idleSet[state.HybridMode.current]
+            idleSet = sets.idle.Pet.Engaged[state.HybridMode.current]
             return idleSet
         end
     else
@@ -953,7 +1072,7 @@ function job_precast(spell, action, spellMap, eventArgs)
         equip(sets.precast.WS[spell.english])
     elseif pet.isvalid then
         if spell.english == "Deploy" and pet.tp >= 950 then
-            equip(sets.midcast.Pet.WeaponSkill)
+            equip(sets.midcast.Pet.WSNoFTP)
             eventArgs.handled = true
         end
     end
@@ -1136,7 +1255,7 @@ windower.register_event(
                         if state.SetFTP.value then
                             equip(sets.midcast.Pet.WSFTP)
                         else
-                            equip(sets.midcast.Pet.WeaponSkill)
+                            equip(sets.midcast.Pet.WSNoFTP)
                         end
                     end
                 else
@@ -1254,7 +1373,7 @@ function job_state_change(stateField, newValue, oldValue)
         --This command overrides everything and blocks all gear changes
         --Will lock until turned off or Pet is disengaged
         if newValue == true then
-            equip(sets.idle.PetDT)
+            equip(sets.pet.EmergencyDT)
             disable(
                 "main",
                 "sub",
@@ -1326,31 +1445,6 @@ end
 
 function sub_job_change(new, old)
     determinePuppetType()
-end
-
---Anytime equipment is changed this is called
-function job_handle_equipping_gear(playerStatus, eventArgs)
-    local backsToLock = S {"Mecisto. Mantle", "Aptitude Mantle", "Aptitude Mantle +1"}
-    local ringsToLock = S {"Warp Ring", "Dim. Ring (Dem)", "Dim. Ring (Holla)", "Dim. Ring (Mea)"}
-
-    --Checks against a list of possible items we want to lock for certain spots
-    if backsToLock:contains(player.equipment.back) then
-        disable("back")
-    else
-        enable("back")
-    end
-
-    if ringsToLock:contains(player.equipment.right_ring) then
-        disable("rring")
-    else
-        enable("rring")
-    end
-
-    if ringsToLock:contains(player.equipment.left_ring) then
-        disable("lring")
-    else
-        enable("lring")
-    end
 end
 
 windower.raw_register_event("zone change", reset_timers)
