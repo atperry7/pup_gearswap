@@ -19,33 +19,6 @@
     
 ]]
 
---Auto Maneuvers Toggle:
---Currently, the way this works is it will simply recast the maneuver that wears off. This way you can cast any maneuvers you want and it will simply attempt to maintain what you have active.
---ALT + E
-
---Predict:
---This will attempt to determine the currently equipped puppet and adjust the Pet Mode and Pet Style.
---//gs c predict
---ALT+F6
-
---Pet Mode:
---ALT+F7 Cycles forward on Pet Modes
---CTRL+F7 Cycles back on Pet Modes
-
---Pet Styles
---This will change the mode of the pet and the style of the pet.
---Current Modes: TANK, DD, Mage
---Current Styles:
---- Tank: Normal, PDT, MDT, RANGE
---- DD: Normal, Bone, Spam, OD, ODACC
---- Mage: Normal, Heal, Support, MB, DD
-
---ALT+F8 Cycles Forward on Pet Styles
---CTRL+F8 Cycles backward on Pet Styles
-
---Lock Pet DT Set
---ALT+D Will disable all slots and lock your Pet DT set in place
-
 -- Initialization function for this job file.
 -- IMPORTANT: Make sure to also get the Mote-Include.lua file (and its supplementary files) to go with this.
 function get_sets()
@@ -56,6 +29,8 @@ function get_sets()
 end
 
 function user_setup()
+    -- Alt-F10 - Toggles Kiting Mode.
+    
     --[[
         F9 - Cycle Offense Mode (the offensive half of all 'hybrid' melee modes).
         
@@ -73,25 +48,26 @@ function user_setup()
     state.HybridMode:options("Normal", "Acc", "TP", "DT", "Regen", "Ranged")
 
     --[[
-        Alt-F12 - Turns off any emergency defense mode.
+        Alt-F12 - Turns off any emergency mode
+        
         Ctrl-F10 - Cycle type of Physical Defense Mode in use.
         F10 - Activate emergency Physical Defense Mode. Replaces Magical Defense Mode, if that was active.
     ]]
     state.PhysicalDefenseMode:options("PetDT", "MasterDT")
+    
+    --[[
+        Alt-F12 - Turns off any emergency mode
 
-    -- F11 - Activate emergency Magical Defense Mode. Replaces Physical Defense Mode, if that was active.
-
-    -- Alt-F10 - Toggles Kiting Mode.
+        F11 - Activate emergency Magical Defense Mode. Replaces Physical Defense Mode, if that was active.
+    ]] 
+    state.MagicalDefenseMode:options("PetMDT")
 
     --[[ IDLE Mode Notes:
 
         F12 - Update currently equipped gear, and report current status.
         Ctrl-F12 - Cycle Idle Mode.
-        Defaults to PetDT for when set to Idle
         
-        Will set IdleMode to Idle when Pet becomes Engaged and you are Idle
-
-        So, if you wish to go into a fight in MasterDT when first approaching to get Pet Engaged it will auto switch
+        Will automatically set IdleMode to Idle when Pet becomes Engaged and you are Idle
     ]] 
     state.IdleMode:options("Idle", "MasterDT")
 
@@ -107,13 +83,67 @@ function user_setup()
     state.PetStyleCycle = state.PetStyleCycleTank
 
     --Toggles
+    --[[
+        Alt + E will turn on or off Auto Maneuver
+    ]]
     state.AutoMan = M(false, "Auto Maneuver")
+
+    --[[
+        Alt + D will turn on or off Lock Pet DT
+        (Note this will block all gearswapping when active)
+    ]]
     state.LockPetDT = M(false, "Lock Pet DT")
+
+    --[[
+        Alt + (tilda) will turn on or off the Lock Weapon
+    ]]
     state.LockWeapon = M(false, "Lock Weapon")
+
+    --[[
+        //gs c toggle setftp
+    ]]
     state.SetFTP = M(false, "Set FTP")
+
+    --[[
+        This will hide the entire HUB
+        //gs c hide hub
+    ]]
+    state.textHideHUB = M(false, "Hide HUB")
+
+    --[[
+        This will hide the Mode on the HUB
+        //gs c hide mode
+    ]]
     state.textHideMode = M(false, "Hide Mode")
+
+    --[[
+        This will hide the State on the HUB
+        //gs c hide state
+    ]]
     state.textHideState = M(false, "Hide State")
+
+    --[[
+        This will hide the Options on the HUB
+        //gs c hide options
+    ]]
+    state.textHideOptions = M(false, "Hide Options")
+
+    --[[
+        This will toggle the default Keybinds set up for any changeable command on the window
+        //gs c hide keybinds
+    ]]
     state.Keybinds = M(false, "Hide Keybinds")
+    
+    --[[
+        Enter the slots you would lock based on a custom set up.
+        Can be used in situation like Salvage where you don't want
+        certain pieces to change.
+
+        //gs c toggle customgearlock
+        ]]
+    state.CustomGearLock = M(false, "Custom Gear Lock")
+    --Example customGearLock = T{"head", "waist"}
+    customGearLock = T{}
 
     send_command("bind !f7 gs c cycle PetModeCycle")
     send_command("bind ^f7 gs c cycleback PetModeCycle")
@@ -631,12 +661,14 @@ function init_gear_sets()
         -- Add your set here
     }
 
-    -- Defense sets
-    sets.defense = {}
-
     sets.defense.MasterDT = sets.idle.MasterDT
 
     sets.defense.PetDT = sets.pet.EmergencyDT
+
+    sets.defense.PetMDT = set_combine(sets.pet.EmergencyDT, {
+        --Gear added here will overwrite the slots within sets.pet.EmergencyDT
+        --Any slot not added will use the default slot from sets.pet.EmergencyDT
+    })
 end
 
 -- Select default macro book on initial load or subjob change.
@@ -660,6 +692,7 @@ end
 -------------------------------
 --------Global Variables-------
 -------------------------------
+
 Current_Maneuver = 0
 OverCount = 0
 NextWS = ""
@@ -675,8 +708,6 @@ Flashbulb_Time = 0
 Strobe_Time = 0
 
 d_mode = false
-
-visible = true
 
 time_start = os.time()
 
@@ -736,17 +767,6 @@ Modifier["Daze"] = "DEXFTP"
 Modifier["Slapstick"] = "DEX"
 Modifier["Knockout"] = "AGI"
 
--- Colors for Text
-Colors = {}
-Colors["Fire"] = "\\cs(102, 0, 0)"
-Colors["Water"] = "\\cs(0, 51, 102)"
-Colors["Wind"] = "\\cs(51, 102, 0)"
-Colors["Dark"] = "\\cs(0, 0, 0)"
-Colors["Light"] = "\\cs(255, 255, 255)"
-Colors["Earth"] = "\\cs(139, 69, 19)"
-Colors["Ice"] = "\\cs(0, 204, 204)"
-Colors["Thunder"] = "\\cs(51, 0, 102)"
-
 ------------------------------------
 ------------Text Window-------------
 ------------------------------------
@@ -769,7 +789,7 @@ function setupTextWindow(pos_x, pos_y)
     windower.text.set_italic(tb_name, false)
     windower.text.set_text(tb_name, textinbox)
     windower.text.set_bg_visibility(tb_name, bg_visible)
-    windower.text.set_visibility(tb_name, visible)
+    windower.text.set_visibility(tb_name, true)
 end
 
 --Hanldles refreshing the current text window
@@ -779,7 +799,7 @@ function refreshWindow()
     textColorEnd = " \\cr"
     textColor = "\\cs(125, 125, 0)"
 
-    if not visible then
+    if not state.textHideHUB.value then
         textinbox = ''
         windower.text.set_text(tb_name, textinbox)
         return
@@ -804,16 +824,19 @@ function refreshWindow()
         textinbox = textinbox .. textColor .. "Idle Mode " .. ternary(state.Keybinds.value, "(CTRL+F12)", "") .. " : " .. tostring(state.IdleMode.current) .. textColorNewLine
         textinbox = textinbox .. textColor .. "Offense Mode " .. ternary(state.Keybinds.value, "(F9)", "") .. " : " .. tostring(state.OffenseMode.current) .. textColorNewLine
         textinbox = textinbox .. textColor .. "Physical Mode " .. ternary(state.Keybinds.value, "(CTRL-F10)", "") .. " : " .. tostring(state.PhysicalDefenseMode.current) .. textColorNewLine
-        textinbox = textinbox .. textColor .. "Hybrid Mode : " .. ternary(state.Keybinds.value, "(CTRL-F9)", "") .. " : " .. tostring(state.HybridMode.current) .. textColorNewLine    
+        textinbox = textinbox .. textColor .. "Hybrid Mode " .. ternary(state.Keybinds.value, "(CTRL-F9)", "") .. " : " .. tostring(state.HybridMode.current) .. textColorNewLine    
     end
 
-    textinbox = textinbox .. drawTitle("  Options  ")
-    textinbox =
-        textinbox .. textColor .. "Auto Maneuver " .. ternary(state.Keybinds.value, "(ALT+E)", "") .. " : " .. ternary(state.AutoMan.value, "ON", "OFF") .. textColorNewLine
-    textinbox = textinbox .. textColor .. "Lock Pet DT Set " .. ternary(state.Keybinds.value, "(ALT+D)", "") .. " : " .. ternary(state.LockPetDT.value, "ON", "OFF") .. textColorNewLine
-    textinbox = textinbox .. textColor .. "Lock Weapon " .. ternary(state.Keybinds.value, "(ALT+~)", "") .. " : " .. ternary(state.LockWeapon.value, "ON", "OFF") .. textColorNewLine
-    textinbox = textinbox .. textColor .. "Weaponskill FTP: " .. ternary(state.SetFTP.value, "ON", "OFF") .. textColorNewLine
-
+    if not state.textHideOptions.value then
+        textinbox = textinbox .. drawTitle("  Options  ")
+        textinbox =
+            textinbox .. textColor .. "Auto Maneuver " .. ternary(state.Keybinds.value, "(ALT+E)", "") .. " : " .. ternary(state.AutoMan.value, "ON", "OFF") .. textColorNewLine
+        textinbox = textinbox .. textColor .. "Lock Pet DT Set " .. ternary(state.Keybinds.value, "(ALT+D)", "") .. " : " .. ternary(state.LockPetDT.value, "ON", "OFF") .. textColorNewLine
+        textinbox = textinbox .. textColor .. "Lock Weapon " .. ternary(state.Keybinds.value, "(ALT+~)", "") .. " : " .. ternary(state.LockWeapon.value, "ON", "OFF") .. textColorNewLine
+        textinbox = textinbox .. textColor .. "Weaponskill FTP: " .. ternary(state.SetFTP.value, "ON", "OFF") .. textColorNewLine
+        textinbox = textinbox .. textColor .. "Custom Gear Lock: " .. ternary(state.CustomGearLock.value, "ON", "OFF") .. textColorNewLine
+    end
+    
     --Debug Variables that are used for testing
     if d_mode then
         textinbox = textinbox .. drawTitle("DEBUG")
@@ -1185,7 +1208,7 @@ function job_buff_change(status, gain_or_loss, eventArgs)
     end
 end
 
--- Toggles -- SE Macros: /console gs c "command" [case sensitive]
+-- Toggles -- SE Macros: /console gs c "command"
 function job_self_command(command, eventArgs)
     if command[1]:lower() == "automan" then
         state.AutoMan:toggle()
@@ -1193,7 +1216,6 @@ function job_self_command(command, eventArgs)
     elseif command[1]:lower() == "debug" then
         d_mode = not d_mode
         debug('Debug Mode is now on!')
-        debug(dump(sets.idle))
         refreshWindow()
     elseif command[1]:lower() == "predict" then
         determinePuppetType()
@@ -1206,21 +1228,35 @@ function job_self_command(command, eventArgs)
         elseif command[2]:lower() == 'state' then
             state.textHideState:toggle()
             refreshWindow()    
-        elseif command[2]:lower() == 'window' then
-            visible = not visible
+        elseif command[2]:lower() == 'hub' then
+            state.textHideHUB:toggle()
             refreshWindow()
         elseif command[2]:lower() == 'keybinds' then
             state.Keybinds:toggle()
+            refreshWindow()
+        elseif command[2]:lower() == 'options' then
+            state.textHideOptions:toggle()
             refreshWindow()
         end
     elseif command[1]:lower() == 'setftp' then
         state.SetFTP:toggle()
         refreshWindow()
+    elseif command[1]:lower() == 'customgearlock' then
+        state.CustomGearLock:toggle()
+        refreshWindow()
     end
 
 end
 
+DefaultPetWeaponSkillLockOutTimer = 5 -- This will be the time that is changeable by the player
+
+--Defaults
 justFinishedWeaponSkill = false
+petWeaponSkillLock = false
+startedPetWeaponSkillTimer = false
+petWeaponSkillRecast = 0
+petWeaponSkillTime = 0
+
 windower.register_event(
     "prerender",
     function()
@@ -1236,32 +1272,45 @@ windower.register_event(
             end
 
             --This reads if pet is active and 
-            --player has less than 1000 TP or pet style is SPAM or DD
-            --then we may equip Weaponskill Gear for pet
-            --Otherwise this is handled when player has more TP in aftercast
+            --pet style is SPAM or DD
+            --Otherwise this is handled for when the player is fighting with pet in job_aftercast
             if pet.isvalid and 
-            (player.tp < 1000 or state.PetStyleCycle.value:lower() == "spam" or state.PetStyleCycle.value:lower() == "dd")
+            (state.PetStyleCycle.value:lower() == "spam" or state.PetStyleCycle.value:lower() == "dd")
             and Master_State:lower() == "idle" then
-                --Now if pet has more than 1000 tp and pet is engaged and didn't just finish a weaponskill
-                --Then we may equip the Weaponskill gear for pet
-                if pet.tp >= 1000 and Pet_State == const_stateEngaged and justFinishedWeaponSkill == false then
-                    --Now as tank pet we may not always want the weaponskill gear equipping
-                    if state.PetModeCycle.value:lower() == const_tank:lower() 
-                    and (state.PetStyleCycle.value:lower() ~= const_dd:lower() or state.PetStyleCycle.value:lower() ~= "spam") then
-                        --Ignore swapping in WeaponSkill set if we are tank, but our style is not DD or SPAM
-                    elseif state.PetModeCycle.value:lower() == const_mage:lower() then
-                        --Ignore swapping in Weaponskill set if we are a mage
+                --Now if pet has more than 1000 tp and pet is engaged and didn't just finish a weaponskill and we have not locked the pet out this set
+                if pet.tp >= 1000 and Pet_State == const_stateEngaged and justFinishedWeaponSkill == false and petWeaponSkillLock == false then
+                    if state.SetFTP.value then
+                       equip(sets.midcast.Pet.WSFTP)
                     else
-                        if state.SetFTP.value then
-                            equip(sets.midcast.Pet.WSFTP)
-                        else
-                            equip(sets.midcast.Pet.WSNoFTP)
-                        end
+                        equip(sets.midcast.Pet.WSNoFTP)
                     end
-                else
+                        --Add weapon here if you want to swap in a weapon prior to Weapon Skill happening for pet
+                    equip({main="Othas"})
+                    
+                    --[[
+                        Sets up the count down for keeping pet in weapon skill gear
+                        If the pet fails to use the weapon skill in the alloted time
+                        We are going to simply prevent the gear from being equipped
+                        Until the puppet is dropped below 1000 TP and everything is reset
+                    ]]
+                    if petWeaponSkillRecast > 0 and startedPetWeaponSkillTimer == true then
+                        --Count down the timer if it has started
+                        petWeaponSkillRecast = DefaultPetWeaponSkillLockOutTimer - (os.time() - petWeaponSkillTime)
+                    elseif petWeaponSkillRecast <= 0 and startedPetWeaponSkillTimer == false then
+                        --If we didn't just begin a new timer then set a new timer since we have reset into a new pet WS chance
+                        petWeaponSkillRecast = DefaultPetWeaponSkillLockOutTimer
+                        petWeaponSkillTime = os.time()
+                        startedPetWeaponSkillTimer = true
+                    else
+                        --We have passed the allowed time without the puppet using a weapon skill, locking till next round
+                        petWeaponSkillRecast = 0
+                        petWeaponSkillLock = true
+                    end
+                elseif pet.tp < 1000 then
                     justFinishedWeaponSkill = false
+                    petWeaponSkillLock = false
+                    startedPetWeaponSkillTimer = false
                 end
-
             end
 
             if state.PetModeCycle.value == const_tank and Pet_State == const_stateEngaged then
@@ -1298,7 +1347,8 @@ windower.register_event(
         -- OVERDRIVE OPTIMIZER
         --I believe the original intent for this was if the player was not engaged and
         --the pet is fighting on its own in Overdrive.
-        --With that thought this now activates when the master is not engaged or if the master is engaged
+        --With that thought this now activates when the master is not engaged 
+        --or if the master is engaged
         --and the PetStyleCycle is set to SPAM then it will also activate
             if buffactive["Overdrive"] and (Master_State:lower() ~= const_stateEngaged:lower() or state.PetStyleCycle.value:lower() == "spam") then
                 if original:contains(pet.name) and original:contains("Daze") then
@@ -1420,6 +1470,13 @@ function job_state_change(stateField, newValue, oldValue)
             enable("main")
         end
         refreshWindow()
+    elseif stateField == "Custom Gear Lock" then
+        if newValue == true then
+            disable(customGearLock)
+        else
+            enable(customGearLock)
+            handle_equipping_gear(player.status, Pet_State)
+        end
     end
 
 end

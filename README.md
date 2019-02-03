@@ -171,16 +171,18 @@ If player is idle and puppet is engaged while in DD Mode or a DD Style the puppe
 Now have the ability to switch to FTP with the below command:
 - `//gs c setftp`
 
-
 ## Hide Window
-You can hide the entire Window by using the below command
-- `//gs c hide window`
+You can hide the entire HUB Window by using the below command
+- `//gs c hide hub`
 
 You can hide the State from the Window by using the below command:
 - `//gs c hide state` 
 
 You can hide the Mode from the Window by using the below command
 - `//gs c hide mode`
+
+You can hide the Options from the Window by using the below command
+- `//gs c hide options`
 
 You can toggle default keybinds set up for cycles/modes on menu by using the below command
 - `//gs c hide keybinds`
