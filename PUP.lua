@@ -848,7 +848,7 @@ function drawPetInfo()
     textinbox = textinbox .. "- \\cs(0, 0, 125)HP : " .. pet.hp .. "/" .. pet.max_hp .. textColorNewLine
     textinbox = textinbox .. "- \\cs(0, 125, 0)MP : " .. pet.mp .. "/" .. pet.max_mp .. textColorNewLine
     textinbox = textinbox .. "- \\cs(255, 0, 0)TP : " .. tostring(pet.tp) ..textColorNewLine
-    textinbox = textinbox .. "- \\cs(255, 0, 0)WS Gear Lock : " .. ternary(startedPetWeaponSkillTimer, "On", "Off") .. " ( " .. petWeaponSkillRecast .. " )" ..textColorNewLine
+    textinbox = textinbox .. "- \\cs(255, 0, 0)WS Gear Lock : " .. ternary(startedPetWeaponSkillTimer and petWeaponSkillRecast <= 0 , "On", "Off") .. " ( " .. petWeaponSkillRecast .. " )" ..textColorNewLine
 end
 
 --This handles drawing the Pet Skills for the text box
