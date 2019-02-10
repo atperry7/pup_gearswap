@@ -755,17 +755,6 @@ SC["Stormwaker Frame"]["Victory Smite"] = "Magic Mortar"
 SC["Stormwaker Frame"]["Shijin Spiral"] = "Slapstick"
 SC["Stormwaker Frame"]["Howling Fist"] = "Knockout"
 
---Puppet Weaponskill Modifiers
-Modifier = {}
-
-Modifier["String Shredder"] = "VIT"
-Modifier["Bone Crusher"] = "VIT"
-Modifier["Armor Shatterer"] = "DEX"
-Modifier["Armor Piercer"] = "DEX"
-Modifier["Arcuballista"] = "DEXFTP"
-Modifier["Daze"] = "DEXFTP"
-Modifier["Slapstick"] = "DEX"
-Modifier["Knockout"] = "AGI"
 
 ------------------------------------
 ------------Text Window-------------
@@ -799,7 +788,10 @@ function refreshWindow()
     textColorEnd = " \\cr"
     textColor = "\\cs(125, 125, 0)"
 
-    if not state.textHideHUB.value then
+    --Testing with this variable can ignore for now, works as intended
+    test = state.textHideHUB.value
+
+    if state.textHideHUB.value == true then
         textinbox = ''
         windower.text.set_text(tb_name, textinbox)
         return
@@ -855,7 +847,8 @@ function drawPetInfo()
     textinbox = textinbox .. drawTitle("   Pet Info   ")
     textinbox = textinbox .. "- \\cs(0, 0, 125)HP : " .. pet.hp .. "/" .. pet.max_hp .. textColorNewLine
     textinbox = textinbox .. "- \\cs(0, 125, 0)MP : " .. pet.mp .. "/" .. pet.max_mp .. textColorNewLine
-    textinbox = textinbox .. "- \\cs(255, 0, 0)TP : " .. tostring(pet.tp) .. textColorNewLine
+    textinbox = textinbox .. "- \\cs(255, 0, 0)TP : " .. tostring(pet.tp) ..textColorNewLine
+    textinbox = textinbox .. "- \\cs(255, 0, 0)WS Gear Lock : " .. ternary(startedPetWeaponSkillTimer, "On", "Off") .. " ( " .. petWeaponSkillRecast .. " )" ..textColorNewLine
 end
 
 --This handles drawing the Pet Skills for the text box
@@ -1105,18 +1098,40 @@ end
 function job_midcast(spell, action, spellMap, eventArgs)
 end
 
+--Puppet Weaponskill Modifiers
+Modifier = {}
+
+Modifier["String Shredder"] = "VIT"
+Modifier["Bone Crusher"] = "VIT"
+Modifier["Armor Shatterer"] = "DEX"
+Modifier["Armor Piercer"] = "DEX"
+Modifier["Arcuballista"] = "DEXFTP"
+Modifier["Daze"] = "DEXFTP"
+Modifier["Slapstick"] = "DEX"
+Modifier["Knockout"] = "AGI"
+
 function job_aftercast(spell, action, spellMap, eventArgs)
     if pet.isvalid then
-        if SC[pet.frame][spell.english] and pet.tp >= 850 then
+        if SC[pet.frame][spell.english] and pet.tp >= 850 and Pet_State == 'Engaged' then
             ws = SC[pet.frame][spell.english]
             modif = Modifier[ws]
-            equip(sets.midcast.Pet.WS[modif])
-            
-            add_to_chat(
-                392,
-                "*-*-*-*-*-*-*-*-* [ " .. pet.name .. " is about to " .. ws .. " (" .. modif .. ") ] *-*-*-*-*-*-*-*-*"
-            )
-            
+
+            --If its a valid modif
+            if modif then
+                equip(sets.midcast.Pet.WS[modif])
+                
+                add_to_chat(
+                    392,
+                    "*-*-*-*-*-*-*-*-* [ " .. pet.name .. " is about to " .. ws .. " (" .. modif .. ") ] *-*-*-*-*-*-*-*-*"
+                )
+            else --Otherwise equip the default Weapon Skill Set
+                equip(sets.midcast.Pet.WSNoFTP)
+            end
+
+            --Since this will be a new Weapon Skill we just performed best to reset any current timers
+            resetWeaponSkillPetTimer()
+            --Begin the count down until we may lock out the pet weapon skill set
+            startWeaponSkillPetTimer()
             eventArgs.handled = true
         else
             handle_equipping_gear(player.status, Pet_State)
@@ -1131,11 +1146,9 @@ function job_status_change(new, old)
     if new == "Engaged" then
         Master_State = const_stateEngaged
         TotalSCalc()
-        add_to_chat(392, "*-*-*-*-*-*-*-*-* [ Engaged ] *-*-*-*-*-*-*-*-*")
     else
         Master_State = const_stateIdle
         TotalSCalc()
-        add_to_chat(392, "*-*-*-*-*-*-*-*-* [ Idle ] *-*-*-*-*-*-*-*-*")
     end
 
     handle_equipping_gear(player.status, Pet_State)
@@ -1248,9 +1261,9 @@ function job_self_command(command, eventArgs)
 
 end
 
-DefaultPetWeaponSkillLockOutTimer = 5 -- This will be the time that is changeable by the player
 
 --Defaults
+DefaultPetWeaponSkillLockOutTimer = 8 -- This will be the time that is changeable by the player
 justFinishedWeaponSkill = false
 petWeaponSkillLock = false
 startedPetWeaponSkillTimer = false
@@ -1269,6 +1282,17 @@ windower.register_event(
                 --In some cases Mote's doesn't recognize a pet's status change
                 Pet_State = pet.status
                 Master_State = player.status
+
+                --We only want this to activate if we are actually running the timer for the pet weapon skill
+
+                if pet.tp >= 1000 and petWeaponSkillRecast <= 0 and startedPetWeaponSkillTimer == true then
+                    --We have passed the allowed time without the puppet using a weapon skill, locking till next round
+                    petWeaponSkillRecast = 0
+                    petWeaponSkillLock = true
+                    handle_equipping_gear(player.status, pet.status)
+                elseif pet.tp < 1000 or Pet_State == "Idle" then
+                    resetWeaponSkillPetTimer()
+                end
             end
 
             --This reads if pet is active and 
@@ -1280,36 +1304,12 @@ windower.register_event(
                 --Now if pet has more than 1000 tp and pet is engaged and didn't just finish a weaponskill and we have not locked the pet out this set
                 if pet.tp >= 1000 and Pet_State == const_stateEngaged and justFinishedWeaponSkill == false and petWeaponSkillLock == false then
                     if state.SetFTP.value then
-                       equip(sets.midcast.Pet.WSFTP)
+                        equip(set_combine(sets.midcast.Pet.WSFTP,{main="Ohtas"}))
                     else
-                        equip(sets.midcast.Pet.WSNoFTP)
+                        equip(set_combine(sets.midcast.Pet.WSFTP,{main="Ohtas"}))
                     end
-                        --Add weapon here if you want to swap in a weapon prior to Weapon Skill happening for pet
-                    equip({main="Othas"})
                     
-                    --[[
-                        Sets up the count down for keeping pet in weapon skill gear
-                        If the pet fails to use the weapon skill in the alloted time
-                        We are going to simply prevent the gear from being equipped
-                        Until the puppet is dropped below 1000 TP and everything is reset
-                    ]]
-                    if petWeaponSkillRecast > 0 and startedPetWeaponSkillTimer == true then
-                        --Count down the timer if it has started
-                        petWeaponSkillRecast = DefaultPetWeaponSkillLockOutTimer - (os.time() - petWeaponSkillTime)
-                    elseif petWeaponSkillRecast <= 0 and startedPetWeaponSkillTimer == false then
-                        --If we didn't just begin a new timer then set a new timer since we have reset into a new pet WS chance
-                        petWeaponSkillRecast = DefaultPetWeaponSkillLockOutTimer
-                        petWeaponSkillTime = os.time()
-                        startedPetWeaponSkillTimer = true
-                    else
-                        --We have passed the allowed time without the puppet using a weapon skill, locking till next round
-                        petWeaponSkillRecast = 0
-                        petWeaponSkillLock = true
-                    end
-                elseif pet.tp < 1000 then
-                    justFinishedWeaponSkill = false
-                    petWeaponSkillLock = false
-                    startedPetWeaponSkillTimer = false
+                    startWeaponSkillPetTimer()
                 end
             end
 
@@ -1335,10 +1335,30 @@ windower.register_event(
                 Flashbulb_Recast = Flashbulb_Timer - (os.time() - Flashbulb_Time)
             end
 
+            if petWeaponSkillRecast > 0 and startedPetWeaponSkillTimer == true then
+                --Count down the timer if it has started
+                petWeaponSkillRecast = DefaultPetWeaponSkillLockOutTimer - (os.time() - petWeaponSkillTime)
+            end
+
             refreshWindow()
         end
     end
 )
+
+function startWeaponSkillPetTimer()
+    if petWeaponSkillRecast <= 0 and startedPetWeaponSkillTimer == false then
+        petWeaponSkillRecast = DefaultPetWeaponSkillLockOutTimer
+        petWeaponSkillTime = os.time()
+        startedPetWeaponSkillTimer = true
+    end
+end
+
+function resetWeaponSkillPetTimer()
+    petWeaponSkillRecast = 0
+    justFinishedWeaponSkill = false
+    petWeaponSkillLock = false
+    startedPetWeaponSkillTimer = false
+end
 
 windower.register_event(
     "incoming text",
