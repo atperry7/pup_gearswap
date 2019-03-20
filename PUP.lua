@@ -89,6 +89,11 @@ function user_setup()
     state.AutoMan = M(false, "Auto Maneuver")
 
     --[[
+        //gs c toggle autodeploy
+    ]]
+    state.AutoDeploy = M(false, "Auto Deploy")
+
+    --[[
         Alt + D will turn on or off Lock Pet DT
         (Note this will block all gearswapping when active)
     ]]
@@ -98,9 +103,6 @@ function user_setup()
         Alt + (tilda) will turn on or off the Lock Weapon
     ]]
     state.LockWeapon = M(false, "Lock Weapon")
-    state.SetFTP = M(false, "Set FTP")
-    state.textHideMode = M(false, "Hide Mode")
-    state.textHideState = M(false, "Hide State")
 
     --[[
         //gs c toggle setftp
@@ -196,7 +198,6 @@ function init_gear_sets()
         This section is best ultilized for defining gear that is used among multiple sets
         You can simply use or ignore the below
     ]]
-
     Animators = {}
     Animators.Range = "Animator P II"
     Animators.Melee = "Animator P +1"
@@ -748,7 +749,7 @@ Flashbulb_Recast = 0
 Flashbulb_Time = 0
 Strobe_Time = 0
 
-d_mode = false
+d_mode = true
 
 time_start = os.time()
 
@@ -796,7 +797,6 @@ SC["Stormwaker Frame"]["Victory Smite"] = "Magic Mortar"
 SC["Stormwaker Frame"]["Shijin Spiral"] = "Slapstick"
 SC["Stormwaker Frame"]["Howling Fist"] = "Knockout"
 
-
 ------------------------------------
 ------------Text Window-------------
 ------------------------------------
@@ -833,7 +833,7 @@ function refreshWindow()
     test = state.textHideHUB.value
 
     if state.textHideHUB.value == true then
-        textinbox = ''
+        textinbox = ""
         windower.text.set_text(tb_name, textinbox)
         return
     end
@@ -845,39 +845,85 @@ function refreshWindow()
 
     if not state.textHideState.value then
         textinbox = textinbox .. drawTitle("    State    ")
-        textinbox = textinbox .. textColor .. "Pet Mode " .. ternary(state.Keybinds.value, "(ALT+F7)", "") .. " : " .. state.PetModeCycle.value .. textColorNewLine
-        textinbox = textinbox .. textColor .. "Pet Style " .. ternary(state.Keybinds.value, "(ALT+F8)", "") .. " : " .. state.PetStyleCycle.value .. textColorNewLine
+        textinbox =
+            textinbox ..
+            textColor ..
+                "Pet Mode " ..
+                    ternary(state.Keybinds.value, "(ALT+F7)", "") ..
+                        " : " .. state.PetModeCycle.value .. textColorNewLine
+        textinbox =
+            textinbox ..
+            textColor ..
+                "Pet Style " ..
+                    ternary(state.Keybinds.value, "(ALT+F8)", "") ..
+                        " : " .. state.PetStyleCycle.value .. textColorNewLine
         -- textinbox = textinbox .. textColor .. "Master : " .. Master_State .. textColorNewLine
         -- textinbox = textinbox .. textColor .. "Pet : " .. Pet_State .. textColorNewLine
-        textinbox = textinbox .. textColor .. "Hybrid : " .. Hybrid_State .. textColorNewLine
+        textinbox = textinbox .. textColor .. "Current State: " .. Hybrid_State .. textColorNewLine
     end
 
     if not state.textHideMode.value then
         textinbox = textinbox .. drawTitle("     Mode     ")
-        textinbox = textinbox .. textColor .. "Idle Mode " .. ternary(state.Keybinds.value, "(CTRL+F12)", "") .. " : " .. tostring(state.IdleMode.current) .. textColorNewLine
-        textinbox = textinbox .. textColor .. "Offense Mode " .. ternary(state.Keybinds.value, "(F9)", "") .. " : " .. tostring(state.OffenseMode.current) .. textColorNewLine
-        textinbox = textinbox .. textColor .. "Physical Mode " .. ternary(state.Keybinds.value, "(CTRL-F10)", "") .. " : " .. tostring(state.PhysicalDefenseMode.current) .. textColorNewLine
-        textinbox = textinbox .. textColor .. "Hybrid Mode " .. ternary(state.Keybinds.value, "(CTRL-F9)", "") .. " : " .. tostring(state.HybridMode.current) .. textColorNewLine    
+        textinbox =
+            textinbox ..
+            textColor ..
+                "Idle Mode " ..
+                    ternary(state.Keybinds.value, "(CTRL+F12)", "") ..
+                        " : " .. tostring(state.IdleMode.current) .. textColorNewLine
+        textinbox =
+            textinbox ..
+            textColor ..
+                "Offense Mode " ..
+                    ternary(state.Keybinds.value, "(F9)", "") ..
+                        " : " .. tostring(state.OffenseMode.current) .. textColorNewLine
+        textinbox =
+            textinbox ..
+            textColor ..
+                "Physical Mode " ..
+                    ternary(state.Keybinds.value, "(CTRL-F10)", "") ..
+                        " : " .. tostring(state.PhysicalDefenseMode.current) .. textColorNewLine
+        textinbox =
+            textinbox ..
+            textColor ..
+                "Hybrid Mode " ..
+                    ternary(state.Keybinds.value, "(CTRL-F9)", "") ..
+                        " : " .. tostring(state.HybridMode.current) .. textColorNewLine
     end
 
     if not state.textHideOptions.value then
         textinbox = textinbox .. drawTitle("  Options  ")
         textinbox =
-            textinbox .. textColor .. "Auto Maneuver " .. ternary(state.Keybinds.value, "(ALT+E)", "") .. " : " .. ternary(state.AutoMan.value, "ON", "OFF") .. textColorNewLine
-        textinbox = textinbox .. textColor .. "Lock Pet DT Set " .. ternary(state.Keybinds.value, "(ALT+D)", "") .. " : " .. ternary(state.LockPetDT.value, "ON", "OFF") .. textColorNewLine
-        textinbox = textinbox .. textColor .. "Lock Weapon " .. ternary(state.Keybinds.value, "(ALT+~)", "") .. " : " .. ternary(state.LockWeapon.value, "ON", "OFF") .. textColorNewLine
-        textinbox = textinbox .. textColor .. "Weaponskill FTP: " .. ternary(state.SetFTP.value, "ON", "OFF") .. textColorNewLine
-        textinbox = textinbox .. textColor .. "Custom Gear Lock: " .. ternary(state.CustomGearLock.value, "ON", "OFF") .. textColorNewLine
+            textinbox ..
+            textColor ..
+                "Auto Maneuver " ..
+                    ternary(state.Keybinds.value, "(ALT+E)", "") ..
+                        " : " .. ternary(state.AutoMan.value, "ON", "OFF") .. textColorNewLine
+        textinbox =
+            textinbox ..
+            textColor ..
+                "Lock Pet DT Set " ..
+                    ternary(state.Keybinds.value, "(ALT+D)", "") ..
+                        " : " .. ternary(state.LockPetDT.value, "ON", "OFF") .. textColorNewLine
+        textinbox =
+            textinbox ..
+            textColor ..
+                "Lock Weapon " ..
+                    ternary(state.Keybinds.value, "(ALT+~)", "") ..
+                        " : " .. ternary(state.LockWeapon.value, "ON", "OFF") .. textColorNewLine
+        textinbox =
+            textinbox ..
+            textColor .. "Weaponskill FTP: " .. ternary(state.SetFTP.value, "ON", "OFF") .. textColorNewLine
+        textinbox =
+            textinbox ..
+            textColor .. "Custom Gear Lock: " .. ternary(state.CustomGearLock.value, "ON", "OFF") .. textColorNewLine
+        textinbox =
+            textinbox ..
+            textColor .. "Auto Deploy: " .. ternary(state.AutoDeploy.value, "ON", "OFF") .. textColorNewLine
     end
-    
+
     --Debug Variables that are used for testing
     if d_mode then
         textinbox = textinbox .. drawTitle("DEBUG")
-        textinbox = textinbox .. textColor .. "Last State : " .. tostring(lastStateActivated) .. textColorNewLine
-        textinbox = textinbox .. textColor .. "Last State : " .. ternary(justFinishedWeaponSkill, "TRUE", "FALSE") .. textColorNewLine
-        textinbox = textinbox .. textColor .. "Master State : " .. Master_State .. textColorNewLine
-        textinbox = textinbox .. textColor .. "Pet State : " .. Pet_State .. textColorNewLine
-
     end
 
     windower.text.set_text(tb_name, textinbox)
@@ -888,8 +934,12 @@ function drawPetInfo()
     textinbox = textinbox .. drawTitle("   Pet Info   ")
     textinbox = textinbox .. "- \\cs(0, 0, 125)HP : " .. pet.hp .. "/" .. pet.max_hp .. textColorNewLine
     textinbox = textinbox .. "- \\cs(0, 125, 0)MP : " .. pet.mp .. "/" .. pet.max_mp .. textColorNewLine
-    textinbox = textinbox .. "- \\cs(255, 0, 0)TP : " .. tostring(pet.tp) ..textColorNewLine
-    textinbox = textinbox .. "- \\cs(255, 0, 0)WS Gear Lock : " .. ternary(startedPetWeaponSkillTimer and petWeaponSkillRecast <= 0 , "On", "Off") .. " ( " .. petWeaponSkillRecast .. " )" ..textColorNewLine
+    textinbox = textinbox .. "- \\cs(255, 0, 0)TP : " .. tostring(pet.tp) .. textColorNewLine
+    textinbox =
+        textinbox ..
+        "- \\cs(255, 0, 0)WS Gear Lock : " ..
+            ternary(startedPetWeaponSkillTimer and petWeaponSkillRecast <= 0, "On", "Off") ..
+                " ( " .. petWeaponSkillRecast .. " )" .. textColorNewLine
 end
 
 --This handles drawing the Pet Skills for the text box
@@ -939,36 +989,32 @@ end
 
 --Used to calculate the Hybrid State of you and your pet
 function TotalSCalc()
-    if state.PetModeCycle.current:lower() == const_dd:lower() then
+    if state.PetModeCycle.current == const_dd then
         if buffactive["Overdrive"] then
             Hybrid_State = const_stateOverdrive
-        elseif Master_State:lower() == const_stateIdle:lower() and Pet_State:lower() == const_stateIdle:lower() then
+        elseif Master_State == const_stateIdle and Pet_State == const_stateIdle then
             Hybrid_State = const_stateIdle
-
-        elseif Master_State:lower() == const_stateIdle:lower() and Pet_State:lower() == const_stateEngaged:lower() then
+        elseif Master_State == const_stateIdle and Pet_State == const_stateEngaged then
             Hybrid_State = const_petOnly
-
-        elseif Master_State:lower() == const_stateEngaged:lower() and Pet_State:lower() == const_stateEngaged:lower() then
+        elseif Master_State == const_stateEngaged and Pet_State == const_stateEngaged then
             Hybrid_State = const_stateHybrid
-
-        elseif Master_State:lower() == const_stateEngaged:lower() and Pet_State:lower() == const_stateIdle:lower() then
+        elseif Master_State == const_stateEngaged and Pet_State == const_stateIdle then
             Hybrid_State = const_masterOnly
-            
         end
-    elseif state.PetModeCycle.current:lower() == const_tank:lower() then
+    elseif state.PetModeCycle.current == const_tank then
         if Pet_State == const_stateIdle then
             Hybrid_State = const_stateIdle
-        elseif state.PetStyleCycle.value ~= "DD" and state.PetStyleCycle.value ~= 'SPAM' then
+        elseif state.PetStyleCycle.value ~= "DD" and state.PetStyleCycle.value ~= "SPAM" then
             Hybrid_State = const_tank
-            handle_set({'IdleMode', 'Idle'})
-            handle_set({'HybridMode', 'DT'})
+            handle_set({"IdleMode", "Idle"})
+            handle_set({"HybridMode", "DT"})
         end
-    elseif state.PetModeCycle.current:lower() == const_mage:lower() then
+    elseif state.PetModeCycle.current == const_mage then
         if Master_State == const_stateIdle then
             Hybrid_State = const_stateIdle
         else
             Hybrid_State = const_masterOnly
-            handle_set({"OffenseMode", 'Master'})
+            handle_set({"OffenseMode", "Master"})
         end
     end
 end
@@ -1117,7 +1163,6 @@ function user_customize_idle_set(idleSet)
 end
 
 function job_precast(spell, action, spellMap, eventArgs)
-
     if spell.english == "Activate" or spell.english == "Deus Ex Automata" then
         TotalSCalc()
         determinePuppetType()
@@ -1133,7 +1178,6 @@ function job_precast(spell, action, spellMap, eventArgs)
             eventArgs.handled = true
         end
     end
-
 end
 
 function job_midcast(spell, action, spellMap, eventArgs)
@@ -1153,17 +1197,18 @@ Modifier["Knockout"] = "AGI"
 
 function job_aftercast(spell, action, spellMap, eventArgs)
     if pet.isvalid then
-        if SC[pet.frame][spell.english] and pet.tp >= 850 and Pet_State == 'Engaged' then
+        if SC[pet.frame][spell.english] and pet.tp >= 850 and Pet_State == "Engaged" then
             ws = SC[pet.frame][spell.english]
             modif = Modifier[ws]
 
             --If its a valid modif
             if modif then
                 equip(sets.midcast.Pet.WS[modif])
-                
+
                 add_to_chat(
                     392,
-                    "*-*-*-*-*-*-*-*-* [ " .. pet.name .. " is about to " .. ws .. " (" .. modif .. ") ] *-*-*-*-*-*-*-*-*"
+                    "*-*-*-*-*-*-*-*-* [ " ..
+                        pet.name .. " is about to " .. ws .. " (" .. modif .. ") ] *-*-*-*-*-*-*-*-*"
                 )
             else --Otherwise equip the default Weapon Skill Set
                 equip(sets.midcast.Pet.WSNoFTP)
@@ -1177,7 +1222,6 @@ function job_aftercast(spell, action, spellMap, eventArgs)
         else
             handle_equipping_gear(player.status, Pet_State)
         end
-
     else
         handle_equipping_gear(player.status, Pet_State)
     end
@@ -1187,6 +1231,16 @@ function job_status_change(new, old)
     if new == "Engaged" then
         Master_State = const_stateEngaged
         TotalSCalc()
+
+        if state.AutoDeploy.value == true and pet.isvalid then
+            msg('Auto Deploying Pet')
+
+            if windower.ffxi.get_mob_by_target('t').id then
+                currentTargetedMonster = windower.ffxi.get_mob_by_target('t').id
+            end
+
+            send_command('wait 1; input /pet "Deploy" <t>')
+        end
     else
         Master_State = const_stateIdle
         TotalSCalc()
@@ -1209,10 +1263,23 @@ function job_pet_status_change(new, old)
     handle_equipping_gear(player.status, Pet_State)
 end
 
-AutomatonWeaponSkills = T{"Slapstick", "Knockout", "Magic Mortar", "Chimera Ripper", "String Clipper", "Cannibal Blade", "Bone Crusher", "String Shredder", "Arcuballista", "Daze", "Armor Piercer", "Armor Shatterer"}
+AutomatonWeaponSkills =
+    T {
+    "Slapstick",
+    "Knockout",
+    "Magic Mortar",
+    "Chimera Ripper",
+    "String Clipper",
+    "Cannibal Blade",
+    "Bone Crusher",
+    "String Shredder",
+    "Arcuballista",
+    "Daze",
+    "Armor Piercer",
+    "Armor Shatterer"
+}
 
 function job_pet_aftercast(spell)
-
     if table.contains(AutomatonWeaponSkills, spell.name) then
         justFinishedWeaponSkill = true
     end
@@ -1221,10 +1288,9 @@ function job_pet_aftercast(spell)
 end
 
 --Anytime you change equipment you need to set eventArgs.handled or else you may get overwritten
-function job_buff_change(buff, gain_or_loss, eventArgs)
-
-    if buff:lower() == "sleep" and gain_or_loss then
-        equip(set_combine(sets.defense.MasterDT, {neck = "Opo-opo Necklace"}))
+function job_buff_change(status, gain_or_loss, eventArgs)
+    if status == "sleep" and gain_or_loss then
+        equip(set_combine(sets.defense.PDT, {neck = "Opo-opo Necklace"}))
         eventArgs.handled = true
     elseif status == "doom" and gain_or_loss then
         send_command("input /p I have befallen to ~~~DOOM~~~ may my end not come to quickly.")
@@ -1234,7 +1300,7 @@ function job_buff_change(buff, gain_or_loss, eventArgs)
 
     --When you are at 3 Maneuvers and you use the ability you will temporarily go to 4
     --This helps prevent you from trying to cast on losing a buff
-    if buff:contains("Maneuver") and gain_or_loss then
+    if status:contains("Maneuver") and gain_or_loss then
         Current_Maneuver = Current_Maneuver + 1
         refreshWindow()
     elseif Current_Maneuver > 0 then -- We don't want to see a negative count
@@ -1245,12 +1311,12 @@ function job_buff_change(buff, gain_or_loss, eventArgs)
     --Now we can turn on and off the functionailty of automatically maintaining manuevers
     --Also, make sure your not dead, so we don't attempt to recast Maneuvers
     if state.AutoMan.value and player.hp > 0 and pet.isvalid then
-        if buff:contains("Maneuver") and gain_or_loss == false and Current_Maneuver < 3 then
-            send_command('input /ja "' .. buff .. '" <me>')
+        if status:contains("Maneuver") and gain_or_loss == false and Current_Maneuver < 3 then
+            send_command('input /ja "' .. status .. '" <me>')
         end
     end
 
-    if buff == const_stateOverdrive then
+    if status == const_stateOverdrive then
         if gain_or_loss then
             OverCount = 1
             equip(sets.midcast.Pet.WSFTP)
@@ -1270,39 +1336,36 @@ function job_self_command(command, eventArgs)
         refreshWindow()
     elseif command[1]:lower() == "debug" then
         d_mode = not d_mode
-        debug('Debug Mode is now on!')
+        debug("Debug Mode is now on!")
         refreshWindow()
     elseif command[1]:lower() == "predict" then
         determinePuppetType()
         refreshWindow()
     elseif command[1]:lower() == "hide" then
-
-        if command[2]:lower() == 'mode' then
+        if command[2]:lower() == "mode" then
             state.textHideMode:toggle()
             refreshWindow()
-        elseif command[2]:lower() == 'state' then
+        elseif command[2]:lower() == "state" then
             state.textHideState:toggle()
-            refreshWindow()    
-        elseif command[2]:lower() == 'hub' then
+            refreshWindow()
+        elseif command[2]:lower() == "hub" then
             state.textHideHUB:toggle()
             refreshWindow()
-        elseif command[2]:lower() == 'keybinds' then
+        elseif command[2]:lower() == "keybinds" then
             state.Keybinds:toggle()
             refreshWindow()
-        elseif command[2]:lower() == 'options' then
+        elseif command[2]:lower() == "options" then
             state.textHideOptions:toggle()
             refreshWindow()
         end
-    elseif command[1]:lower() == 'setftp' then
+    elseif command[1]:lower() == "setftp" then
         state.SetFTP:toggle()
         refreshWindow()
-    elseif command[1]:lower() == 'customgearlock' then
+    elseif command[1]:lower() == "customgearlock" then
         state.CustomGearLock:toggle()
         refreshWindow()
     end
-
 end
-
 
 --Defaults
 DefaultPetWeaponSkillLockOutTimer = 8 -- This will be the time that is changeable by the player
@@ -1311,6 +1374,8 @@ petWeaponSkillLock = false
 startedPetWeaponSkillTimer = false
 petWeaponSkillRecast = 0
 petWeaponSkillTime = 0
+currentTargetedMonster = 0
+previousTargetedMonster = 0
 
 windower.register_event(
     "prerender",
@@ -1325,37 +1390,71 @@ windower.register_event(
                 Pet_State = pet.status
                 Master_State = player.status
 
+                if Master_State == const_stateEngaged and state.AutoDeploy.value == true then
+                    previousTargetedMonster = currentTargetedMonster
+
+                    if windower.ffxi.get_mob_by_target('t').id then
+                        currentTargetedMonster = windower.ffxi.get_mob_by_target('t').id
+                    end
+
+                    if previousTargetedMonster ~= currentTargetedMonster then
+                        msg('Auto Deploying Pet')
+                        send_command('wait 1;input /pet "Deploy" <t>')
+                    end
+
+                end
+
                 --We only want this to activate if we are actually running the timer for the pet weapon skill
 
-                if pet.tp >= 1000 and petWeaponSkillRecast <= 0 and startedPetWeaponSkillTimer == true then
-                    --We have passed the allowed time without the puppet using a weapon skill, locking till next round
-                    petWeaponSkillRecast = 0
-                    petWeaponSkillLock = true
-                    handle_equipping_gear(player.status, pet.status)
-                elseif pet.tp < 1000 or Pet_State == "Idle" then
-                    resetWeaponSkillPetTimer()
+                if pet.tp ~= nil then
+                    if pet.tp >= 1000 and petWeaponSkillRecast <= 0 and startedPetWeaponSkillTimer == true then
+                        --We have passed the allowed time without the puppet using a weapon skill, locking till next round
+                        petWeaponSkillRecast = 0
+                        petWeaponSkillLock = true
+                        handle_equipping_gear(player.status, pet.status)
+                    elseif pet.tp < 1000 or Pet_State == "Idle" then
+                        resetWeaponSkillPetTimer()
+                    end
                 end
+
             end
 
-            --This reads if pet is active and 
+            --This reads if pet is active and
             --pet style is SPAM or DD
             --Otherwise this is handled for when the player is fighting with pet in job_aftercast
-            if pet.isvalid and 
-            (state.PetStyleCycle.value:lower() == "spam" or state.PetStyleCycle.value:lower() == "dd")
-            and Master_State:lower() == "idle" then
+            if
+                pet.isvalid and
+                    (state.PetStyleCycle.value:lower() == "spam" or state.PetStyleCycle.value:lower() == "dd") and
+                    Master_State:lower() == "idle"
+             then
                 --Now if pet has more than 1000 tp and pet is engaged and didn't just finish a weaponskill and we have not locked the pet out this set
-                if pet.tp >= 1000 and Pet_State == const_stateEngaged and justFinishedWeaponSkill == false and petWeaponSkillLock == false then
+                if
+                    pet.tp >= 1000 and Pet_State == const_stateEngaged and justFinishedWeaponSkill == false and
+                        petWeaponSkillLock == false
+                 then
                     if state.SetFTP.value then
-                        equip(set_combine(sets.midcast.Pet.WSFTP,{main="Ohtas"}))
+                        equip(set_combine(sets.midcast.Pet.WSFTP, {main = "Ohtas"}))
                     else
-                        equip(set_combine(sets.midcast.Pet.WSFTP,{main="Ohtas"}))
+                        equip(set_combine(sets.midcast.Pet.WSFTP, {main = "Ohtas"}))
                     end
-                    
+
                     startWeaponSkillPetTimer()
                 end
+            elseif 
+                pet.isvalid and pet.tp >= 900 
+                and Pet_State == const_stateEngaged 
+                and state.PetModeCycle.value:lower() == "dd"
+                and state.PetStyleCycle.value:lower() == "spam"
+                and pet.attachments.inhibitor == false and pet.attachments["inhibitor II"] == false then
+                
+                    if state.SetFTP.value then
+                        equip(set_combine(sets.midcast.Pet.WSFTP, {main = "Ohtas"}))
+                    else
+                        equip(set_combine(sets.midcast.Pet.WSFTP, {main = "Ohtas"}))
+                    end
             end
 
-            if Pet_State:lower() == const_stateEngaged:lower() then
+            if state.PetModeCycle.value == const_tank and Pet_State == const_stateEngaged then
                 if buffactive["Fire Maneuver"] and (pet.attachments.strobe or pet.attachments["strobe II"]) then
                     if Strobe_Recast <= 2 then
                         equip(sets.pet.Enmity)
@@ -1405,32 +1504,34 @@ end
 windower.register_event(
     "incoming text",
     function(original, modified, mode)
-
         -- OVERDRIVE OPTIMIZER
         --I believe the original intent for this was if the player was not engaged and
         --the pet is fighting on its own in Overdrive.
-        --With that thought this now activates when the master is not engaged 
+        --With that thought this now activates when the master is not engaged
         --or if the master is engaged
         --and the PetStyleCycle is set to SPAM then it will also activate
-            if buffactive["Overdrive"] and (Master_State:lower() ~= const_stateEngaged:lower() or state.PetStyleCycle.value:lower() == "spam") then
-                if original:contains(pet.name) and original:contains("Daze") then
-                    equip(sets.midcast.Pet.WSFTP)
-                    add_to_chat(204, "*-*-*-*-*-*-*-*-* [ " .. "Daze" .. " done ] *-*-*-*-*-*-*-*-*")
-                    OverCount = 2
-                elseif original:contains(pet.name) and original:contains("Arcuballista") then
-                    equip(sets.midcast.Pet.WSNoFTP)
-                    add_to_chat(204, "*-*-*-*-*-*-*-*-* [ " .. "Arcuballista" .. " done ] *-*-*-*-*-*-*-*-*")
-                    OverCount = 3
-                elseif original:contains(pet.name) and original:contains("Armor Shatterer") then
-                    equip(sets.midcast.Pet.WSNoFTP)
-                    add_to_chat(204, "*-*-*-*-*-*-*-*-* [ " .. "Armor Shatterer" .. " done ] *-*-*-*-*-*-*-*-*")
-                    OverCount = 4
-                elseif original:contains(pet.name) and original:contains("Armor Piercer") then
-                    equip(sets.midcast.Pet.WSFTP)
-                    add_to_chat(204, "*-*-*-*-*-*-*-*-* [ " .. "Armor Piercer" .. " done ] *-*-*-*-*-*-*-*-*")
-                    OverCount = 1
-                end
+        if
+            buffactive["Overdrive"] and
+                (Master_State:lower() ~= const_stateEngaged:lower() or state.PetStyleCycle.value:lower() == "spam")
+         then
+            if original:contains(pet.name) and original:contains("Daze") then
+                equip(sets.midcast.Pet.WSFTP)
+                add_to_chat(204, "*-*-*-*-*-*-*-*-* [ " .. "Daze" .. " done ] *-*-*-*-*-*-*-*-*")
+                OverCount = 2
+            elseif original:contains(pet.name) and original:contains("Arcuballista") then
+                equip(sets.midcast.Pet.WSNoFTP)
+                add_to_chat(204, "*-*-*-*-*-*-*-*-* [ " .. "Arcuballista" .. " done ] *-*-*-*-*-*-*-*-*")
+                OverCount = 3
+            elseif original:contains(pet.name) and original:contains("Armor Shatterer") then
+                equip(sets.midcast.Pet.WSNoFTP)
+                add_to_chat(204, "*-*-*-*-*-*-*-*-* [ " .. "Armor Shatterer" .. " done ] *-*-*-*-*-*-*-*-*")
+                OverCount = 4
+            elseif original:contains(pet.name) and original:contains("Armor Piercer") then
+                equip(sets.midcast.Pet.WSFTP)
+                add_to_chat(204, "*-*-*-*-*-*-*-*-* [ " .. "Armor Piercer" .. " done ] *-*-*-*-*-*-*-*-*")
+                OverCount = 1
             end
+        end
 
         -- Checking timer for enmity sets
         if buffactive["Fire Maneuver"] then
@@ -1540,18 +1641,17 @@ function job_state_change(stateField, newValue, oldValue)
             handle_equipping_gear(player.status, Pet_State)
         end
     end
-
 end
 
 -- Set eventArgs.handled to true if we don't want the automatic display to be run.
 function display_current_job_state(eventArgs)
     local msg = ""
 
-    if state.PetModeCycle.value:lower() ~= "None" then
+    if state.PetModeCycle.value ~= "None" then
         msg = msg .. "Pet Mode: (" .. state.PetModeCycle.value .. ")"
     end
 
-    if state.PetStyleCycle.value:lower() ~= "None" then
+    if state.PetStyleCycle.value ~= "None" then
         msg = msg .. ", Pet Style: (" .. state.PetStyleCycle.value .. ")"
     end
 
@@ -1573,29 +1673,106 @@ function debug(message)
     if not d_mode then
         return
     end
-    
-    --Default location ..\PlayOnline\SquareEnix\FINAL FANTASY XI
+
+    --Default location is within current gearswap folder
     --Are welcome to add a custom path to the front for example C:\\users\\puppet_debug.log
-    debug_file = io.open("puppet_debug.log", "a")
+    filename = 'pup_debug_' .. os.date('%m_%d_%y') .. '.log'
+    debug_file = io.open(windower.addon_path .. "data/" .. filename, "a")
 
     io.output(debug_file)
-    
-    io.write('['..os.date()..'] - Debug - '..message..'\n')
-    
-    io.close(debug_file)
 
+    io.write("[" .. os.date() .. "] - Debug - " .. message .. "\n")
+
+    io.close(debug_file)
 end
 
 --Dump the contents of a table
 function dump(o)
-    if type(o) == 'table' then
-       local s = '{ '
-       for k,v in pairs(o) do
-          if type(k) ~= 'number' then k = '"'..k..'"' end
-          s = s .. '['..k..'] = ' .. dump(v) .. ','
-       end
-       return s .. '} '
+    if type(o) == "table" then
+        local s = "{ "
+        for k, v in pairs(o) do
+            if type(k) ~= "number" then
+                k = '"' .. k .. '"'
+            end
+            s = s .. "[" .. k .. "] = " .. dump(v) .. ","
+        end
+        return s .. "} "
     else
-       return tostring(o..'\n')
+        return tostring(o .. "\n")
     end
- end
+end
+
+res = require('resources')
+windower.register_event('action', function(act)
+    local player = windower.ffxi.get_player()
+    local message = ''
+    local petTP = 0
+    local entityPerformingAction = ''
+    local actionPerformed = 0
+    local actionType = ''
+    local action = ''
+
+    if player == nil then
+        return
+    end
+
+    if windower.ffxi.get_mob_by_id(act.actor_id) then
+        --message = message .. "Performing Action: " .. windower.ffxi.get_mob_by_id(act.actor_id).name .. " "
+        entityPerformingAction = windower.ffxi.get_mob_by_id(act.actor_id).name
+    end
+
+    if pet.isvalid and entityPerformingAction:contains(pet.name) then
+        petTP = pet.tp
+
+        if act.category == 1 then
+            actionPerformed = 1
+            actionType = "Melee Attack"
+
+        elseif act.category == 2 then
+            actionPerformed = 2
+            actionType = "Ranged Attack"
+
+        elseif act.category == 3 then
+            actionPerformed = 3
+            actionType = "Weapon Skill"
+            action = res.monster_abilities[act.param].en
+                    
+        elseif act.category == 4 then
+            actionPerformed = 4
+            actionType = "Spell Casted"
+
+        elseif act.category == 11 then
+            actionPerformed = 11
+            actionType = "Finish TP Move"
+            action = res.monster_abilities[act.param].en
+
+        elseif act.category == 13 then --Pet TP Move
+            actionPerformed = 13
+            actionType = "Start TP Move"
+            action = res.monster_abilities[act.param].en
+
+        end
+
+        message = message .. entityPerformingAction .. " : Action -  " .. ternary(action ~= '', action, actionType)  .. " : "
+
+        for _, target in pairs(act.targets) do
+            local mob_found = windower.ffxi.get_mob_by_id(target.id)
+
+            if mob_found then
+                --message = message .. "Target: " .. windower.ffxi.get_mob_by_id(target.id).name .. " "
+
+                for _, performed in pairs (target.actions) do
+                    if entityPerformingAction:contains(pet.name) and (actionPerformed == 1 or actionPerformed == 2 or actionPerformed == 3 or actionPerformed == 11 or actionPerformed == 13) then
+                        message = message .. ' Target - ' .. windower.ffxi.get_mob_by_id(target.id).name .. " : Current TP - ".. petTP .. " : Damage - " .. tostring(performed.param) .. " "
+                        
+                    end 
+                end
+
+                if entityPerformingAction:contains(pet.name) and (actionPerformed == 1 or actionPerformed == 2 or actionPerformed == 3 or actionPerformed == 11 or actionPerformed == 13) then
+                    debug(message)
+                end
+            end
+        end
+    end 
+
+end)
