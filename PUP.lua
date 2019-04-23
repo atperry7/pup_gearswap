@@ -138,6 +138,13 @@ function user_setup()
         //gs c hide keybinds
     ]]
     state.Keybinds = M(false, "Hide Keybinds")
+
+    --[[
+        This will toggle the CP Mode
+        //gs c toggle CP
+    ]]
+    state.CP = M(false, "CP")
+    CP_CAPE = ""
     
     --[[
         Enter the slots you would lock based on a custom set up.
@@ -1243,6 +1250,10 @@ function job_status_change(new, old)
         end
     else
         Master_State = const_stateIdle
+        if state.CP.value == true then
+            enable("back")
+        end
+
         TotalSCalc()
     end
 
@@ -1402,6 +1413,20 @@ windower.register_event(
                         send_command('wait 1;input /pet "Deploy" <t>')
                     end
 
+                elseif Master_State == const_stateEngaged and state.CP.value == true then
+                    if windower.ffxi.get_mob_by_target('t') then
+                        monsterToCheck = windower.ffxi.get_mob_by_target('t')
+
+                        if monsterToCheck then -- Sanity Check
+                            if monsterToCheck.hpp < 15 then --Check mobs HP Percentage if below 15 then equip CP cape
+                                equip({ back = CP_CAPE })
+                                disable("back")
+                            else
+                                enable("back")
+                            end
+                        end
+
+                    end
                 end
 
                 --We only want this to activate if we are actually running the timer for the pet weapon skill
