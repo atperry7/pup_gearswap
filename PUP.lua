@@ -756,7 +756,7 @@ Flashbulb_Recast = 0
 Flashbulb_Time = 0
 Strobe_Time = 0
 
-d_mode = true
+debug_mode = true
 
 time_start = os.time()
 
@@ -809,24 +809,49 @@ SC["Stormwaker Frame"]["Howling Fist"] = "Knockout"
 ------------------------------------
 
 --Default To Set Up the Text Window
+texts = require 'texts'
 function setupTextWindow(pos_x, pos_y)
-    tb_name = "pup_gs_helper"
+    local tb_name = "pup_gs_helper"
     bg_visible = true
-    textinbox = " "
+    
 
-    windower.text.create(tb_name)
-    -- table_name, x, y
-    windower.text.set_location(tb_name, pos_x, pos_y)
-    -- transparency, rgb
-    windower.text.set_bg_color(tb_name, 200, 40, 40, 55)
-    windower.text.set_color(tb_name, 255, 147, 161, 161)
-    windower.text.set_font(tb_name, "Arial")
-    windower.text.set_font_size(tb_name, 11)
-    windower.text.set_bold(tb_name, true)
-    windower.text.set_italic(tb_name, false)
-    windower.text.set_text(tb_name, textinbox)
-    windower.text.set_bg_visibility(tb_name, bg_visible)
-    windower.text.set_visibility(tb_name, true)
+    local default_settings = {}
+    default_settings.pos = {}
+    default_settings.pos.x = pos_x
+    default_settings.pos.y = pos_y
+    default_settings.bg = {}
+
+    default_settings.bg.alpha = 200
+    default_settings.bg.red = 40
+    default_settings.bg.green = 40
+    default_settings.bg.blue = 55
+    default_settings.bg.visible = bg_visible
+    default_settings.flags = {}
+    default_settings.flags.right = false
+    default_settings.flags.bottom = false
+    default_settings.flags.bold = true
+    default_settings.flags.draggable = true
+    default_settings.flags.italic = false
+    default_settings.padding = 5
+    default_settings.text = {}
+    default_settings.text.size = 12
+    default_settings.text.font = 'Arial'
+    default_settings.text.fonts = {}
+    default_settings.text.alpha = 255
+    default_settings.text.red = 147
+    default_settings.text.green = 161
+    default_settings.text.blue = 161
+    default_settings.text.stroke = {}
+    default_settings.text.stroke.width = 0
+    default_settings.text.stroke.alpha = 255
+    default_settings.text.stroke.red = 0
+    default_settings.text.stroke.green = 0
+    default_settings.text.stroke.blue = 0
+
+    pup_text_box = texts.new('${current_string}', default_settings, default_settings)
+    pup_text_box.current_string = ''
+    pup_text_box:show()
+    
 end
 
 --Hanldles refreshing the current text window
@@ -837,11 +862,14 @@ function refreshWindow()
     textColor = "\\cs(125, 125, 0)"
 
     --Testing with this variable can ignore for now, works as intended
-    test = state.textHideHUB.value
 
     if state.textHideHUB.value == true then
-        textinbox = ""
-        windower.text.set_text(tb_name, textinbox)
+        textinbox = " "
+
+        if pup_text_box.current_string ~= textinbox then
+            pup_text_box.current_string = textinbox
+        end
+
         return
     end
 
@@ -929,11 +957,13 @@ function refreshWindow()
     end
 
     --Debug Variables that are used for testing
-    if d_mode then
+    if debug_mode then
         textinbox = textinbox .. drawTitle("DEBUG")
     end
 
-    windower.text.set_text(tb_name, textinbox)
+    if pup_text_box.current_string ~= textinbox then
+        pup_text_box.current_string = textinbox
+    end
 end
 
 --Handles drawing the Pet Info for the Text Box
@@ -1346,7 +1376,7 @@ function job_self_command(command, eventArgs)
         state.AutoMan:toggle()
         refreshWindow()
     elseif command[1]:lower() == "debug" then
-        d_mode = not d_mode
+        debug_mode = not debug_mode
         debug("Debug Mode is now on!")
         refreshWindow()
     elseif command[1]:lower() == "predict" then
@@ -1695,7 +1725,7 @@ windower.raw_register_event("zone change", reset_timers)
 
 --Special Debug Code that prints out to a file
 function debug(message)
-    if not d_mode then
+    if not debug_mode then
         return
     end
 
