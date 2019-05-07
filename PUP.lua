@@ -1304,9 +1304,9 @@ windower.register_event(
                 --Now if pet has more than 1000 tp and pet is engaged and didn't just finish a weaponskill and we have not locked the pet out this set
                 if pet.tp >= 1000 and Pet_State == const_stateEngaged and justFinishedWeaponSkill == false and petWeaponSkillLock == false then
                     if state.SetFTP.value then
-                        equip(set_combine(sets.midcast.Pet.WSFTP,{main="Ohtas"}))
+                        equip(set_combine(sets.midcast.Pet.WSFTP, {main = "Ohtas"}))
                     else
-                        equip(set_combine(sets.midcast.Pet.WSFTP,{main="Ohtas"}))
+                        equip(set_combine(sets.midcast.Pet.WSNoFTP, {main = "Ohtas"}))
                     end
                     
                     startWeaponSkillPetTimer()
