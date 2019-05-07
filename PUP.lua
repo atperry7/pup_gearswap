@@ -1490,7 +1490,7 @@ windower.register_event(
                     if state.SetFTP.value then
                         equip(set_combine(sets.midcast.Pet.WSFTP, {main = "Ohtas"}))
                     else
-                        equip(set_combine(sets.midcast.Pet.WSFTP, {main = "Ohtas"}))
+                        equip(set_combine(sets.midcast.Pet.WSNoFTP, {main = "Ohtas"}))
                     end
 
                     startWeaponSkillPetTimer()
@@ -1505,7 +1505,7 @@ windower.register_event(
                     if state.SetFTP.value then
                         equip(set_combine(sets.midcast.Pet.WSFTP, {main = "Ohtas"}))
                     else
-                        equip(set_combine(sets.midcast.Pet.WSFTP, {main = "Ohtas"}))
+                        equip(set_combine(sets.midcast.Pet.WSNoFTP, {main = "Ohtas"}))
                     end
             end
 
