@@ -481,14 +481,14 @@ function determinePuppetType()
 end
 
 
---Watching for Zone Changes to reset certain sections
-windower.raw_register_event("zone change", reset_timers)
-
 function reset_timers()
     state.AutoMan:reset()
     Current_Maneuver = 0
     determinePuppetType()
 end
+
+--Watching for Zone Changes to reset certain sections
+windower.raw_register_event("zone change", reset_timers)
 
 --Traverses a table to see if it contains the given element
 function table.contains(table, element)
