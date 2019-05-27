@@ -28,11 +28,7 @@ Most of the testing now involves ensuring the most flexible gear swapping in at 
 Please keep in mind that this **currently** a work in progress and any feed back you can provide will be helpful in improving this gearswap for puppets everywhere.
 
 # Requirements
-Due to the flexibilty that Mote-Libs offers, you will need this in gearswap folder to be able to utilize this gearswap.
-
-You can find and download from the below link:
-
-https://github.com/Kinematics/Mote-libs
+Mote-Libs is used for this gearswap. By default Windower/Gearswap provides this within its lib folder.
 
 [Jump To Table of Contents](#puppet-gearswap-for-windower)
 
