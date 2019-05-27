@@ -822,7 +822,7 @@ windower.register_event(
                         monsterToCheck = windower.ffxi.get_mob_by_target('t') 
  
                         if monsterToCheck then -- Sanity Check 
-                            if monsterToCheck.hpp < 15 then --Check mobs HP Percentage if below 15 then equip CP cape 
+                            if monsterToCheck.hpp < 25 then --Check mobs HP Percentage if below 15 then equip CP cape 
                                 equip({ back = CP_CAPE }) 
                                 disable("back") 
                             else 
