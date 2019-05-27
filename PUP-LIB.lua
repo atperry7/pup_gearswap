@@ -182,6 +182,12 @@ function validateTextInformation()
         main_text_hub.toggle_auto_deploy = "OFF"
     end
         
+    if state.Keybinds.value then
+        texts.update(main_text_hub, keybinds_on)
+    else 
+        texts.update(main_text_hub, keybinds_off)
+    end
+
 end
 
 --Default To Set Up the Text Window
@@ -434,6 +440,7 @@ just_zoned_time = os.time()
 function reset_timers()
     state.AutoMan:reset()
     Current_Maneuver = 0
+    determinePuppetType()
 end
 
 --Traverses a table to see if it contains the given element
@@ -669,9 +676,22 @@ function job_self_command(command, eventArgs)
             hideTextSections()
         elseif command[2]:lower() == "hub" then
             state.textHideHUB:toggle()
+            if state.textHideHUB.value == true then
+                texts.hide(main_text_hub)
+            else 
+                texts.show(main_text_hub)
+            end
+
             hideTextSections()
         elseif command[2]:lower() == "keybinds" then
             state.Keybinds:toggle()
+
+            if state.Keybinds.value then
+                texts.update(main_text_hub, keybinds_on)
+            else 
+                texts.update(main_text_hub, keybinds_off)
+            end
+
             hideTextSections()
         elseif command[2]:lower() == "options" then
             state.textHideOptions:toggle()
