@@ -175,7 +175,7 @@ Now have the ability to switch to FTP with the below command:
 
 ## HUB Window
 You can hide the entire HUB Window by using the below command
-- `//gs c hub hub`
+- `//gs c hub all`
 
 You can hide the State from the Window by using the below command:
 - `//gs c hub state` 
