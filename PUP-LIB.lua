@@ -38,6 +38,8 @@ const_stateEngaged = "Engaged"
 const_stateOverdrive = "Overdrive"
 const_petOnly = "Pet Only"
 const_masterOnly = "Master Only"
+const_on = "\\cs(32, 255, 32)ON\\cr"
+const_off = "\\cs(255, 32, 32)OFF\\cr"
 
 --- SKILLCHAIN TABLE
 SC = {}
@@ -111,32 +113,34 @@ keybinds_off['key_bind_lock_weapon'] = ''
 
     Variables are placed within a ${variableName|DefaultValue|Format}
     Format can be nil.
+    
+    _std stands for standard version
 ]]
-    hub_pet_info = [[\cs(255, 115, 0)======= Pet Info ==========\cr
+    hub_pet_info_std = [[ \cs(255, 115, 0)======= Pet Info ==========\cr
 - \cs(0, 0, 125)HP :\cr ${pet_current_hp|0}/${pet_max_hp|0}
 - \cs(0, 125, 0)MP :\cr ${pet_current_mp|0}/${pet_max_mp|0}
 - \cs(255, 0, 0)TP :\cr ${pet_current_tp|0000|%04d} -- TP/S: ${pet_tp_per_second|0}
 - \cs(255, 0, 0)WS Gear Lock Timer:\cr ${ws_gear_lock_timer|0}
 ]]
 
-    hub_pet_skills = [[\cs(255, 115, 0)======= Pet Skills ========\cr
+    hub_pet_skills_std = [[ \cs(255, 115, 0)======= Pet Skills ========\cr
 ${current_pet_skills|- No Skills To Track}
 ]]
 
-    hub_state = [[\cs(255, 115, 0)======= State ============\cr
+    hub_state_std = [[ \cs(255, 115, 0)======= State ============\cr
 -\cs(125, 125, 0)${key_bind_pet_mode} Pet Mode :\cr ${pet_current_mode|TANK}
 -\cs(125, 125, 0)${key_bind_pet_style} Pet Style :\cr ${pet_current_style|NORMAL}
 -\cs(125, 125, 0) Combined State :\cr ${player_pet_state|Idle}
 ]]
 
-    hub_mode = [[\cs(255, 115, 0)======= Mode ============\cr
+    hub_mode_std = [[ \cs(255, 115, 0)======= Mode ============\cr
 -\cs(125, 125, 0)${key_bind_idle} Idle Mode :\cr ${player_current_idle|Idle}
 -\cs(125, 125, 0)${key_bind_offense} Offense Mode :\cr ${player_current_offense|MasterPet}
 -\cs(125, 125, 0)${key_bind_physical} Physical Mode :\cr ${player_current_physical|PetDT}
 -\cs(125, 125, 0)${key_bind_hybrid} Hybrid Mode :\cr ${player_current_hybrid|Normal}
 ]]
 
-    hub_options = [[\cs(255, 115, 0)======= Options ==========\cr
+    hub_options_std = [[ \cs(255, 115, 0)======= Options ==========\cr
 -\cs(125, 125, 0)${key_bind_auto_maneuver} Auto Maneuver :\cr ${toggle_auto_maneuver|OFF}
 -\cs(125, 125, 0)${key_bind_pet_dt} Lock Pet DT Set :\cr ${toggle_lock_pet_dt_set|OFF}
 -\cs(125, 125, 0)${key_bind_lock_weapon} Lock Weapon :\cr ${toggle_lock_weapon|OFF}
@@ -144,6 +148,29 @@ ${current_pet_skills|- No Skills To Track}
 -\cs(125, 125, 0) Custom Gear Lock :\cr ${toggle_custom_gear_lock|OFF}
 -\cs(125, 125, 0) Auto Deploy :\cr ${toggle_auto_deploy|OFF}
 ]]
+
+--[[
+    This is the Lite version of the hub setup
+    _lte stands for Lite version
+]]
+    hub_pet_info_lte = [[ \cs(255, 115, 0)= Pet Info: \cr- \cs(0, 0, 125)HP :\cr ${pet_current_hp|0}/${pet_max_hp|0}- \cs(0, 125, 0)MP :\cr ${pet_current_mp|0}/${pet_max_mp|0}- \cs(255, 0, 0)TP :\cr ${pet_current_tp|0000|%04d} -- TP/S: ${pet_tp_per_second|0}- \cs(255, 0, 0)WSG Lock:\cr ${ws_gear_lock_timer|0} ]]
+
+    hub_pet_skills_lte = ''
+
+    hub_state_lte = [[ \cs(255, 115, 0)= State: \cr-\cs(125, 125, 0)${key_bind_pet_mode} Pet Mode :\cr ${pet_current_mode|TANK}-\cs(125, 125, 0)${key_bind_pet_style} Pet Style :\cr ${pet_current_style|NORMAL}-\cs(125, 125, 0) Combined State :\cr ${player_pet_state|Idle} ]]
+
+    hub_mode_lte = [[ \cs(255, 115, 0)= Mode: \cr-\cs(125, 125, 0)${key_bind_idle} Idle Mode :\cr ${player_current_idle|Idle}-\cs(125, 125, 0)${key_bind_offense} Offense Mode :\cr ${player_current_offense|MasterPet}-\cs(125, 125, 0)${key_bind_physical} Physical Mode :\cr ${player_current_physical|PetDT}-\cs(125, 125, 0)${key_bind_hybrid} Hybrid Mode :\cr ${player_current_hybrid|Normal} ]]
+
+    hub_options_lte = [[ \cs(255, 115, 0)= Options: \cr-\cs(125, 125, 0)${key_bind_auto_maneuver} AutoMan :\cr ${toggle_auto_maneuver|OFF}-\cs(125, 125, 0)${key_bind_pet_dt} Lock PetDT :\cr ${toggle_lock_pet_dt_set|OFF}-\cs(125, 125, 0)${key_bind_lock_weapon} Lock WPN :\cr ${toggle_lock_weapon|OFF}-\cs(125, 125, 0) Weaponskill FTP :\cr ${toggle_weaponskill_ftp|OFF}-\cs(125, 125, 0) CustoGear Lock :\cr ${toggle_custom_gear_lock|OFF}-\cs(125, 125, 0) AutoDep :\cr ${toggle_auto_deploy|OFF} ]]
+
+
+
+-- init style
+hub_pet_info = hub_pet_info_std
+hub_pet_skills = hub_pet_skills_std
+hub_state = hub_state_std
+hub_mode = hub_mode_std
+hub_options = hub_options_std
 
 --[[
     Used to validate that information in the HUB is up to date
@@ -169,39 +196,39 @@ function validateTextInformation()
 
     --Options Information
     if state.AutoMan.value then
-        main_text_hub.toggle_auto_maneuver = "ON"
+        main_text_hub.toggle_auto_maneuver = const_on
     else
-        main_text_hub.toggle_auto_maneuver = "OFF"
+        main_text_hub.toggle_auto_maneuver = const_off
     end
 
     if state.LockPetDT.value then
-        main_text_hub.toggle_lock_pet_dt_set = "ON"
+        main_text_hub.toggle_lock_pet_dt_set = const_on
     else
-        main_text_hub.toggle_lock_pet_dt_set = "OFF"
+        main_text_hub.toggle_lock_pet_dt_set = const_off
     end
 
     if state.LockWeapon.value then
-        main_text_hub.toggle_lock_weapon = "ON"
+        main_text_hub.toggle_lock_weapon = const_on
     else
-        main_text_hub.toggle_lock_weapon = "OFF"
+        main_text_hub.toggle_lock_weapon = const_off
     end
 
     if state.SetFTP.value then
-        main_text_hub.toggle_weaponskill_ftp = "ON"
+        main_text_hub.toggle_weaponskill_ftp = const_on
     else
-        main_text_hub.toggle_weaponskill_ftp = "OFF"
+        main_text_hub.toggle_weaponskill_ftp = const_off
     end
 
     if state.CustomGearLock.value then
-        main_text_hub.toggle_custom_gear_lock =  "ON"
+        main_text_hub.toggle_custom_gear_lock =  const_on
     else
-        main_text_hub.toggle_custom_gear_lock =  "OFF"
+        main_text_hub.toggle_custom_gear_lock =  const_off
     end
 
     if state.AutoDeploy.value then
-        main_text_hub.toggle_auto_deploy = "ON"
+        main_text_hub.toggle_auto_deploy = const_on
     else
-        main_text_hub.toggle_auto_deploy = "OFF"
+        main_text_hub.toggle_auto_deploy = const_off
     end
         
     if state.Keybinds.value then
@@ -264,6 +291,44 @@ function setupTextWindow(pos_x, pos_y)
     --Finally we show this to the user
     main_text_hub:show()
     
+end
+
+--[[
+    This toggle the Hub style
+]]
+function toggleHubStyle()
+    texts.clear(main_text_hub)
+    if state.useLightMode.value then
+        hud_x_pos = 0     
+        hud_y_pos = -3
+        hud_font_size = 8
+        hud_padding = 4
+        hud_alpha = 0
+        hud_strokewidth = 2
+        hub_pet_info = hub_pet_info_lte
+        hub_pet_skills = hub_pet_skills_lte
+        hub_state = hub_state_lte
+        hub_mode = hub_mode_lte
+        hub_options = hub_options_lte
+    else
+        hud_x_pos = pos_x
+        hud_y_pos = pos_y
+        hud_font_size = 12
+        hud_padding = 10
+        hud_alpha = 200
+        hud_strokewidth = 0
+        hub_pet_info = hub_pet_info_std
+        hub_pet_skills = hub_pet_skills_std
+        hub_state = hub_state_std
+        hub_mode = hub_mode_std
+        hub_options = hub_options_std
+    end
+    texts.pos(main_text_hub, hud_x_pos, hud_y_pos)
+    texts.size(main_text_hub, hud_font_size)
+    texts.pad(main_text_hub, hud_padding)
+    texts.bg_alpha(main_text_hub, hud_alpha)
+    texts.stroke_width(main_text_hub, hud_strokewidth)  
+    hideTextSections()
 end
 
 --[[
@@ -539,6 +604,21 @@ function user_customize_idle_set(idleSet)
     end
 end
 
+--Used to determine what Hybrid Mode to use when Player is engaged for trusts only and Pet is Engaged
+function user_customize_melee_set(meleeSet)
+    
+    if (Master_State:lower() == const_stateEngaged:lower() and state.OffenseMode.value =="Trusts") and Pet_State:lower() == const_stateEngaged:lower() then
+        if state.HybridMode.current == "Normal" then --If Hybrid Mode is Normal then simply return the set
+            return meleeSet
+        else
+            meleeSet = sets.idle.Pet.Engaged[state.HybridMode.current] --When Pet is engaged we pass in the Hybrid Mode to match to an existing set
+            return meleeSet
+        end
+    else --Otherwise return the idleSet with no changes from us
+        return meleeSet
+    end
+end
+
 function job_precast(spell, action, spellMap, eventArgs)
     if spell.english == "Activate" or spell.english == "Deus Ex Automata" then
         TotalSCalc()
@@ -723,14 +803,14 @@ function job_self_command(command, eventArgs)
         debug("Debug Mode is now on!")
     elseif command[1]:lower() == "predict" then --Predict Command
         determinePuppetType()
-    elseif command[1]:lower() == "hide" then --First variable is hide lets find out what
+    elseif command[1]:lower() == "hub" then --First variable is hide lets find out what
         if command[2]:lower() == "mode" then --Hides the Mode
             state.textHideMode:toggle()
             hideTextSections()
         elseif command[2]:lower() == "state" then --Hides/Shows the State
             state.textHideState:toggle()
             hideTextSections()
-        elseif command[2]:lower() == "hub" then -- Hides/Shows the HUB
+        elseif command[2]:lower() == "all" then -- Hides/Shows the HUB
             state.textHideHUB:toggle()
 
             if state.textHideHUB.value == true then
@@ -753,7 +833,10 @@ function job_self_command(command, eventArgs)
         elseif command[2]:lower() == "options" then --Hides/Show Options
             state.textHideOptions:toggle()
             hideTextSections()
-        end
+        elseif command[2]:lower() == "lite" then --Hides/Show Options
+            state.useLightMode:toggle()         
+            toggleHubStyle()      
+        end     
     elseif command[1]:lower() == "setftp" then --Set the FTP toggle
         state.SetFTP:toggle()
         validateTextInformation()
@@ -923,18 +1006,18 @@ windower.register_event(
                 end
 
             end
-
+            
             --This reads if pet is active and
             --pet style is SPAM or DD
             --Otherwise this is handled for when the player is fighting with pet in job_aftercast
             if
                 pet.isvalid and
-                    (state.PetStyleCycle.value:lower() == "spam" or state.PetStyleCycle.value:lower() == "dd") and
-                    Master_State:lower() == "idle"
+                    (state.PetStyleCycle.value:lower() == "spam" or state.PetStyleCycle.value:lower() == "dd" or state.PetStyleCycle.value:lower() == "bone") and
+                    (Master_State:lower() == "idle" or state.OffenseMode.value == "Trusts")
              then
                 --Now if pet has more than 1000 tp and pet is engaged and didn't just finish a weaponskill and we have not locked the pet out this set
                 if
-                    pet.tp >= 1000 and Pet_State == const_stateEngaged and justFinishedWeaponSkill == false and
+                    pet.tp >= 950 and Pet_State == const_stateEngaged and justFinishedWeaponSkill == false and
                         petWeaponSkillLock == false
                  then
                     if state.SetFTP.value then
@@ -949,9 +1032,8 @@ windower.register_event(
                 pet.isvalid and pet.tp >= 900 
                 and Pet_State == const_stateEngaged 
                 and state.PetModeCycle.value:lower() == "dd"
-                and state.PetStyleCycle.value:lower() == "spam"
+                and (state.PetStyleCycle.value:lower() == "spam" or state.PetStyleCycle.value:lower() == "bone")
                 and pet.attachments.inhibitor == false and pet.attachments["inhibitor II"] == false then
-                
                     if state.SetFTP.value then
                         equip(set_combine(sets.midcast.Pet.WSFTP, {main = "Ohtas"}))
                     else

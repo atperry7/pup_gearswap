@@ -11,7 +11,7 @@
 --[[
 
     Originally Created By: Faloun
-    Programmers: Arrchie, Kuroganashi, Byrne
+    Programmers: Arrchie, Kuroganashi, Byrne, Tuna
     Testers:Arrchie, Kuroganashi, Haxetc, Patb, Whirlin, Petsmart
     Contributors: Xilkk, Byrne, Blackhalo714
 
@@ -37,7 +37,7 @@ function user_setup()
         These are for when you are fighting with or without Pet
         When you are IDLE and Pet is ENGAGED that is handled by the Idle Sets
     ]]
-    state.OffenseMode:options("MasterPet", "Master")
+    state.OffenseMode:options("MasterPet", "Master", "Trusts")
 
     --[[
         Ctrl-F9 - Cycle Hybrid Mode (the defensive half of all 'hybrid' melee modes).
@@ -109,33 +109,39 @@ function user_setup()
     ]]
     state.SetFTP = M(false, "Set FTP")
 
-    --[[
+   --[[
         This will hide the entire HUB
-        //gs c hide hub
+        //gs c hub all
     ]]
     state.textHideHUB = M(false, "Hide HUB")
 
     --[[
         This will hide the Mode on the HUB
-        //gs c hide mode
+        //gs c hub mode
     ]]
     state.textHideMode = M(false, "Hide Mode")
 
     --[[
         This will hide the State on the HUB
-        //gs c hide state
+        //gs c hub state
     ]]
     state.textHideState = M(false, "Hide State")
 
     --[[
         This will hide the Options on the HUB
-        //gs c hide options
+        //gs c hub options
     ]]
     state.textHideOptions = M(false, "Hide Options")
 
     --[[
+        This will toggle the HUB lite mode
+        //gs c hub lite
+    ]]  
+    state.useLightMode = M(false, "Toggles Lite mode")
+
+    --[[
         This will toggle the default Keybinds set up for any changeable command on the window
-        //gs c hide keybinds
+        //gs c hub keybinds
     ]]
     state.Keybinds = M(false, "Hide Keybinds")
 
@@ -144,7 +150,7 @@ function user_setup()
         //gs c toggle CP 
     ]] 
     state.CP = M(false, "CP") 
-    CP_CAPE = "" 
+    CP_CAPE = "Aptitude Mantle +1" 
 
     --[[
         Enter the slots you would lock based on a custom set up.
@@ -165,11 +171,18 @@ function user_setup()
     send_command("bind !d gs c toggle LockPetDT")
     send_command("bind !f6 gs c predict")
     send_command("bind ^` gs c toggle LockWeapon")
+    send_command("bind home gs c toggle setftp")
+    send_command("bind PAGEUP gs c toggle autodeploy")
+    send_command("bind PAGEDOWN gs c hide keybinds")
+    send_command("bind end gs c toggle CP") 
 
     select_default_macro_book()
 
-        -- Adjust the X (horizontal) and Y (vertical) position here to adjust the window
-        setupTextWindow(0, 0)
+    -- Adjust the X (horizontal) and Y (vertical) position here to adjust the window
+    pos_x = 0
+    pos_y = 0
+    setupTextWindow(pos_x, pos_y)
+    
 end
 
 function file_unload()
@@ -181,12 +194,14 @@ function file_unload()
     send_command("unbind !d")
     send_command("unbind !f6")
     send_command("unbind ^`")
+    send_command("unbind home")
+    send_command("unbind PAGEUP") 
+    send_command("unbind PAGEDOWN")           
+    send_command("unbind end")    
 end
 
 function job_setup()
     include("PUP-LIB.lua")
-
-
 end
 
 function init_gear_sets()
@@ -277,16 +292,12 @@ function init_gear_sets()
     -------------------------------------Fastcast
     sets.precast.FC = {
        -- Add your set here 
-        -- Add your set here
-       -- Add your set here 
     }
 
     -------------------------------------Midcast
     sets.midcast = {} --Can be left empty
 
     sets.midcast.FastRecast = {
-       -- Add your set here 
-        -- Add your set here
        -- Add your set here 
     }
 
@@ -331,8 +342,6 @@ function init_gear_sets()
     --Waltz set (chr and vit)
     sets.precast.Waltz = {
        -- Add your set here 
-        -- Add your set here
-       -- Add your set here 
     }
 
     sets.precast.Waltz["Healing Waltz"] = {}
@@ -341,8 +350,6 @@ function init_gear_sets()
     -- Weaponskill sets
     -- Default set for any weaponskill that isn't any more specifically defined
     sets.precast.WS = {
-       -- Add your set here 
-        -- Add your set here
        -- Add your set here 
     }
 
@@ -355,8 +362,10 @@ function init_gear_sets()
 
     sets.precast.WS["Shijin Spiral"] =
         set_combine(
-        sets.precast.WS,
-        -- Add your set here 
+        sets.precast.WS, {
+            -- Add your set here
+        }
+         
     )
 
     sets.precast.WS["Howling Fist"] = set_combine(sets.precast.WS, {})
@@ -368,8 +377,6 @@ function init_gear_sets()
     ]]
     sets.idle.MasterDT = {
        -- Add your set here 
-        -- Add your set here
-       -- Add your set here 
     }
 
     -------------------------------------Engaged
@@ -379,8 +386,6 @@ function init_gear_sets()
     ]]
     sets.engaged.Master = {
        -- Add your set here 
-        -- Add your set here
-       -- Add your set here 
     }
 
     -------------------------------------Acc
@@ -389,8 +394,6 @@ function init_gear_sets()
         Hybrid Mode = Acc
     ]]
     sets.engaged.Master.Acc = {
-       -- Add your set here 
-        -- Add your set here
        -- Add your set here 
     }
 
@@ -430,8 +433,6 @@ function init_gear_sets()
     ]]
     sets.engaged.MasterPet = {
        -- Add your set here 
-        -- Add your set here
-       -- Add your set here 
     }
 
     -------------------------------------Acc
@@ -440,8 +441,6 @@ function init_gear_sets()
         Hybrid Mode = Acc
     ]]
     sets.engaged.MasterPet.Acc = {
-       -- Add your set here 
-        -- Add your set here
        -- Add your set here 
     }
 
@@ -452,8 +451,6 @@ function init_gear_sets()
     ]]
     sets.engaged.MasterPet.TP = {
        -- Add your set here 
-        -- Add your set here
-       -- Add your set here 
     }
 
     -------------------------------------DT
@@ -463,8 +460,6 @@ function init_gear_sets()
     ]]
     sets.engaged.MasterPet.DT = {
        -- Add your set here 
-        -- Add your set here
-       -- Add your set here 
     }
 
     -------------------------------------Regen
@@ -473,8 +468,6 @@ function init_gear_sets()
         Hybrid Mode = Regen
     ]]
     sets.engaged.MasterPet.Regen = {
-       -- Add your set here 
-        -- Add your set here
        -- Add your set here 
     }
 
@@ -492,13 +485,9 @@ function init_gear_sets()
     -------------------------------------Magic Midcast
     sets.midcast.Pet = {
        -- Add your set here 
-        -- Add your set here
-       -- Add your set here 
     }
 
     sets.midcast.Pet.Cure = {
-       -- Add your set here 
-        -- Add your set here
        -- Add your set here 
     }
 
@@ -508,31 +497,21 @@ function init_gear_sets()
 
     sets.midcast.Pet["Elemental Magic"] = {
        -- Add your set here 
-        -- Add your set here
-       -- Add your set here 
     }
 
     sets.midcast.Pet["Enfeebling Magic"] = {
-       -- Add your set here 
-        -- Add your set here
        -- Add your set here 
     }
 
     sets.midcast.Pet["Dark Magic"] = {
        -- Add your set here 
-        -- Add your set here
-       -- Add your set here 
     }
 
     sets.midcast.Pet["Divine Magic"] = {
        -- Add your set here 
-        -- Add your set here
-       -- Add your set here 
     }
 
     sets.midcast.Pet["Enhancing Magic"] = {
-       -- Add your set here 
-        -- Add your set here
        -- Add your set here 
     }
 
