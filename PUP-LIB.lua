@@ -153,15 +153,23 @@ ${current_pet_skills|- No Skills To Track}
     This is the Lite version of the hub setup
     _lte stands for Lite version
 ]]
-    hub_pet_info_lte = [[ \cs(255, 115, 0)= Pet Info: \cr- \cs(0, 0, 125)HP :\cr ${pet_current_hp|0}/${pet_max_hp|0}- \cs(0, 125, 0)MP :\cr ${pet_current_mp|0}/${pet_max_mp|0}- \cs(255, 0, 0)TP :\cr ${pet_current_tp|0000|%04d} -- TP/S: ${pet_tp_per_second|0}- \cs(255, 0, 0)WSG Lock:\cr ${ws_gear_lock_timer|0} ]]
+    hub_pet_info_lte = [[ 
+\cs(255, 115, 0)= Pet Info: \cr- \cs(0, 0, 125)HP :\cr ${pet_current_hp|0}/${pet_max_hp|0}- \cs(0, 125, 0)MP :\cr ${pet_current_mp|0}/${pet_max_mp|0}- \cs(255, 0, 0)TP :\cr ${pet_current_tp|0000|%04d} -- TP/S: ${pet_tp_per_second|0}- \cs(255, 0, 0)WSG Lock:\cr ${ws_gear_lock_timer|0} 
+]]
 
     hub_pet_skills_lte = ''
 
-    hub_state_lte = [[ \cs(255, 115, 0)= State: \cr-\cs(125, 125, 0)${key_bind_pet_mode} Pet Mode :\cr ${pet_current_mode|TANK}-\cs(125, 125, 0)${key_bind_pet_style} Pet Style :\cr ${pet_current_style|NORMAL}-\cs(125, 125, 0) Combined State :\cr ${player_pet_state|Idle} ]]
+    hub_state_lte = [[ 
+\cs(255, 115, 0)= State: \cr-\cs(125, 125, 0)${key_bind_pet_mode} Pet Mode :\cr ${pet_current_mode|TANK}-\cs(125, 125, 0)${key_bind_pet_style} Pet Style :\cr ${pet_current_style|NORMAL}-\cs(125, 125, 0) Combined State :\cr ${player_pet_state|Idle} 
+]]
 
-    hub_mode_lte = [[ \cs(255, 115, 0)= Mode: \cr-\cs(125, 125, 0)${key_bind_idle} Idle Mode :\cr ${player_current_idle|Idle}-\cs(125, 125, 0)${key_bind_offense} Offense Mode :\cr ${player_current_offense|MasterPet}-\cs(125, 125, 0)${key_bind_physical} Physical Mode :\cr ${player_current_physical|PetDT}-\cs(125, 125, 0)${key_bind_hybrid} Hybrid Mode :\cr ${player_current_hybrid|Normal} ]]
+    hub_mode_lte = [[ 
+\cs(255, 115, 0)= Mode: \cr-\cs(125, 125, 0)${key_bind_idle} Idle Mode :\cr ${player_current_idle|Idle}-\cs(125, 125, 0)${key_bind_offense} Offense Mode :\cr ${player_current_offense|MasterPet}-\cs(125, 125, 0)${key_bind_physical} Physical Mode :\cr ${player_current_physical|PetDT}-\cs(125, 125, 0)${key_bind_hybrid} Hybrid Mode :\cr ${player_current_hybrid|Normal} 
+]]
 
-    hub_options_lte = [[ \cs(255, 115, 0)= Options: \cr-\cs(125, 125, 0)${key_bind_auto_maneuver} AutoMan :\cr ${toggle_auto_maneuver|OFF}-\cs(125, 125, 0)${key_bind_pet_dt} Lock PetDT :\cr ${toggle_lock_pet_dt_set|OFF}-\cs(125, 125, 0)${key_bind_lock_weapon} Lock WPN :\cr ${toggle_lock_weapon|OFF}-\cs(125, 125, 0) Weaponskill FTP :\cr ${toggle_weaponskill_ftp|OFF}-\cs(125, 125, 0) CustoGear Lock :\cr ${toggle_custom_gear_lock|OFF}-\cs(125, 125, 0) AutoDep :\cr ${toggle_auto_deploy|OFF} ]]
+    hub_options_lte = [[ 
+\cs(255, 115, 0)= Options: \cr-\cs(125, 125, 0)${key_bind_auto_maneuver} AutoMan :\cr ${toggle_auto_maneuver|OFF}-\cs(125, 125, 0)${key_bind_pet_dt} \cs(125, 125, 0) AutoDep :\cr ${toggle_auto_deploy|OFF} 
+]]
 
 
 
@@ -327,7 +335,8 @@ function toggleHubStyle()
     texts.size(main_text_hub, hud_font_size)
     texts.pad(main_text_hub, hud_padding)
     texts.bg_alpha(main_text_hub, hud_alpha)
-    texts.stroke_width(main_text_hub, hud_strokewidth)  
+    texts.stroke_width(main_text_hub, hud_strokewidth) 
+
     hideTextSections()
 end
 
@@ -803,7 +812,7 @@ function job_self_command(command, eventArgs)
         debug("Debug Mode is now on!")
     elseif command[1]:lower() == "predict" then --Predict Command
         determinePuppetType()
-    elseif command[1]:lower() == "hub" then --First variable is hide lets find out what
+    elseif command[1]:lower() == "hub" or command[1]:lower() == "hide" then --First variable is hide lets find out what
         if command[2]:lower() == "mode" then --Hides the Mode
             state.textHideMode:toggle()
             hideTextSections()
@@ -919,21 +928,11 @@ function updatePetStats()
 
     --As long as we have a pet and player is not dead lets update
     if pet.isvalid and player.hpp > 0 then
-        if pet.hp ~= nil then
-            main_text_hub.pet_current_hp = tostring(pet.hp)
-        end
-
-        if pet.mp ~= nil then
-            main_text_hub.pet_current_mp = tostring(pet.mp)
-        end
-
-        if pet.max_hp ~= nil then
-            main_text_hub.pet_max_hp = tostring(pet.max_hp)
-        end
-
-        if pet.max_mp then
-            main_text_hub.pet_max_mp = tostring(pet.max_mp)
-        end
+        
+        main_text_hub.pet_current_hp = tostring(pet.hp)
+        main_text_hub.pet_current_mp = tostring(pet.mp)
+        main_text_hub.pet_max_hp = tostring(pet.max_hp)
+        main_text_hub.pet_max_mp = tostring(pet.max_mp)
 
         current_pet_tp = pet.tp
         if current_pet_tp ~= nil then
@@ -1012,7 +1011,10 @@ windower.register_event(
             --Otherwise this is handled for when the player is fighting with pet in job_aftercast
             if
                 pet.isvalid and
-                    (state.PetStyleCycle.value:lower() == "spam" or state.PetStyleCycle.value:lower() == "dd" or state.PetStyleCycle.value:lower() == "bone") and
+                    (state.PetStyleCycle.value:lower() == "spam" 
+                     or state.PetStyleCycle.value:lower() == "dd" 
+                     or state.PetModeCycle.value:lower() == "dd" 
+                     or state.PetStyleCycle.value:lower() == "bone") and
                     (Master_State:lower() == "idle" or state.OffenseMode.value == "Trusts")
              then
                 --Now if pet has more than 1000 tp and pet is engaged and didn't just finish a weaponskill and we have not locked the pet out this set
@@ -1021,24 +1023,13 @@ windower.register_event(
                         petWeaponSkillLock == false
                  then
                     if state.SetFTP.value then
-                        equip(set_combine(sets.midcast.Pet.WSFTP, {main = "Ohtas"}))
+                        equip(set_combine(sets.midcast.Pet.WSFTP))
                     else
-                        equip(set_combine(sets.midcast.Pet.WSNoFTP, {main = "Ohtas"}))
+                        equip(set_combine(sets.midcast.Pet.WSNoFTP))
                     end
 
                     startWeaponSkillPetTimer()
                 end
-            elseif 
-                pet.isvalid and pet.tp >= 900 
-                and Pet_State == const_stateEngaged 
-                and state.PetModeCycle.value:lower() == "dd"
-                and (state.PetStyleCycle.value:lower() == "spam" or state.PetStyleCycle.value:lower() == "bone")
-                and pet.attachments.inhibitor == false and pet.attachments["inhibitor II"] == false then
-                    if state.SetFTP.value then
-                        equip(set_combine(sets.midcast.Pet.WSFTP, {main = "Ohtas"}))
-                    else
-                        equip(set_combine(sets.midcast.Pet.WSNoFTP, {main = "Ohtas"}))
-                    end
             end
 
             if state.PetModeCycle.value == const_tank and Pet_State == const_stateEngaged then
@@ -1097,7 +1088,7 @@ windower.register_event(
     function(original, modified, mode)
         -- OVERDRIVE OPTIMIZER
         --I believe the original intent for this was if the player was not engaged and
-        --the pet is fighting on its own in Overdrive.
+        --the pet is fighting on its owner in Overdrive.
         --With that thought this now activates when the master is not engaged
         --or if the master is engaged
         --and the PetStyleCycle is set to SPAM then it will also activate
@@ -1142,6 +1133,8 @@ windower.register_event(
                 handle_equipping_gear(player.status, pet.status)
             end
         end
+
+        --Simple Track of pet debuffs
 
         return modified, mode
     end
@@ -1358,7 +1351,7 @@ function dump(o)
         end
         return s .. "} "
     else
-        return tostring(o .. "\n")
+        return tostring(o) .. '\n'
     end
 end
 
@@ -1385,38 +1378,61 @@ windower.register_event('action', function(act)
         entityPerformingAction = windower.ffxi.get_mob_by_id(act.actor_id).name
     end
 
+    local categories = {
+        [1] = 'Melee Attack',
+        [2] = 'Ranged Attack',
+        [3] = 'Weapon Skill',
+        [4] = 'Finish Spell Casted',
+        [5] = 'Finish Item Used',
+        [6] = 'Use Job Ability',
+        [7] = 'Begin Weapon Skill/TP Move',
+        [8] = 'Being Spell Casting/Interrupted',
+        [9] = 'Being Item Use/Interrupted',
+        [10] = 'Uknown',
+        [11] = 'Finish TP Move',
+        [12] = 'Begin Ranged Attack',
+        [13] = 'Pet Completes Ability/WS',
+        [14] = 'Unblinkable Job Ability',
+        [15] = 'Some RUN Abilites'
+    }
+
+    if act.category == 1 then
+        actionPerformed = 1
+        actionType = "Melee Attack"
+
+    elseif act.category == 2 then
+        actionPerformed = 2
+        actionType = "Ranged Attack"
+
+    elseif act.category == 3 then
+        actionPerformed = 3
+        actionType = "Weapon Skill"
+        if res.monster_abilities[act.param] then
+            action = res.monster_abilities[act.param].en --Gets the action name
+        end
+                
+    elseif act.category == 4 then
+        actionPerformed = 4
+        actionType = "Spell Casted"
+
+    elseif act.category == 11 then
+        actionPerformed = 11
+        actionType = "Finish TP Move"
+        if res.monster_abilities[act.param] then
+            action = res.monster_abilities[act.param].en --Gets the action name
+        end
+        
+
+    elseif act.category == 13 then --Pet TP Move
+        actionPerformed = 13
+        actionType = "Start TP Move"
+        action = res.monster_abilities[act.param].en --Gets the action name
+
+    end
+
     --If the entity happens to be our pet then we want to figure out what our pet is doing
     if pet.isvalid and entityPerformingAction:contains(pet.name) then
         petTP = pet.tp
-
-        if act.category == 1 then
-            actionPerformed = 1
-            actionType = "Melee Attack"
-
-        elseif act.category == 2 then
-            actionPerformed = 2
-            actionType = "Ranged Attack"
-
-        elseif act.category == 3 then
-            actionPerformed = 3
-            actionType = "Weapon Skill"
-            action = res.monster_abilities[act.param].en --Gets the action name
-                    
-        elseif act.category == 4 then
-            actionPerformed = 4
-            actionType = "Spell Casted"
-
-        elseif act.category == 11 then
-            actionPerformed = 11
-            actionType = "Finish TP Move"
-            action = res.monster_abilities[act.param].en --Gets the action name
-
-        elseif act.category == 13 then --Pet TP Move
-            actionPerformed = 13
-            actionType = "Start TP Move"
-            action = res.monster_abilities[act.param].en --Gets the action name
-
-        end
 
         --We are going to start building the message we pass into debug to write to the file
         message = message .. entityPerformingAction .. " : Action -  " .. ternary(action ~= '', action, actionType)  .. " : "
@@ -1440,10 +1456,28 @@ windower.register_event('action', function(act)
 
                 --Once we have gone through all actions lets put out to the file
                 if entityPerformingAction:contains(pet.name) and (actionPerformed == 1 or actionPerformed == 2 or actionPerformed == 3 or actionPerformed == 11 or actionPerformed == 13) then
-                    debug(message)
+                    --debug(message)
                 end
             end
         end
-    end 
+    else
+        --Check through all targets that are affected by an action
+        for _, target in pairs(act.targets) do
+            local mob_found = windower.ffxi.get_mob_by_id(target.id)
+
+            if mob_found then
+                for _, performed in pairs (target.actions) do
+                    local targetFound = windower.ffxi.get_mob_by_id(target.id).name
+                    
+                    if targetFound then
+                        --debug("Performing: " .. entityPerformingAction .. " : Target : " .. targetFound .. " : Message : " .. tostring(target.message) .. " : Category = " .. tostring(act.category) .. " : Action - " .. tostring(act.param))
+
+                    end
+                
+                end
+
+            end
+        end
+    end
 
 end)
