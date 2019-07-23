@@ -250,6 +250,10 @@ end
 --Default To Set Up the Text Window
 function setupTextWindow(pos_x, pos_y)
 
+    if main_text_hub ~= nil then
+        return
+    end
+
     local default_settings = {}
     default_settings.pos = {}
     default_settings.pos.x = pos_x
@@ -618,6 +622,7 @@ function user_customize_melee_set(meleeSet)
     
     if (Master_State:lower() == const_stateEngaged:lower() and state.OffenseMode.value =="Trusts") and Pet_State:lower() == const_stateEngaged:lower() then
         if state.HybridMode.current == "Normal" then --If Hybrid Mode is Normal then simply return the set
+            meleeSet = sets.idle.Pet.Engaged
             return meleeSet
         else
             meleeSet = sets.idle.Pet.Engaged[state.HybridMode.current] --When Pet is engaged we pass in the Hybrid Mode to match to an existing set
