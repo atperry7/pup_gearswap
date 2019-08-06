@@ -223,7 +223,6 @@ One item to be aware of is that this currenly reads the chat log for when the pe
 [Jump To Table of Contents](#puppet-gearswap-for-windower)
 
 ## TODO
-- [ ] Testing various conditions for when to swap equipment correctly
 - [ ] Add the ability to change Attachments with AutoControl Windower Addon
 
 [Jump To Table of Contents](#puppet-gearswap-for-windower)
