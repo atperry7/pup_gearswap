@@ -173,21 +173,24 @@ If player is idle and puppet is engaged while in DD Mode or a DD Style the puppe
 Now have the ability to switch to FTP with the below command:
 - `//gs c setftp`
 
-## Hide Window
+## HUB Window
 You can hide the entire HUB Window by using the below command
-- `//gs c hide hub`
+- `//gs c hub all`
 
 You can hide the State from the Window by using the below command:
-- `//gs c hide state` 
+- `//gs c hub state` 
 
 You can hide the Mode from the Window by using the below command
-- `//gs c hide mode`
+- `//gs c hub mode`
 
 You can hide the Options from the Window by using the below command
-- `//gs c hide options`
+- `//gs c hub options`
 
 You can toggle default keybinds set up for cycles/modes on menu by using the below command
-- `//gs c hide keybinds`
+- `//gs c hub keybinds`
+
+You can activate the lite mode using:
+- `//gs c hub lite`
 
 ## Notes On Pet Equipping Weaponskill Gear
 This is currently how we determine when to equip a pets Weaponskill Gear prior to it using:
