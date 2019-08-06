@@ -365,7 +365,7 @@ function init_gear_sets()
         sets.precast.WS, {
             -- Add your set here
         }
-         
+
     )
 
     sets.precast.WS["Howling Fist"] = set_combine(sets.precast.WS, {})
