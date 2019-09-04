@@ -302,6 +302,7 @@ function setupTextWindow(pos_x, pos_y)
 
     --Finally we show this to the user
     main_text_hub:show()
+    hideTextSections()
     
 end
 
@@ -1024,7 +1025,7 @@ windower.register_event(
              then
                 --Now if pet has more than 1000 tp and pet is engaged and didn't just finish a weaponskill and we have not locked the pet out this set
                 if
-                    pet.tp >= 950 and Pet_State == const_stateEngaged and justFinishedWeaponSkill == false and
+                    pet.tp >= 850 and Pet_State == const_stateEngaged and justFinishedWeaponSkill == false and
                         petWeaponSkillLock == false
                  then
                     if state.SetFTP.value then
@@ -1138,8 +1139,6 @@ windower.register_event(
                 handle_equipping_gear(player.status, pet.status)
             end
         end
-
-        --Simple Track of pet debuffs
 
         return modified, mode
     end
