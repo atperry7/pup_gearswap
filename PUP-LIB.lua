@@ -1314,6 +1314,7 @@ function display_current_job_state(eventArgs)
 end
 
 function sub_job_change(new, old)
+    main_text_hub = nil
     determinePuppetType()
 end
 
