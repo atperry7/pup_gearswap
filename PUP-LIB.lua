@@ -1,6 +1,8 @@
 ------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------ PUPPETMASTER LIBRARY FILES --------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------
+
+require('queues')
 res = require('resources')
 texts = require('texts')
 
@@ -8,13 +10,14 @@ texts = require('texts')
 --------Global Variables-------
 -------------------------------
 
-Current_Maneuver = 0
-OverCount = 0
-NextWS = ""
+local failedManeuvers = Q{}
 
+--Default States
 Master_State = "Idle"
 Pet_State = "Idle"
 Hybrid_State = "Idle"
+
+--Various timers
 Flashbulb_Timer = 45
 Strobe_Timer = 30
 Strobe_Recast = 0
@@ -22,8 +25,7 @@ Flashbulb_Recast = 0
 Flashbulb_Time = 0
 Strobe_Time = 0
 
-debug_mode = true
-
+--Seeds the time used to calculate various functions per second
 time_start = os.time()
 
 --Constants in case we decide to change names down the road, will be much easier
@@ -171,8 +173,6 @@ ${current_pet_skills|- No Skills To Track}
 \cs(255, 115, 0)= Options: \cr-\cs(125, 125, 0)${key_bind_auto_maneuver} AutoMan :\cr ${toggle_auto_maneuver|OFF}-\cs(125, 125, 0)${key_bind_pet_dt} \cs(125, 125, 0) AutoDep :\cr ${toggle_auto_deploy|OFF} 
 ]]
 
-
-
 -- init style
 hub_pet_info = hub_pet_info_std
 hub_pet_skills = hub_pet_skills_std
@@ -249,17 +249,15 @@ end
 
 --Default To Set Up the Text Window
 function setupTextWindow(pos_x, pos_y)
-
     if main_text_hub ~= nil then
         return
     end
-
-    local default_settings = {}
+    
+    default_settings = T{}
     default_settings.pos = {}
     default_settings.pos.x = pos_x
     default_settings.pos.y = pos_y
     default_settings.bg = {}
-
     default_settings.bg.alpha = 200
     default_settings.bg.red = 40
     default_settings.bg.green = 40
@@ -288,7 +286,7 @@ function setupTextWindow(pos_x, pos_y)
     default_settings.text.stroke.blue = 0
 
     --Creates the initial Text Object will use to create the different sections in
-    main_text_hub = texts.new('', default_settings, default_settings)
+    main_text_hub = texts.new('', default_settings)
 
     --Appends the different sections to the main_text_hub
     texts.append(main_text_hub, hub_pet_info)
@@ -303,7 +301,6 @@ function setupTextWindow(pos_x, pos_y)
     --Finally we show this to the user
     main_text_hub:show()
     hideTextSections()
-    
 end
 
 --[[
@@ -559,11 +556,8 @@ function determinePuppetType()
     end
 end
 
-
 function reset_timers()
-    state.AutoMan:reset()
-    Current_Maneuver = 0
-    determinePuppetType()
+    failedManeuvers:clear()
 end
 
 --Watching for Zone Changes to reset certain sections
@@ -577,17 +571,6 @@ function table.contains(table, element)
         end
     end
     return false
-end
-
---Pads a given chara on both sides (centering with left justification)
-function pad(s, l, c)
-    local srep = string.rep
-    local c = c or " "
-
-    local res1 = srep(c, l) .. s -- pad to half-length s
-    local res2 = res1 .. srep(c, l) -- right-pad our left-padded string to the full length
-
-    return res2
 end
 
 --Takes a condition and returns a given value based on if it is true or false
@@ -621,7 +604,7 @@ end
 --Used to determine what Hybrid Mode to use when Player is engaged for trusts only and Pet is Engaged
 function user_customize_melee_set(meleeSet)
     
-    if (Master_State:lower() == const_stateEngaged:lower() and state.OffenseMode.value =="Trusts") and Pet_State:lower() == const_stateEngaged:lower() then
+    if (Master_State:lower() == const_stateEngaged:lower() and state.OffenseMode.value == "Trusts") and Pet_State:lower() == const_stateEngaged:lower() then
         if state.HybridMode.current == "Normal" then --If Hybrid Mode is Normal then simply return the set
             meleeSet = sets.idle.Pet.Engaged
             return meleeSet
@@ -652,9 +635,6 @@ function job_precast(spell, action, spellMap, eventArgs)
     end
 end
 
-function job_midcast(spell, action, spellMap, eventArgs)
-end
-
 --Puppet Weaponskill Modifiers
 Modifier = {}
 
@@ -668,6 +648,12 @@ Modifier["Slapstick"] = "DEX"
 Modifier["Knockout"] = "AGI"
 
 function job_aftercast(spell, action, spellMap, eventArgs)
+
+    --Maneuver was interrupted and we don't have up to 3 already in queue then add this to be retried
+    if string.find(spell.english, "Maneuver") and spell.interrupted and failedManeuvers:length() <= 3 then
+        failedManeuvers:push(spell)
+    end
+
     if pet.isvalid then
         if SC[pet.frame][spell.english] and pet.tp >= 850 and Pet_State == "Engaged" then
             ws = SC[pet.frame][spell.english]
@@ -676,12 +662,6 @@ function job_aftercast(spell, action, spellMap, eventArgs)
             --If its a valid modif
             if modif then
                 equip(sets.midcast.Pet.WS[modif])
-
-                add_to_chat(
-                    392,
-                    "*-*-*-*-*-*-*-*-* [ " ..
-                        pet.name .. " is about to " .. ws .. " (" .. modif .. ") ] *-*-*-*-*-*-*-*-*"
-                )
             else --Otherwise equip the default Weapon Skill Set
                 equip(sets.midcast.Pet.WSNoFTP)
             end
@@ -719,7 +699,8 @@ function job_status_change(new, old)
         end
     else
         Master_State = const_stateIdle
-        if state.CP.value == true then --Fall safe to make sure back is enabled after a fight is over
+        
+        if state.CP.value == true then --Fail safe to make sure back is enabled after a fight is over
             enable("back") 
         end 
 
@@ -769,6 +750,7 @@ end
 
 --Anytime you change equipment you need to set eventArgs.handled or else you may get overwritten
 function job_buff_change(status, gain_or_loss, eventArgs)
+    
     if status == "sleep" and gain_or_loss then
         equip(set_combine(sets.defense.PDT, {neck = "Opo-opo Necklace"}))
         eventArgs.handled = true
@@ -778,34 +760,10 @@ function job_buff_change(status, gain_or_loss, eventArgs)
         send_command("input /p I have avoided the grips of ~~~DOOM~~~ may Altana be praised! ")
     end
 
-    --When you are at 3 Maneuvers and you use the ability you will temporarily go to 4
-    --This helps prevent you from trying to cast on losing a buff
-    if status:contains("Maneuver") and gain_or_loss then
-        Current_Maneuver = Current_Maneuver + 1
-    elseif Current_Maneuver > 0 then -- We don't want to see a negative count
-        Current_Maneuver = Current_Maneuver - 1
+    if state.AutoMan.value and player.hp > 0 and pet.isvalid and not areas.Cities:contains(world.area) then
+        send_command('input /ja "' .. status .. '" <me>')
     end
 
-    --Now we can turn on and off the functionailty of automatically maintaining manuevers
-    --Also, make sure your not dead, so we don't attempt to recast Maneuvers
-    if state.AutoMan.value and player.hp > 0 and pet.isvalid then
-        if status:contains("Maneuver") and gain_or_loss == false and Current_Maneuver < 3 then
-            send_command('input /ja "' .. status .. '" <me>')
-        end
-    end
-
-    --TODO Check this section
-    if status == const_stateOverdrive then
-        if gain_or_loss then
-            OverCount = 1
-            equip(sets.midcast.Pet.WSFTP)
-            eventArgs.handled = true
-        else
-            OverCount = 0
-            equip(sets.midcast.Pet.WSNoFTP)
-            eventArgs.handled = true
-        end
-    end
 end
 
 -- Toggles -- SE Macros: /console gs c "command"
@@ -813,18 +771,19 @@ function job_self_command(command, eventArgs)
     if command[1]:lower() == "automan" then --Toggles AutoMan
         state.AutoMan:toggle()
         validateTextInformation()
-    elseif command[1]:lower() == "debug" then --Debug Mode
-        debug_mode = not debug_mode
-        debug("Debug Mode is now on!")
+
     elseif command[1]:lower() == "predict" then --Predict Command
         determinePuppetType()
+
     elseif command[1]:lower() == "hub" or command[1]:lower() == "hide" then --First variable is hide lets find out what
         if command[2]:lower() == "mode" then --Hides the Mode
             state.textHideMode:toggle()
             hideTextSections()
+
         elseif command[2]:lower() == "state" then --Hides/Shows the State
             state.textHideState:toggle()
             hideTextSections()
+
         elseif command[2]:lower() == "all" then -- Hides/Shows the HUB
             state.textHideHUB:toggle()
 
@@ -960,6 +919,19 @@ windower.register_event(
 
             calculatePetTpPerSec()
 
+            --As long as we are no doing an action and a maneuver that failed has been queued
+            if not midaction() and failedManeuvers:length() > 0 then
+                local ability = failedManeuvers:pop()
+
+                --check recast timer to make sure we can actually use ability
+                if windower.ffxi.get_ability_recasts()[res.job_abilities[ability.id].recast_id] <= 0 then
+                    send_command('input /ja "' .. ability.name .. '" <me>')
+                else
+                    --if we cant recast then push it back on to try again
+                    failedManeuvers:push(ability)
+                end
+            end
+
             if pet.isvalid and player.hpp > 0 then
                 --Double check current Pet Status and Player Status
                 --In some cases Mote's doesn't recognize a pet's status change
@@ -1092,34 +1064,6 @@ end
 windower.register_event(
     "incoming text",
     function(original, modified, mode)
-        -- OVERDRIVE OPTIMIZER
-        --I believe the original intent for this was if the player was not engaged and
-        --the pet is fighting on its owner in Overdrive.
-        --With that thought this now activates when the master is not engaged
-        --or if the master is engaged
-        --and the PetStyleCycle is set to SPAM then it will also activate
-        if
-            buffactive["Overdrive"] and
-                (Master_State:lower() ~= const_stateEngaged:lower() or state.PetStyleCycle.value:lower() == "spam")
-         then
-            if original:contains(pet.name) and original:contains("Daze") then
-                equip(sets.midcast.Pet.WSFTP)
-                add_to_chat(204, "*-*-*-*-*-*-*-*-* [ " .. "Daze" .. " done ] *-*-*-*-*-*-*-*-*")
-                OverCount = 2
-            elseif original:contains(pet.name) and original:contains("Arcuballista") then
-                equip(sets.midcast.Pet.WSNoFTP)
-                add_to_chat(204, "*-*-*-*-*-*-*-*-* [ " .. "Arcuballista" .. " done ] *-*-*-*-*-*-*-*-*")
-                OverCount = 3
-            elseif original:contains(pet.name) and original:contains("Armor Shatterer") then
-                equip(sets.midcast.Pet.WSNoFTP)
-                add_to_chat(204, "*-*-*-*-*-*-*-*-* [ " .. "Armor Shatterer" .. " done ] *-*-*-*-*-*-*-*-*")
-                OverCount = 4
-            elseif original:contains(pet.name) and original:contains("Armor Piercer") then
-                equip(sets.midcast.Pet.WSFTP)
-                add_to_chat(204, "*-*-*-*-*-*-*-*-* [ " .. "Armor Piercer" .. " done ] *-*-*-*-*-*-*-*-*")
-                OverCount = 1
-            end
-        end
 
         -- Checking timer for enmity sets
         if buffactive["Fire Maneuver"] then
@@ -1147,9 +1091,7 @@ windower.register_event(
 --Passes state changes for cycle commands
 --handle_update is always called when a job state is changed
 --Best to adjust gear in job_handle_update which is an override for the job file
-lastStateActivated = ""
 function job_state_change(stateField, newValue, oldValue)
-    lastStateActivated = stateField
 
     --[[
         stateField is the Mode that could be passed in that is changing
@@ -1188,9 +1130,9 @@ function job_state_change(stateField, newValue, oldValue)
         main_text_hub.pet_current_style = newValue
     elseif stateField == "Auto Maneuver" then --Updates HUB for Auto Maneuver
         if newValue == true then
-            main_text_hub.toggle_auto_maneuver = "ON"
+            main_text_hub.toggle_auto_maneuver = const_on
         else
-            main_text_hub.toggle_auto_maneuver = "OFF"
+            main_text_hub.toggle_auto_maneuver = const_off
         end
         
     elseif stateField == "Lock Pet DT" then
@@ -1217,7 +1159,7 @@ function job_state_change(stateField, newValue, oldValue)
                 "feet"
             )
 
-            main_text_hub.toggle_lock_pet_dt_set = "ON"
+            main_text_hub.toggle_lock_pet_dt_set = const_on
         else
             enable(
                 "main",
@@ -1238,31 +1180,31 @@ function job_state_change(stateField, newValue, oldValue)
                 "feet"
             )
 
-            main_text_hub.toggle_lock_pet_dt_set = "OFF"
+            main_text_hub.toggle_lock_pet_dt_set = const_off
         end
 
     elseif stateField == "Lock Weapon" then --Updates HUB and disables/enables window for Lock Weapon
         if newValue == true then
             disable("main")
-            main_text_hub.toggle_lock_weapon = "ON"
+            main_text_hub.toggle_lock_weapon = const_on
         else
             enable("main")
-            main_text_hub.toggle_lock_weapon = "OFF"
+            main_text_hub.toggle_lock_weapon = const_off
         end
     elseif stateField == "Custom Gear Lock" then --Updates HUB and disables/enables gear from custom lock
         if newValue == true then
-            main_text_hub.toggle_custom_gear_lock = "ON"
+            main_text_hub.toggle_custom_gear_lock = const_on
             disable(customGearLock)
         else
-            main_text_hub.toggle_custom_gear_lock = "OFF"
+            main_text_hub.toggle_custom_gear_lock = const_off
             enable(customGearLock)
             handle_equipping_gear(player.status, Pet_State)
         end
     elseif stateField == 'Auto Deploy' then --Updates HUB for Auto Deploy
         if newValue == true then
-            main_text_hub.toggle_auto_deploy = "ON"
+            main_text_hub.toggle_auto_deploy = const_on
         else
-            main_text_hub.toggle_auto_deploy = "OFF"
+            main_text_hub.toggle_auto_deploy = const_off
         end
     elseif stateField == 'Hide HUB' then --Hides or Shows the entire HUB Window
         if newValue == true then
@@ -1314,175 +1256,5 @@ function display_current_job_state(eventArgs)
 end
 
 function sub_job_change(new, old)
-    main_text_hub = nil
     determinePuppetType()
 end
-
---Special Debug Code that prints out to a file
-function debug(message)
-    if not debug_mode then
-        return
-    end
-
-    --Default location is within current gearswap folder
-    if not windower.dir_exists(windower.addon_path..'data/pup_log') then
-        windower.create_dir(windower.addon_path..'data/pup_log')
-    end
-
-    filename = 'pup_debug_' .. os.date('%m_%d_%y') .. '.log'
-
-    --Open the file to write to -- this can only append to the file nothing else
-    debug_file = io.open(windower.addon_path .. "data/pup_log/" .. filename, "a")
-
-    --Set the output
-    io.output(debug_file)
-
-    --Write to that output
-    io.write("[" .. os.date() .. "] - Debug - " .. message .. "\n")
-
-    --Make sure we close the file once done
-    io.close(debug_file)
-end
-
---Dump the contents of a table
-function dump(o)
-    if type(o) == "table" then
-        local s = "{ "
-        for k, v in pairs(o) do
-            if type(k) ~= "number" then
-                k = '"' .. k .. '"'
-            end
-            s = s .. "[" .. k .. "] = " .. dump(v) .. ","
-        end
-        return s .. "} "
-    else
-        return tostring(o) .. '\n'
-    end
-end
-
---This ties into the actions pushed to us from
---[[
-    Currently testing with this to track only Pet damage and save to a file to view later
-]]
-windower.register_event('action', function(act)
-    local player = windower.ffxi.get_player()
-    local message = ''
-    local petTP = 0
-    local entityPerformingAction = ''
-    local actionPerformed = 0
-    local actionType = ''
-    local action = ''
-
-    if player == nil then
-        return
-    end
-
-    --if the action being passed in and valid we are going to track that player/monster/etc...
-    if windower.ffxi.get_mob_by_id(act.actor_id) then
-        --message = message .. "Performing Action: " .. windower.ffxi.get_mob_by_id(act.actor_id).name .. " "
-        entityPerformingAction = windower.ffxi.get_mob_by_id(act.actor_id).name
-    end
-
-    local categories = {
-        [1] = 'Melee Attack',
-        [2] = 'Ranged Attack',
-        [3] = 'Weapon Skill',
-        [4] = 'Finish Spell Casted',
-        [5] = 'Finish Item Used',
-        [6] = 'Use Job Ability',
-        [7] = 'Begin Weapon Skill/TP Move',
-        [8] = 'Being Spell Casting/Interrupted',
-        [9] = 'Being Item Use/Interrupted',
-        [10] = 'Uknown',
-        [11] = 'Finish TP Move',
-        [12] = 'Begin Ranged Attack',
-        [13] = 'Pet Completes Ability/WS',
-        [14] = 'Unblinkable Job Ability',
-        [15] = 'Some RUN Abilites'
-    }
-
-    if act.category == 1 then
-        actionPerformed = 1
-        actionType = "Melee Attack"
-
-    elseif act.category == 2 then
-        actionPerformed = 2
-        actionType = "Ranged Attack"
-
-    elseif act.category == 3 then
-        actionPerformed = 3
-        actionType = "Weapon Skill"
-        if res.monster_abilities[act.param] then
-            action = res.monster_abilities[act.param].en --Gets the action name
-        end
-                
-    elseif act.category == 4 then
-        actionPerformed = 4
-        actionType = "Spell Casted"
-
-    elseif act.category == 11 then
-        actionPerformed = 11
-        actionType = "Finish TP Move"
-        if res.monster_abilities[act.param] then
-            action = res.monster_abilities[act.param].en --Gets the action name
-        end
-        
-
-    elseif act.category == 13 then --Pet TP Move
-        actionPerformed = 13
-        actionType = "Start TP Move"
-        action = res.monster_abilities[act.param].en --Gets the action name
-
-    end
-
-    --If the entity happens to be our pet then we want to figure out what our pet is doing
-    if pet.isvalid and entityPerformingAction:contains(pet.name) then
-        petTP = pet.tp
-
-        --We are going to start building the message we pass into debug to write to the file
-        message = message .. entityPerformingAction .. " : Action -  " .. ternary(action ~= '', action, actionType)  .. " : "
-
-        --Check through all targets that are affected by an action
-        for _, target in pairs(act.targets) do
-            local mob_found = windower.ffxi.get_mob_by_id(target.id)
-
-            if mob_found then
-                --message = message .. "Target: " .. windower.ffxi.get_mob_by_id(target.id).name .. " "
-
-                --Now we are looking at the actions being performed by targets
-                for _, performed in pairs (target.actions) do
-
-                    --If those actions are from our pet and match one of the actionsPerformed we are interested in add it to the message
-                    if entityPerformingAction:contains(pet.name) and (actionPerformed == 1 or actionPerformed == 2 or actionPerformed == 3 or actionPerformed == 11 or actionPerformed == 13) then
-                        message = message .. ' Target - ' .. windower.ffxi.get_mob_by_id(target.id).name .. " : Current TP - ".. petTP .. " : Damage - " .. tostring(performed.param) .. " "
-                        
-                    end 
-                end
-
-                --Once we have gone through all actions lets put out to the file
-                if entityPerformingAction:contains(pet.name) and (actionPerformed == 1 or actionPerformed == 2 or actionPerformed == 3 or actionPerformed == 11 or actionPerformed == 13) then
-                    --debug(message)
-                end
-            end
-        end
-    else
-        --Check through all targets that are affected by an action
-        for _, target in pairs(act.targets) do
-            local mob_found = windower.ffxi.get_mob_by_id(target.id)
-
-            if mob_found then
-                for _, performed in pairs (target.actions) do
-                    local targetFound = windower.ffxi.get_mob_by_id(target.id).name
-                    
-                    if targetFound then
-                        --debug("Performing: " .. entityPerformingAction .. " : Target : " .. targetFound .. " : Message : " .. tostring(target.message) .. " : Category = " .. tostring(act.category) .. " : Action - " .. tostring(act.param))
-
-                    end
-                
-                end
-
-            end
-        end
-    end
-
-end)
