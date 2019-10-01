@@ -650,7 +650,7 @@ Modifier["Knockout"] = "AGI"
 function job_aftercast(spell, action, spellMap, eventArgs)
 
     --Maneuver was interrupted and we don't have up to 3 already in queue then add this to be retried
-    if string.find(spell.english, "Maneuver") and spell.interrupted and failedManeuvers:length() <= 3 then
+    if string.find(spell.english, "Maneuver") and spell.interrupted == true and failedManeuvers:length() <= 3 then
         failedManeuvers:push(spell)
     end
 
@@ -760,7 +760,7 @@ function job_buff_change(status, gain_or_loss, eventArgs)
         send_command("input /p I have avoided the grips of ~~~DOOM~~~ may Altana be praised! ")
     end
 
-    if state.AutoMan.value and player.hp > 0 and pet.isvalid and not areas.Cities:contains(world.area) then
+    if gain_or_loss == false and state.AutoMan.value and player.hp > 0 and pet.isvalid and not areas.Cities:contains(world.area) then
         send_command('input /ja "' .. status .. '" <me>')
     end
 
