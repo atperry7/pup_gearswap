@@ -760,7 +760,7 @@ function job_buff_change(status, gain_or_loss, eventArgs)
         send_command("input /p I have avoided the grips of ~~~DOOM~~~ may Altana be praised! ")
     end
 
-    if gain_or_loss == false and state.AutoMan.value and player.hp > 0 and pet.isvalid and not areas.Cities:contains(world.area) then
+    if status:contains("Maneuver") and gain_or_loss == false and state.AutoMan.value and player.hp > 0 and pet.isvalid and not areas.Cities:contains(world.area) then
         send_command('input /ja "' .. status .. '" <me>')
     end
 
