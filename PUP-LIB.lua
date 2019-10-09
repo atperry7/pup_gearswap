@@ -560,6 +560,7 @@ end
 
 function reset_timers()
     failedManeuvers:clear()
+    currentManeuvers:clear()
 end
 
 --Watching for Zone Changes to reset certain sections
