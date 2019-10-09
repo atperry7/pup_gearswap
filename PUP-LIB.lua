@@ -126,6 +126,7 @@ keybinds_off['key_bind_lock_weapon'] = ''
 ]]
 
     hub_pet_skills_std = [[ \cs(255, 115, 0)======= Pet Skills ========\cr
+- \cs(125, 125, 0)Maneuver Queue: \cr ${maneuver_queue|0}
 ${current_pet_skills|- No Skills To Track}
 ]]
 
@@ -245,6 +246,7 @@ function validateTextInformation()
         texts.update(main_text_hub, keybinds_off)
     end
 
+    main_text_hub.maneuver_queue = failedManeuvers:length()
 end
 
 --Default To Set Up the Text Window
@@ -253,7 +255,7 @@ function setupTextWindow(pos_x, pos_y)
         return
     end
     
-    default_settings = T{}
+    local default_settings = T{}
     default_settings.pos = {}
     default_settings.pos.x = pos_x
     default_settings.pos.y = pos_y
@@ -414,7 +416,7 @@ end
 
 --Prints to the screen in a certain format
 function msg(str)
-    send_command("@input /echo *-*-*-*-*-*-*-*-* " .. str .. " *-*-*-*-*-*-*-*-*")
+    send_command("@input /echo *-*-*-* " .. str .. " *-*-*-*")
 end
 
 ------------------------------------
@@ -749,19 +751,37 @@ function job_pet_aftercast(spell)
 end
 
 --Anytime you change equipment you need to set eventArgs.handled or else you may get overwritten
-function job_buff_change(status, gain_or_loss, eventArgs)
+currentManeuvers = Q{}
+
+function job_buff_change(status, gain, eventArgs)
     
-    if status == "sleep" and gain_or_loss then
+    if status == "sleep" and gain then
         equip(set_combine(sets.defense.PDT, {neck = "Opo-opo Necklace"}))
         eventArgs.handled = true
-    elseif status == "doom" and gain_or_loss then
+    elseif status == "doom" and gain then
         send_command("input /p I have befallen to ~~~DOOM~~~ may my end not come to quickly.")
-    elseif status == "doom" and gain_or_loss == false then
+    elseif status == "doom" and gain == false then
         send_command("input /p I have avoided the grips of ~~~DOOM~~~ may Altana be praised! ")
     end
 
-    if status:contains("Maneuver") and gain_or_loss == false and state.AutoMan.value and player.hp > 0 and pet.isvalid and not areas.Cities:contains(world.area) then
+    if 
+        status:contains("Maneuver") 
+        and gain == false
+        and state.AutoMan.value 
+        and player.hp > 0 
+        and pet.isvalid 
+        and not areas.Cities:contains(world.area)
+        and currentManeuvers:length() < 3
+        then
+       
         send_command('input /ja "' .. status .. '" <me>')
+            
+    end
+
+    if status:contains("Maneuver") and gain == false then
+        currentManeuvers:pop()
+    elseif status:contains("Maneuver") and gain then
+        currentManeuvers:push(status)
     end
 
 end
@@ -817,6 +837,9 @@ function job_self_command(command, eventArgs)
     elseif command[1]:lower() == "customgearlock" then --Set the customgearlock
         state.CustomGearLock:toggle()
         validateTextInformation()
+    elseif command[1]:lower() == "clear" then
+        failedManeuvers:clear()
+        msg('Maneuvers have been reset')
     end
 end
 
@@ -925,7 +948,7 @@ windower.register_event(
 
                 --check recast timer to make sure we can actually use ability
                 if windower.ffxi.get_ability_recasts()[res.job_abilities[ability.id].recast_id] <= 0 then
-                    send_command('input /ja "' .. ability.name .. '" <me>')
+                    send_command('wait 0.5;input /ja "' .. ability.name .. '" <me>')
                 else
                     --if we cant recast then push it back on to try again
                     failedManeuvers:push(ability)

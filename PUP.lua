@@ -175,6 +175,7 @@ function user_setup()
     send_command("bind PAGEUP gs c toggle autodeploy")
     send_command("bind PAGEDOWN gs c hide keybinds")
     send_command("bind end gs c toggle CP") 
+    send_command("bind = gs c clear")
 
     select_default_macro_book()
 
@@ -198,6 +199,7 @@ function file_unload()
     send_command("unbind PAGEUP")
     send_command("unbind PAGEDOWN")       
     send_command("unbind end")
+    send_command("unbind =")
 end
 
 function job_setup()
