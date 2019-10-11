@@ -370,6 +370,12 @@ function hideTextSections()
     if not state.textHideOptions.value then
         texts.append(main_text_hub, hub_options)
     end
+    
+    if state.textHideHUB.value == true then
+        texts.hide(main_text_hub)
+    else 
+        texts.show(main_text_hub)
+    end
 
     validateTextInformation()
 
