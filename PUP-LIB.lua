@@ -561,6 +561,12 @@ end
 function reset_timers()
     failedManeuvers:clear()
     currentManeuvers:clear()
+
+    if areas.Cities:contains(world.area) then
+        texts.hide(main_text_hub)
+    else 
+        texts.show(main_text_hub)
+    end
 end
 
 --Watching for Zone Changes to reset certain sections
