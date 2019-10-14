@@ -127,6 +127,7 @@ keybinds_off['key_bind_lock_weapon'] = ''
 
     hub_pet_skills_std = [[ \cs(255, 115, 0)======= Pet Skills ========\cr
 - \cs(125, 125, 0)Maneuver Queue: \cr ${maneuver_queue|0}
+- \cs(125, 125, 0)Current Queue: \cr ${current_queue|0}
 ${current_pet_skills|- No Skills To Track}
 ]]
 
@@ -247,6 +248,8 @@ function validateTextInformation()
     end
 
     main_text_hub.maneuver_queue = failedManeuvers:length()
+    main_text_hub.current_queue = currentManeuvers:length()
+
 end
 
 --Default To Set Up the Text Window
@@ -777,6 +780,14 @@ function job_buff_change(status, gain, eventArgs)
         send_command("input /p I have avoided the grips of ~~~DOOM~~~ may Altana be praised! ")
     end
 
+    if status:contains("Maneuver") and gain == false then
+        currentManeuvers:pop()
+    end
+    
+    if status:contains("Maneuver") and gain then
+        currentManeuvers:push(status)
+    end
+
     if 
         status:contains("Maneuver") 
         and gain == false
@@ -789,12 +800,6 @@ function job_buff_change(status, gain, eventArgs)
        
         send_command('input /ja "' .. status .. '" <me>')
             
-    end
-
-    if status:contains("Maneuver") and gain == false then
-        currentManeuvers:pop()
-    elseif status:contains("Maneuver") and gain then
-        currentManeuvers:push(status)
     end
 
 end
