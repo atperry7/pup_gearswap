@@ -175,6 +175,7 @@ function user_setup()
     send_command("bind PAGEUP gs c toggle autodeploy")
     send_command("bind PAGEDOWN gs c hide keybinds")
     send_command("bind end gs c toggle CP") 
+    send_command("bind = gs c clear")
 
     select_default_macro_book()
 
@@ -195,9 +196,10 @@ function file_unload()
     send_command("unbind !f6")
     send_command("unbind ^`")
     send_command("unbind home")
-    send_command("unbind PAGEUP") 
-    send_command("unbind PAGEDOWN")           
-    send_command("unbind end")    
+    send_command("unbind PAGEUP")
+    send_command("unbind PAGEDOWN")       
+    send_command("unbind end")
+    send_command("unbind =")
 end
 
 function job_setup()
@@ -622,9 +624,7 @@ function init_gear_sets()
     ]]
     sets.midcast.Pet.WSNoFTP = {
         head = Empy_Karagoz.Head_PTPBonus,
-       -- Add your set here 
-        -- Add your set here
-       -- Add your set here 
+       -- Add your set here
     }
 
     --[[
@@ -633,9 +633,7 @@ function init_gear_sets()
     ]]
     sets.midcast.Pet.WSFTP = {
         head = Empy_Karagoz.Head_PTPBonus,
-       -- Add your set here 
-        -- Add your set here
-       -- Add your set here 
+       -- Add your set here
     }
 
     --[[
@@ -683,16 +681,12 @@ function init_gear_sets()
     ---------------------------------------------
     -- Town Set
     sets.idle.Town = {
-       -- Add your set here 
-        -- Add your set here
-       -- Add your set here 
+       -- Add your set here
     }
 
     -- Resting sets
     sets.resting = {
-       -- Add your set here 
-        -- Add your set here
-       -- Add your set here 
+       -- Add your set here
     }
 
     sets.defense.MasterDT = sets.idle.MasterDT
