@@ -622,7 +622,42 @@ end
 --Used to determine what Hybrid Mode to use when Player is engaged for trusts only and Pet is Engaged
 function user_customize_melee_set(meleeSet)
     
-    if (Master_State:lower() == const_stateEngaged:lower() and state.OffenseMode.value == "Trusts") and Pet_State:lower() == const_stateEngaged:lower() then
+    if buffactive['Aftermath: Lv.1'] then
+
+        if state.OffenseMode.value == "Master" then 
+            meleeSet = sets.engaged.Master['Aftermath: Lv.1']
+            return meleeSet
+        elseif state.OffenseMode.value == "MasterPet" then
+            meleeSet = sets.engaged.MasterPet['Aftermath: Lv.1']
+            return meleeSet
+        elseif state.OffenseMode.value == "Trusts" then
+            meleeSet = sets.idle.Pet.Engaged['Aftermath: Lv.1']
+            return meleeSet
+        end
+
+    elseif buffactive['Aftermath: Lv.2'] then
+        if state.OffenseMode.value == "Master" then 
+            meleeSet = sets.engaged.Master['Aftermath: Lv.2']
+            return meleeSet
+        elseif state.OffenseMode.value == "MasterPet" then
+            meleeSet = sets.engaged.MasterPet['Aftermath: Lv.2']
+            return meleeSet
+        elseif state.OffenseMode.value == "Trusts" then
+            meleeSet = sets.idle.Pet.Engaged['Aftermath: Lv.2']
+            return meleeSet
+        end
+    elseif buffactive['Aftermath: Lv.3'] then
+        if state.OffenseMode.value == "Master" then 
+            meleeSet = sets.engaged.Master['Aftermath: Lv.3']
+            return meleeSet
+        elseif state.OffenseMode.value == "MasterPet" then
+            meleeSet = sets.engaged.MasterPet['Aftermath: Lv.3']
+            return meleeSet
+        elseif state.OffenseMode.value == "Trusts" then
+            meleeSet = sets.idle.Pet.Engaged['Aftermath: Lv.3']
+            return meleeSet
+        end
+    elseif (Master_State:lower() == const_stateEngaged:lower() and state.OffenseMode.value == "Trusts") and Pet_State:lower() == const_stateEngaged:lower() then
         if state.HybridMode.current == "Normal" then --If Hybrid Mode is Normal then simply return the set
             meleeSet = sets.idle.Pet.Engaged
             return meleeSet
@@ -630,9 +665,10 @@ function user_customize_melee_set(meleeSet)
             meleeSet = sets.idle.Pet.Engaged[state.HybridMode.current] --When Pet is engaged we pass in the Hybrid Mode to match to an existing set
             return meleeSet
         end
-    else --Otherwise return the idleSet with no changes from us
-        return meleeSet
-    end
+    end 
+    
+    --Just in case always make sure to return the meleeSet
+    return meleeSet
 end
 
 function job_precast(spell, action, spellMap, eventArgs)

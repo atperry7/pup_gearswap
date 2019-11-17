@@ -417,6 +417,33 @@ function init_gear_sets()
        -- Add your set here 
     }
 
+    --[[
+        Buff Active: Aftermath: Lv.1
+        Offense Mode = Master
+        (This becomes the new baseset while Aftermath is active) 
+    ]]
+    sets.engaged.Master["Aftermath: Lv.1"] = {
+        -- Add your set here 
+    }
+    
+    --[[
+        Buff Active: Aftermath: Lv.2
+        Offense Mode = Master
+        (This becomes the new baseset while Aftermath is active) 
+    ]]
+    sets.engaged.Master["Aftermath: Lv.2"] = {
+        -- Add your set here 
+    }
+    
+    --[[
+        Buff Active: Aftermath: Lv.3
+        Offense Mode = Master
+        (This becomes the new baseset while Aftermath is active) 
+    ]]
+    sets.engaged.Master["Aftermath: Lv.3"] = {
+        -- Add your set here 
+    }
+
     ----------------------------------------------------------------------------------
     --  __  __         _           ___     _     ___      _
     -- |  \/  |__ _ __| |_ ___ _ _| _ \___| |_  / __| ___| |_ ___
@@ -471,6 +498,33 @@ function init_gear_sets()
     ]]
     sets.engaged.MasterPet.Regen = {
        -- Add your set here 
+    }
+
+    --[[
+        Buff Active: Aftermath: Lv.1
+        Offense Mode = MasterPet
+        (This becomes the new baseset while Aftermath is active) 
+    ]]
+    sets.engaged.MasterPet["Aftermath: Lv.1"] = {
+        -- Add your set here
+    }
+    
+    --[[
+        Buff Active: Aftermath: Lv.2
+        Offense Mode = MasterPet
+        (This becomes the new baseset while Aftermath is active) 
+    ]]
+    sets.engaged.MasterPet["Aftermath: Lv.2"] = {
+        -- Add your set here
+    }
+    
+    --[[
+        Buff Active: Aftermath: Lv.3
+        Offense Mode = MasterPet
+        (This becomes the new baseset while Aftermath is active) 
+    ]]
+    sets.engaged.MasterPet["Aftermath: Lv.3"] = {
+        -- Add your set here"
     }
 
     ----------------------------------------------------------------
@@ -617,6 +671,36 @@ function init_gear_sets()
             legs = Empy_Karagoz.Legs_Combat
         }
     )
+
+    --[[
+        Buff Active: Aftermath: Lv.1
+        Offense Mode = Trusts
+        Player = Engaged
+        (This becomes the new baseset while Aftermath is active) 
+    ]]
+    sets.idle.Pet.Engaged["Aftermath: Lv.1"] = {
+        -- Add your set here
+    }
+    
+    --[[
+        Buff Active: Aftermath: Lv.2
+        Offense Mode = Trusts
+        Player = Engaged
+        (This becomes the new baseset while Aftermath is active) 
+    ]]
+    sets.idle.Pet.Engaged["Aftermath: Lv.2"] = {
+        -- Add your set here
+    }
+    
+    --[[
+        Buff Active: Aftermath: Lv.3
+        Offense Mode = Trusts
+        Player = Engaged
+        (This becomes the new baseset while Aftermath is active) 
+    ]]
+    sets.idle.Pet.Engaged["Aftermath: Lv.3"] = {
+        -- Add your set here
+    }
 
     -------------------------------------WS
     --[[
