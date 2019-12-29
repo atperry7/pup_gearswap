@@ -90,7 +90,7 @@ keybinds_on['key_bind_physical'] = '(CTRL+F10)'
 keybinds_on['key_bind_hybrid'] = '(CTRL+F9)'
 keybinds_on['key_bind_auto_maneuver'] = '(ALT+E)'
 keybinds_on['key_bind_pet_dt'] = '(ALT+D)'
-keybinds_on['key_bind_lock_weapon'] = '(ALT+Tilda)'
+keybinds_on['key_bind_lock_weapon'] = '(CTRL+Tilda)'
 
 --[[
     This gets passed in when the Keybinds are turned off.
