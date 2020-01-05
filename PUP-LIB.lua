@@ -985,7 +985,7 @@ windower.register_event(
                     previousTargetedMonster = currentTargetedMonster
 
                     --Get the new current target
-                    if windower.ffxi.get_mob_by_target('t').id then
+                    if windower.ffxi.get_mob_by_target('t') then
                         currentTargetedMonster = windower.ffxi.get_mob_by_target('t').id
                     end
 
