@@ -78,7 +78,7 @@ function user_setup()
 
     --The actual Pet Mode and Pet Style cycles
     --Default Mode is Tank
-    state.PetModeCycle = M {"TANK", "DD", "MAGE"}
+    state.PetModeCycle = M{"TANK", "DD", "MAGE"}
     --Default Pet Cycle is Tank
     state.PetStyleCycle = state.PetStyleCycleTank
 
@@ -149,8 +149,8 @@ function user_setup()
         This will toggle the CP Mode 
         //gs c toggle CP 
     ]] 
-    state.CP = M(false, "CP") 
-    CP_CAPE = "Aptitude Mantle +1" 
+    state.CP = M(false, "CP")
+    CP_CAPE = "Aptitude Mantle +1"
 
     --[[
         Enter the slots you would lock based on a custom set up.
@@ -174,16 +174,15 @@ function user_setup()
     send_command("bind home gs c toggle setftp")
     send_command("bind PAGEUP gs c toggle autodeploy")
     send_command("bind PAGEDOWN gs c hide keybinds")
-    send_command("bind end gs c toggle CP") 
+    send_command("bind end gs c toggle CP")
     send_command("bind = gs c clear")
 
     select_default_macro_book()
 
     -- Adjust the X (horizontal) and Y (vertical) position here to adjust the window
     pos_x = 0
-    pos_y = 0
+    pos_y = 500
     setupTextWindow(pos_x, pos_y)
-    
 end
 
 function file_unload()
@@ -197,13 +196,19 @@ function file_unload()
     send_command("unbind ^`")
     send_command("unbind home")
     send_command("unbind PAGEUP")
-    send_command("unbind PAGEDOWN")       
+    send_command("unbind PAGEDOWN")
     send_command("unbind end")
     send_command("unbind =")
+
 end
 
 function job_setup()
-    include("PUP-LIB.lua")
+    include("PUP-LIB/pup-main.lua")
+
+    --This is to set the mininmum amount of TP you want your pet to have before equiping TP gear (pet is fighting only)
+    PET_MIN_TP_TO_WEAPONSKILL = 850
+    --This is the seconds of how long to keep the pet weaponskill gear equipped before reverting to previous set
+    PET_GEAR_WEAPONSKILL_LOCKOUT_TIMER = 5
 end
 
 function init_gear_sets()
@@ -417,33 +422,6 @@ function init_gear_sets()
        -- Add your set here 
     }
 
-    --[[
-        Buff Active: Aftermath: Lv.1
-        Offense Mode = Master
-        (This becomes the new baseset while Aftermath is active) 
-    ]]
-    sets.engaged.Master["Aftermath: Lv.1"] = {
-        -- Add your set here 
-    }
-    
-    --[[
-        Buff Active: Aftermath: Lv.2
-        Offense Mode = Master
-        (This becomes the new baseset while Aftermath is active) 
-    ]]
-    sets.engaged.Master["Aftermath: Lv.2"] = {
-        -- Add your set here 
-    }
-    
-    --[[
-        Buff Active: Aftermath: Lv.3
-        Offense Mode = Master
-        (This becomes the new baseset while Aftermath is active) 
-    ]]
-    sets.engaged.Master["Aftermath: Lv.3"] = {
-        -- Add your set here 
-    }
-
     ----------------------------------------------------------------------------------
     --  __  __         _           ___     _     ___      _
     -- |  \/  |__ _ __| |_ ___ _ _| _ \___| |_  / __| ___| |_ ___
@@ -500,33 +478,6 @@ function init_gear_sets()
        -- Add your set here 
     }
 
-    --[[
-        Buff Active: Aftermath: Lv.1
-        Offense Mode = MasterPet
-        (This becomes the new baseset while Aftermath is active) 
-    ]]
-    sets.engaged.MasterPet["Aftermath: Lv.1"] = {
-        -- Add your set here
-    }
-    
-    --[[
-        Buff Active: Aftermath: Lv.2
-        Offense Mode = MasterPet
-        (This becomes the new baseset while Aftermath is active) 
-    ]]
-    sets.engaged.MasterPet["Aftermath: Lv.2"] = {
-        -- Add your set here
-    }
-    
-    --[[
-        Buff Active: Aftermath: Lv.3
-        Offense Mode = MasterPet
-        (This becomes the new baseset while Aftermath is active) 
-    ]]
-    sets.engaged.MasterPet["Aftermath: Lv.3"] = {
-        -- Add your set here"
-    }
-
     ----------------------------------------------------------------
     --  _____     _      ____        _          _____      _
     -- |  __ \   | |    / __ \      | |        / ____|    | |
@@ -581,7 +532,7 @@ function init_gear_sets()
         Idle Mode = Idle
     ]]
     sets.idle.Pet = {
-       -- Add your set here 
+       head = "Heyoka Cap"
     }
 
     --[[
@@ -625,7 +576,7 @@ function init_gear_sets()
         Hybrid Mode = Normal
     ]]
     sets.idle.Pet.Engaged = {
-       -- Add your set here 
+       head = "Taeon Chapeau"
     }
 
     --[[
@@ -672,42 +623,12 @@ function init_gear_sets()
         }
     )
 
-    --[[
-        Buff Active: Aftermath: Lv.1
-        Offense Mode = Trusts
-        Player = Engaged
-        (This becomes the new baseset while Aftermath is active) 
-    ]]
-    sets.idle.Pet.Engaged["Aftermath: Lv.1"] = {
-        -- Add your set here
-    }
-    
-    --[[
-        Buff Active: Aftermath: Lv.2
-        Offense Mode = Trusts
-        Player = Engaged
-        (This becomes the new baseset while Aftermath is active) 
-    ]]
-    sets.idle.Pet.Engaged["Aftermath: Lv.2"] = {
-        -- Add your set here
-    }
-    
-    --[[
-        Buff Active: Aftermath: Lv.3
-        Offense Mode = Trusts
-        Player = Engaged
-        (This becomes the new baseset while Aftermath is active) 
-    ]]
-    sets.idle.Pet.Engaged["Aftermath: Lv.3"] = {
-        -- Add your set here
-    }
-
     -------------------------------------WS
     --[[
         WSNoFTP is the default weaponskill set used
     ]]
     sets.midcast.Pet.WSNoFTP = {
-        head = Empy_Karagoz.Head_PTPBonus,
+        head = "Pitre Taj +2",
        -- Add your set here
     }
 
@@ -720,40 +641,33 @@ function init_gear_sets()
        -- Add your set here
     }
 
-    --[[
-        Base Weapon Skill Set
-        Used by default if no modifier is found
-    ]]
-    sets.midcast.Pet.WS = {}
+    --Base set without modifier, uses WSNoFTP by default
+    sets.midcast.Pet.WS = set_combine(sets.midcast.Pet.WSNoFTP, {
+        -- Add your gear here that would be different from sets.midcast.Pet.WSNoFTP
+        head = "Pitre Taj +2",
+    })
 
     --Chimera Ripper, String Clipper
-    sets.midcast.Pet.WS["STR"] = set_combine(sets.midcast.Pet.WSNoFTP, {})
+    sets.midcast.Pet.WS["STR"] = set_combine(sets.midcast.Pet.WSNoFTP, {
+        -- Add your gear here that would be different from sets.midcast.Pet.WSNoFTP
+    })
 
     -- Bone crusher, String Shredder
     sets.midcast.Pet.WS["VIT"] =
-        set_combine(
-        sets.midcast.Pet.WSNoFTP,
-        {
+        set_combine(sets.midcast.Pet.WSNoFTP, {
             -- Add your gear here that would be different from sets.midcast.Pet.WSNoFTP
             head = Empy_Karagoz.Head_PTPBonus
-        }
-    )
+    })
 
     -- Cannibal Blade
-    sets.midcast.Pet.WS["MND"] = set_combine(sets.midcast.Pet.WSNoFTP, {})
+    sets.midcast.Pet.WS["MND"] = set_combine(sets.midcast.Pet.WSNoFTP, {
+        
+    })
 
     -- Armor Piercer, Armor Shatterer
-    sets.midcast.Pet.WS["DEX"] = set_combine(sets.midcast.Pet.WSNoFTP, {})
-
-    -- Arcuballista, Daze
-    sets.midcast.Pet.WS["DEXFTP"] =
-        set_combine(
-        sets.midcast.Pet.WSFTP,
-        {
-            -- Add your gear here that would be different from sets.midcast.Pet.WSFTP
-            head = Empy_Karagoz.Head_PTPBonus
-        }
-    )
+    sets.midcast.Pet.WS["DEX"] = set_combine(sets.midcast.Pet.WSNoFTP, {
+        
+    })
 
     ---------------------------------------------
     --  __  __ _             _____      _
