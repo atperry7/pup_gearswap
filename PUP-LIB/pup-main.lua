@@ -287,6 +287,7 @@ windower.register_event(
             check_pet_ws_timer()
 
             check_strobe_recast()
+            check_flashbulb_recast()
 
             updateTextInformation()
         end
