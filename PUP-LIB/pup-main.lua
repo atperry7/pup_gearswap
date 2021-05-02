@@ -74,7 +74,7 @@ function job_precast(spell, action, spellMap, eventArgs)
     elseif sets.precast.WS[spell.english] then
         equip(sets.precast.WS[spell.english])
     elseif pet.isvalid then
-        if spell.english == "Deploy" and pet.tp >= 950 then
+        if spell.english == "Deploy" and pet.tp >= 950 and state.PetModeCycle.value ~= const_mage then
             equip(sets.midcast.Pet.WSNoFTP)
             eventArgs.handled = true
         end
