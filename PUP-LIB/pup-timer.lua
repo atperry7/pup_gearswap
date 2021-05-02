@@ -38,7 +38,11 @@ function resetWeaponSkillPetTimer()
     petWeaponSkillRecast = 0
     main_text_hub.ws_gear_lock_timer = petWeaponSkillRecast
     startedPetWeaponSkillTimer = false
-    handle_equipping_gear(player.status, pet.status)
+
+    if Pet_State == const_stateEngaged then
+        handle_equipping_gear(player.status, pet.status)
+    end
+
 end
 
 function check_pet_ws_timer()
