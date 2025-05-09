@@ -287,6 +287,11 @@ function setupTextWindow(pos_x, pos_y)
     -- We then do a quick validation
     updateTextInformation()
 
+    -- Do a quick check if the Light Mode is active.
+    if state.useLightMode.value then
+        toggleHubStyle()
+    end
+
     -- Finally we show this to the user
     main_text_hub:show()
     hideTextSections()
