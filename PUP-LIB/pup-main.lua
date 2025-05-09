@@ -281,6 +281,7 @@ windower.register_event("prerender", function()
         check_pet_ws_timer()
 
         check_strobe_recast()
+        check_flashbulb_recast()
 
         updateTextInformation()
     end
