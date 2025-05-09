@@ -1,7 +1,15 @@
 # Recent Changes
 The entire structure is being reworked. I have started to pull out various functions into their own section within the PUP-LIB folder to help better maintain these various functions.
 
-To Install: Move the older version out of the Gearswap Data Folder. Then move the new PUP.lua and the PUP-LIB folder (with all of its contents) in the Gearswap Data Folder.
+## More recent changes (by Azzaare)
+I have further refactored the code so that only files in `PUP-USER` should be modified by the users. The template should be copied and renamed as `user.lua`. Please change your sets and other settings in this file only.
+
+Update to this GearSwap script can be done by either :
+
+1. Pulling the git repository last version
+2. Downloading the last version and copy-pasting the content into the data folder
+
+In both cases, the `user.lua` file will not be overwritten. But you will still profit from the updates.
 
 ## Gearswap GUI
 Under Pet Skills the two have been renamed:
