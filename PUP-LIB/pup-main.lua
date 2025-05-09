@@ -89,14 +89,18 @@ function job_aftercast(spell, action, spellMap, eventArgs)
     end
 
     if pet.isvalid then
-        if SC[pet.frame][spell.english] and pet.tp >= 850 and Pet_State == "Engaged" then
+        -- Check if the master's spell corresponds to a pet skillchain ability defined in SC table
+        -- Also ensure pet has enough TP and is engaged
+        if SC[pet.frame] and SC[pet.frame][spell.english] and pet.tp >= 850 and Pet_State == "Engaged" then
+            -- Determine the pet's corresponding weaponskill (ws) from the SC table
             ws = SC[pet.frame][spell.english]
+            -- Get the gear modifier (e.g., "VIT", "DEX") for this pet ws from the Modifier table
             modif = Modifier[ws]
 
-            -- If its a valid modif
-            if modif then
+            -- If a specific modifier set exists for this pet ws (e.g., sets.midcast.Pet.WS["VIT"])
+            if modif and sets.midcast.Pet.WS[modif] then
                 equip(sets.midcast.Pet.WS[modif])
-            else -- Otherwise equip the default Weapon Skill Set
+            else -- Otherwise, equip the default pet weaponskill set (WSNoFTP)
                 equip(sets.midcast.Pet.WSNoFTP)
             end
 
@@ -252,58 +256,65 @@ windower.register_event("prerender", function()
 
     -- Items we want to check every second
     if os.time() > time_start then
-        time_start = os.time()
+        time_start = os.time() -- Update the timer for the next second
         local pet_status = pet.status
         local master_status = player.status
 
+        -- Update global Pet_State if pet status is available
         if pet_status then
             Pet_State = pet_status
         end
 
+        -- Update global Master_State if player status is available
         if master_status then
             Master_State = master_status
         end
 
+        -- Calculate pet TP per second for HUB display
         calculatePetTpPerSec()
-        -- Now we check if we need to lock our back for CP
+        -- Check if CP cape needs to be equipped/unequipped
         check_cp_cape_equip()
 
-        -- As long as we are not doing an action
+        -- Perform these checks only if the player is not currently in an action
         if not midaction() then
+            -- Check and retry any failed maneuvers
             check_failed_maneuver()
-
-            -- If we are in auto deploy and engaged we are going check if we have changed targets
+            -- Check if pet needs to be redeployed due to target change (if AutoDeploy is on)
             check_auto_deploy_target()
-
+            -- Check if pet enmity gear needs to be equipped (Tank mode, specific maneuvers active)
             check_pet_enmity_gear()
         end
 
+        -- Check and manage pet weaponskill gear timer and equipping logic
         check_pet_ws_timer()
-
+        -- Update Strobe recast timer
         check_strobe_recast()
+        -- Update Flashbulb recast timer
         check_flashbulb_recast()
-
+        -- Refresh all information displayed on the HUB
         updateTextInformation()
     end
 end)
 
 windower.register_event("incoming text", function(original, modified, mode)
 
-    -- Checking timer for enmity sets
+    -- Checking timer for enmity sets by parsing chat log for pet ability usage
+    -- If Fire Maneuver is active and pet uses Provoke (Strobe)
     if buffactive["Fire Maneuver"] then
         if original:contains(pet.name) and original:contains("Provoke") then
             add_to_chat(204, "*-*-*-*-*-*-*-*-* [ Strobe done ] *-*-*-*-*-*-*-*-*")
-            Strobe_Time = os.time()
-            Strobe_Recast = Strobe_Timer
+            Strobe_Time = os.time() -- Reset Strobe timer start time
+            Strobe_Recast = Strobe_Timer -- Reset Strobe recast duration
             handle_equipping_gear(player.status, pet.status)
         end
     end
 
+    -- If Light Maneuver is active and pet uses Flashbulb
     if buffactive["Light Maneuver"] then
         if original:contains(pet.name) and original:contains("Flashbulb") then
             add_to_chat(204, "*-*-*-*-*-*-*-*-* [ Flashbulb done ] *-*-*-*-*-*-*-*-*")
-            Flashbulb_Time = os.time()
-            Flashbulb_Recast = Flashbulb_Timer
+            Flashbulb_Time = os.time() -- Reset Flashbulb timer start time
+            Flashbulb_Recast = Flashbulb_Timer -- Reset Flashbulb recast duration
             handle_equipping_gear(player.status, pet.status)
         end
     end
@@ -319,114 +330,148 @@ function job_state_change(stateField, newValue, oldValue)
     --[[
         stateField is the Mode that could be passed in that is changing
         This could include PhysicalDefenseMode, OffenseMode, PetModeCycle -- etc
-        If you provide a description then that is what will be passed in
+        If you provide a description then that is what will be passed in (e.g., "Auto Deploy" for state.AutoDeploy).
 
         For example:
         state.AutoDeploy = M(false, "Auto Deploy")
 
-        The second portion is a description so that is what the stateField would equal if this passed in
+        The second portion ("Auto Deploy") is a description, so that is what the stateField would equal if this state is passed in.
 
-        Then we are given the newValue what it is changing to
-        Then we are given the oldValue what it is changing from
+        newValue: The new value the state is changing to.
+        oldValue: The old value the state is changing from.
     ]]
 
-    if stateField == const_PetModeCycle then -- Handles PetModeCycle Changes
-        -- Depending on the Pet Mode we are changing too these each have their own style to use
-        if newValue == const_tank then -- Sets PetStyleCycle to Tank if we are going to Tank Mode
-            state.PetStyleCycle = state.PetStyleCycleTank
-        elseif newValue == const_dd then -- Sets PetStyleCycle to DD if we are going to DD Mode
-            state.PetStyleCycle = state.PetStyleCycleDD
-        elseif newValue == const_mage then -- Sets PetStyleCycle to Mage if we are going to MAGE Mode
-            state.PetStyleCycle = state.PetStyleCycleMage
+    -- Handles changes to PetModeCycle (e.g., TANK, DD, MAGE)
+    if stateField == const_PetModeCycle then
+        -- Depending on the new Pet Mode, set the corresponding PetStyleCycle
+        if newValue == const_tank then -- If new mode is TANK
+            state.PetStyleCycle = state.PetStyleCycleTank -- Set style cycle to Tank options
+        elseif newValue == const_dd then -- If new mode is DD
+            state.PetStyleCycle = state.PetStyleCycleDD -- Set style cycle to DD options
+        elseif newValue == const_mage then -- If new mode is MAGE
+            state.PetStyleCycle = state.PetStyleCycleMage -- Set style cycle to Mage options
         else
-            -- In the off chance we can't find this the new style added this is displayed
+            -- Fallback message if an unknown PetModeCycle value is encountered
             msg("No Style found for: " .. newValue)
         end
 
-        -- Update the Mode/Style to show properly on HUB
+        -- Update the HUB to reflect the new Pet Mode and Style
         main_text_hub.pet_current_mode = state.PetModeCycle.current
-        main_text_hub.pet_current_style = state.PetModeCycle.current
+        main_text_hub.pet_current_style = state.PetStyleCycle.current -- Display the first style in the new cycle
 
-        -- Update gear
+        -- Re-evaluate and equip gear based on the new state
         handle_equipping_gear(player.status, Pet_State)
+
+        -- Handles changes to PetStyleCycle (e.g., NORMAL, SPAM, HEAL)
     elseif stateField == const_PetStyleCycle then
+        -- Update the HUB to show the new Pet Style
         main_text_hub.pet_current_style = newValue
-    elseif stateField == "Auto Maneuver" then -- Updates HUB for Auto Maneuver
+
+        -- Handles changes to "Auto Maneuver" toggle
+    elseif stateField == "Auto Maneuver" then
+        -- Update HUB display for Auto Maneuver (ON/OFF)
         if newValue == true then
             main_text_hub.toggle_auto_maneuver = const_on
         else
             main_text_hub.toggle_auto_maneuver = const_off
         end
 
+        -- Handles changes to "Lock Pet DT" toggle
     elseif stateField == "Lock Pet DT" then
-        -- This command overrides everything and blocks all gear changes
-        -- Will lock until turned off or Pet is disengaged
-        if newValue == true then
-            equip(sets.pet.EmergencyDT)
+        -- This command overrides all other gear changes and locks pet into EmergencyDT set.
+        if newValue == true then -- If Lock Pet DT is being turned ON
+            equip(sets.pet.EmergencyDT) -- Equip emergency pet DT set
+            -- Disable all gear slots to prevent changes
             disable("main", "sub", "range", "ammo", "head", "neck", "lear", "rear", "body", "hands", "lring", "rring",
                 "back", "waist", "legs", "feet")
-
-            main_text_hub.toggle_lock_pet_dt_set = const_on
-        else
+            main_text_hub.toggle_lock_pet_dt_set = const_on -- Update HUB
+        else -- If Lock Pet DT is being turned OFF
+            -- Enable all gear slots
             enable("main", "sub", "range", "ammo", "head", "neck", "lear", "rear", "body", "hands", "lring", "rring",
                 "back", "waist", "legs", "feet")
-
-            main_text_hub.toggle_lock_pet_dt_set = const_off
-        end
-
-    elseif stateField == "Lock Weapon" then -- Updates HUB and disables/enables window for Lock Weapon
-        if newValue == true then
-            disable("main")
-            main_text_hub.toggle_lock_weapon = const_on
-        else
-            enable("main")
-            main_text_hub.toggle_lock_weapon = const_off
-        end
-    elseif stateField == "Custom Gear Lock" then -- Updates HUB and disables/enables gear from custom lock
-        if newValue == true then
-            main_text_hub.toggle_custom_gear_lock = const_on
-            disable(customGearLock)
-        else
-            main_text_hub.toggle_custom_gear_lock = const_off
-            enable(customGearLock)
+            main_text_hub.toggle_lock_pet_dt_set = const_off -- Update HUB
+            -- Re-evaluate and equip appropriate gear
             handle_equipping_gear(player.status, Pet_State)
         end
-    elseif stateField == 'Auto Deploy' then -- Updates HUB for Auto Deploy
+
+        -- Handles changes to "Lock Weapon" toggle
+    elseif stateField == "Lock Weapon" then
+        if newValue == true then -- If Lock Weapon is ON
+            disable("main") -- Disable main weapon slot
+            main_text_hub.toggle_lock_weapon = const_on -- Update HUB
+        else -- If Lock Weapon is OFF
+            enable("main") -- Enable main weapon slot
+            main_text_hub.toggle_lock_weapon = const_off -- Update HUB
+            handle_equipping_gear(player.status, Pet_State) -- Re-evaluate gear
+        end
+
+        -- Handles changes to "Custom Gear Lock" toggle
+    elseif stateField == "Custom Gear Lock" then
+        if newValue == true then -- If Custom Gear Lock is ON
+            main_text_hub.toggle_custom_gear_lock = const_on -- Update HUB
+            disable(customGearLock) -- Disable slots specified in customGearLock table
+        else -- If Custom Gear Lock is OFF
+            main_text_hub.toggle_custom_gear_lock = const_off -- Update HUB
+            enable(customGearLock) -- Enable slots specified in customGearLock table
+            handle_equipping_gear(player.status, Pet_State) -- Re-evaluate gear
+        end
+
+        -- Handles changes to 'Auto Deploy' toggle
+    elseif stateField == 'Auto Deploy' then
+        -- Update HUB display for Auto Deploy (ON/OFF)
         if newValue == true then
             main_text_hub.toggle_auto_deploy = const_on
         else
             main_text_hub.toggle_auto_deploy = const_off
         end
-    elseif stateField == 'Hide HUB' then -- Hides or Shows the entire HUB Window
+
+        -- Handles changes to 'Hide HUB' toggle (hides/shows the entire HUB window)
+    elseif stateField == 'Hide HUB' then
         if newValue == true then
             texts.hide(main_text_hub)
         else
             texts.show(main_text_hub)
         end
-    elseif stateField == 'Hide Mode' then -- Handles hide/show Mode Section
-        hideTextSections()
-    elseif stateField == 'Hide State' then -- Handles hide/show State Section
-        hideTextSections()
-    elseif stateField == 'Hide Options' then -- Handles hide/show Options Section
-        hideTextSections()
-    elseif stateField == 'Hide Keybinds' then -- Handles hide/show Keybinds
+
+        -- Handles changes to 'Hide Mode' toggle (hides/shows Mode section of HUB)
+    elseif stateField == 'Hide Mode' then
+        hideTextSections() -- Rebuilds HUB with/without Mode section
+
+        -- Handles changes to 'Hide State' toggle (hides/shows State section of HUB)
+    elseif stateField == 'Hide State' then
+        hideTextSections() -- Rebuilds HUB with/without State section
+
+        -- Handles changes to 'Hide Options' toggle (hides/shows Options section of HUB)
+    elseif stateField == 'Hide Options' then
+        hideTextSections() -- Rebuilds HUB with/without Options section
+
+        -- Handles changes to 'Hide Keybinds' toggle (shows/hides keybind hints on HUB)
+    elseif stateField == 'Hide Keybinds' then
         if newValue == true then
-            texts.update(main_text_hub, keybinds_on)
+            texts.update(main_text_hub, keybinds_on) -- Show keybinds
         else
-            texts.update(main_text_hub, keybinds_off)
+            texts.update(main_text_hub, keybinds_off) -- Hide keybinds (set to empty strings)
         end
-    elseif stateField == 'Offense Mode' then -- Updates HUB for Offense Mode
-        main_text_hub.player_current_offense = newValue
-    elseif stateField == 'Physical Defense Mode' then -- Updates HUB for Physical Defense Mode
-        main_text_hub.player_current_physical = newValue
-    elseif stateField == 'Hybrid Mode' then -- Updates HUB for Hybrid Mode
-        main_text_hub.player_current_hybrid = newValue
-    elseif stateField == 'Idle Mode' then -- Updates HUB for Idle Mode
-        main_text_hub.player_current_idle = newValue
+
+        -- Handles changes to 'Offense Mode' (e.g., MasterPet, Master, Trusts)
+    elseif stateField == 'Offense Mode' then
+        main_text_hub.player_current_offense = newValue -- Update HUB
+
+        -- Handles changes to 'Physical Defense Mode' (e.g., PetDT, MasterDT)
+    elseif stateField == 'Physical Defense Mode' then
+        main_text_hub.player_current_physical = newValue -- Update HUB
+
+        -- Handles changes to 'Hybrid Mode' (e.g., Normal, Acc, TP, DT)
+    elseif stateField == 'Hybrid Mode' then
+        main_text_hub.player_current_hybrid = newValue -- Update HUB
+
+        -- Handles changes to 'Idle Mode' (e.g., Idle, MasterDT)
+    elseif stateField == 'Idle Mode' then
+        main_text_hub.player_current_idle = newValue -- Update HUB
     end
 end
 
--- Set eventArgs.handled to true if we don't want the automatic display to be run.
+-- Set eventArgs.handled to true if we don't want Gearswap's automatic display to run.
 -- This will display gear and run when F12 is pressed
 function display_current_job_state(eventArgs)
     local msg = ""

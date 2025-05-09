@@ -66,72 +66,98 @@ function determinePuppetType()
     -- This is based mostly off of the frames from String Theory (most are present, may be missing some)
     -- https://www.bg-wiki.com/bg/String_Theory#Automaton_Frame_Setups
 
-    -- Determine Head first, then further determine by body and attachments
-    if head == HarHead then -- Harlequin Predictions
-        if frame == HarFrame and (pet.attachments.strobe == true or pet.attachments.flashbulb == true) then -- Magic Tank
+    -- Determine Pet Mode and Style based on Head, Frame, and Attachments.
+    -- Uses handle_set to apply the determined mode and style to Gearswap states.
+
+    -- Harlequin Head Predictions
+    if head == HarHead then
+        if frame == HarFrame and (pet.attachments.strobe == true or pet.attachments.flashbulb == true) then
+            -- Harlequin Head + Harlequin Frame + Strobe/Flashbulb = Magic Tank
             handle_set({const_PetModeCycle, const_tank})
             handle_set({const_PetStyleCycle, "MAGIC"})
-        elseif frame == HarFrame then -- Default
+        elseif frame == HarFrame then
+            -- Harlequin Head + Harlequin Frame (no specific enmity attachments) = Default DD Normal
             handle_set({const_PetModeCycle, const_dd})
             handle_set({const_PetStyleCycle, "NORMAL"})
         else
+            -- Unknown combination for Harlequin Head
             msg("Unable to determine Mode/Style for Puppet Head: (" .. head .. ") Puppet Frame: (" .. frame .. ")")
         end
-    elseif head == ValHead then -- Valoredge Predictions
+        -- Valoredge Head Predictions
+    elseif head == ValHead then
         if frame == SharpFrame then
-            if (pet.attachments.strobe == true or pet.attachments.flashbulb == true) then -- DD Tank
+            if (pet.attachments.strobe == true or pet.attachments.flashbulb == true) then
+                -- Valoredge Head + Sharpshot Frame + Strobe/Flashbulb = DD Tank
                 handle_set({const_PetModeCycle, const_tank})
                 handle_set({const_PetStyleCycle, const_dd})
-            else -- Default
+            else
+                -- Valoredge Head + Sharpshot Frame (no specific enmity attachments) = Default DD Normal
                 handle_set({const_PetModeCycle, const_dd})
                 handle_set({const_PetStyleCycle, "NORMAL"})
             end
-        elseif frame == ValFrame then -- Default Standard Tank
+        elseif frame == ValFrame then
             if pet.attachments.inhibitor == true or pet.attachments.attuner == true and
-                (not pet.attachments.strobe or not pet.attachments['strobe ii']) then -- Bone Slayer
+                (not pet.attachments.strobe or not pet.attachments['strobe ii']) then
+                -- Valoredge Head + Valoredge Frame + Inhibitor/Attuner (and no Strobe) = Bone Slayer DD
                 handle_set({const_PetModeCycle, const_dd})
                 handle_set({const_PetStyleCycle, "BONE"})
-            else -- Standard Tank
+            else
+                -- Valoredge Head + Valoredge Frame (default) = Standard Tank Normal
                 handle_set({const_PetModeCycle, const_tank})
                 handle_set({const_PetStyleCycle, "NORMAL"})
             end
         else
+            -- Unknown combination for Valoredge Head
             msg("Unable to determine Mode/Style for Puppet Head: (" .. head .. ") Puppet Frame: (" .. frame .. ")")
         end
-    elseif head == SharpHead then -- Sharpshooter Prediction
-        if frame == SharpFrame then -- SPAM DD
+        -- Sharpshot Head Predictions
+    elseif head == SharpHead then
+        if frame == SharpFrame then
             if (pet.attachments.inhibitor == true or pet.attachments["inhibitor II"] == true) then
+                -- Sharpshot Head + Sharpshot Frame + Inhibitor I/II = Normal DD (likely for accuracy/ranged focus)
                 handle_set({const_PetModeCycle, const_dd})
                 handle_set({const_PetStyleCycle, "NORMAL"})
             else
+                -- Sharpshot Head + Sharpshot Frame (no inhibitor) = SPAM DD (likely for faster WS)
                 handle_set({const_PetModeCycle, const_dd})
                 handle_set({const_PetStyleCycle, "SPAM"})
             end
         else
+            -- Unknown combination for Sharpshot Head
             msg("Unable to determine Mode/Style for Puppet Head: (" .. head .. ") Puppet Frame: (" .. frame .. ")")
         end
-    elseif head == StormHead then -- Stormwaker Prediction
-        if frame == StormFrame then -- RDM
+        -- Stormwaker Head Predictions
+    elseif head == StormHead then
+        if frame == StormFrame then
+            -- Stormwaker Head + Stormwaker Frame = Support Mage (RDM-like)
             handle_set({const_PetModeCycle, const_mage})
             handle_set({const_PetStyleCycle, "SUPPORT"})
         else
+            -- Unknown combination for Stormwaker Head
             msg("Unable to determine Mode/Style for Puppet Head: (" .. head .. ") Puppet Frame: (" .. frame .. ")")
         end
-    elseif head == SoulHead then -- Soulsoother Prediction
-        if frame == StormFrame then -- WHM
+        -- Soulsoother Head Predictions
+    elseif head == SoulHead then
+        if frame == StormFrame then
+            -- Soulsoother Head + Stormwaker Frame = Healing Mage (WHM-like)
             handle_set({const_PetModeCycle, const_mage})
             handle_set({const_PetStyleCycle, "HEAL"})
-        elseif frame == ValFrame then -- Turtle Tank
+        elseif frame == ValFrame then
+            -- Soulsoother Head + Valoredge Frame = Turtle Tank (defensive tank)
             handle_set({const_PetModeCycle, const_tank})
             handle_set({const_PetStyleCycle, "NORMAL"})
         else
+            -- Unknown combination for Soulsoother Head
             msg("Unable to determine Mode/Style for Puppet Head: (" .. head .. ") Puppet Frame: (" .. frame .. ")")
         end
-    elseif head == SpiritHead then -- Spiritweaver Prediction
-        if frame == StormFrame then -- BLM
+        -- Spiritreaver Head Predictions
+    elseif head == SpiritHead then
+        if frame == StormFrame then
+            -- Spiritreaver Head + Stormwaker Frame = DD Mage (BLM-like)
             handle_set({const_PetModeCycle, const_mage})
             handle_set({const_PetStyleCycle, const_dd})
         else
+            -- Unknown combination for Spiritreaver Head
             msg("Unable to determine Mode/Style for Puppet Head: (" .. head .. ") Puppet Frame: (" .. frame .. ")")
         end
     end

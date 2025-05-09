@@ -378,8 +378,9 @@ function init_gear_sets()
 
     -------------------------------------Idle
     --[[
-        Pet is not active
-        Idle Mode = MasterDT
+        Player is Idle.
+        Pet is NOT active.
+        Idle Mode (Ctrl-F12) = MasterDT.
     ]]
     sets.idle.MasterDT = {
         -- Add your set here
@@ -387,8 +388,9 @@ function init_gear_sets()
 
     -------------------------------------Engaged
     --[[
-        Offense Mode = Master
-        Hybrid Mode = Normal
+        Player is Engaged.
+        Offense Mode (F9) = Master (Pet is not active or not prioritized for gear).
+        Hybrid Mode (Ctrl-F9) = Normal.
     ]]
     sets.engaged.Master = {
         -- Add your set here
@@ -396,8 +398,9 @@ function init_gear_sets()
 
     -------------------------------------Acc
     --[[
-        Offense Mode = Master
-        Hybrid Mode = Acc
+        Player is Engaged.
+        Offense Mode (F9) = Master.
+        Hybrid Mode (Ctrl-F9) = Acc.
     ]]
     sets.engaged.Master.Acc = {
         -- Add your set here
@@ -405,8 +408,9 @@ function init_gear_sets()
 
     -------------------------------------TP
     --[[
-        Offense Mode = Master
-        Hybrid Mode = TP
+        Player is Engaged.
+        Offense Mode (F9) = Master.
+        Hybrid Mode (Ctrl-F9) = TP.
     ]]
     sets.engaged.Master.TP = {
         -- Add your set here
@@ -414,8 +418,9 @@ function init_gear_sets()
 
     -------------------------------------DT
     --[[
-        Offense Mode = Master
-        Hybrid Mode = DT
+        Player is Engaged.
+        Offense Mode (F9) = Master.
+        Hybrid Mode (Ctrl-F9) = DT.
     ]]
     sets.engaged.Master.DT = {
         -- Add your set here
@@ -434,8 +439,9 @@ function init_gear_sets()
         and the pet.
     ]]
     --[[
-        Offense Mode = MasterPet
-        Hybrid Mode = Normal
+        Player is Engaged.
+        Offense Mode (F9) = MasterPet (Player and Pet are fighting together).
+        Hybrid Mode (Ctrl-F9) = Normal.
     ]]
     sets.engaged.MasterPet = {
         -- Add your set here
@@ -443,8 +449,9 @@ function init_gear_sets()
 
     -------------------------------------Acc
     --[[
-        Offense Mode = MasterPet
-        Hybrid Mode = Acc
+        Player is Engaged.
+        Offense Mode (F9) = MasterPet.
+        Hybrid Mode (Ctrl-F9) = Acc.
     ]]
     sets.engaged.MasterPet.Acc = {
         -- Add your set here
@@ -452,8 +459,9 @@ function init_gear_sets()
 
     -------------------------------------TP
     --[[
-        Offense Mode = MasterPet
-        Hybrid Mode = TP
+        Player is Engaged.
+        Offense Mode (F9) = MasterPet.
+        Hybrid Mode (Ctrl-F9) = TP.
     ]]
     sets.engaged.MasterPet.TP = {
         -- Add your set here
@@ -461,8 +469,9 @@ function init_gear_sets()
 
     -------------------------------------DT
     --[[
-        Offense Mode = MasterPet
-        Hybrid Mode = DT
+        Player is Engaged.
+        Offense Mode (F9) = MasterPet.
+        Hybrid Mode (Ctrl-F9) = DT.
     ]]
     sets.engaged.MasterPet.DT = {
         -- Add your set here
@@ -470,8 +479,9 @@ function init_gear_sets()
 
     -------------------------------------Regen
     --[[
-        Offense Mode = MasterPet
-        Hybrid Mode = Regen
+        Player is Engaged.
+        Offense Mode (F9) = MasterPet.
+        Hybrid Mode (Ctrl-F9) = Regen.
     ]]
     sets.engaged.MasterPet.Regen = {
         -- Add your set here
@@ -524,22 +534,19 @@ function init_gear_sets()
     -------------------------------------Idle
     --[[
         This set will become default Idle Set when the Pet is Active
-        and sets.idle will be ignored
-        Player = Idle and not fighting
-        Pet = Idle and not fighting
-
-        Idle Mode = Idle
+        and the base sets.idle will be ignored.
+        Player is Idle (not fighting).
+        Pet is Idle (not fighting).
+        Idle Mode (Ctrl-F12) = Idle.
     ]]
     sets.idle.Pet = {
         head = "Heyoka Cap"
     }
 
     --[[
-        If pet is active and you are idle and pet is idle
-        Player = idle and not fighting
-        Pet = idle and not fighting
-
-        Idle Mode = MasterDT
+        Player is Idle (not fighting).
+        Pet is Active and Idle (not fighting).
+        Idle Mode (Ctrl-F12) = MasterDT.
     ]]
     sets.idle.Pet.MasterDT = {
         -- Add your set here
@@ -571,48 +578,61 @@ function init_gear_sets()
       You can further adjust this by changing the HyrbidMode using Ctrl+F9 to activate the Acc/TP/DT/Regen/Ranged sets
     ]]
     --[[
-        Idle Mode = Idle
-        Hybrid Mode = Normal
+        Player is Idle (not fighting).
+        Pet is Engaged.
+        Idle Mode (Ctrl-F12) = Idle.
+        Hybrid Mode (Ctrl-F9) = Normal.
+        This is the base set when player is idle and pet is fighting.
     ]]
     sets.idle.Pet.Engaged = {
         head = "Taeon Chapeau"
     }
 
     --[[
-        Idle Mode = Idle
-        Hybrid Mode = Acc
+        Player is Idle (not fighting).
+        Pet is Engaged.
+        Idle Mode (Ctrl-F12) = Idle.
+        Hybrid Mode (Ctrl-F9) = Acc.
     ]]
     sets.idle.Pet.Engaged.Acc = {
         -- Add your set here
     }
 
     --[[
-        Idle Mode = Idle
-        Hybrid Mode = TP
+        Player is Idle (not fighting).
+        Pet is Engaged.
+        Idle Mode (Ctrl-F12) = Idle.
+        Hybrid Mode (Ctrl-F9) = TP.
     ]]
     sets.idle.Pet.Engaged.TP = {
         -- Add your set here
     }
 
     --[[
-        Idle Mode = Idle
-        Hybrid Mode = DT
+        Player is Idle (not fighting).
+        Pet is Engaged.
+        Idle Mode (Ctrl-F12) = Idle.
+        Hybrid Mode (Ctrl-F9) = DT.
     ]]
     sets.idle.Pet.Engaged.DT = {
         -- Add your set here
     }
 
     --[[
-        Idle Mode = Idle
-        Hybrid Mode = Regen
+        Player is Idle (not fighting).
+        Pet is Engaged.
+        Idle Mode (Ctrl-F12) = Idle.
+        Hybrid Mode (Ctrl-F9) = Regen.
     ]]
     sets.idle.Pet.Engaged.Regen = {
         -- Add your set here
     }
 
     --[[
-        Idle Mode = Idle
-        Hybrid Mode = Ranged
+        Player is Idle (not fighting).
+        Pet is Engaged.
+        Idle Mode (Ctrl-F12) = Idle.
+        Hybrid Mode (Ctrl-F9) = Ranged.
     ]]
     sets.idle.Pet.Engaged.Ranged = set_combine(sets.idle.Pet.Engaged, {
         legs = Empy_Karagoz.Legs_Combat
@@ -620,7 +640,8 @@ function init_gear_sets()
 
     -------------------------------------WS
     --[[
-        WSNoFTP is the default weaponskill set used
+        Default pet weaponskill set when state.SetFTP is false.
+        Used when pet performs a weaponskill that does not benefit from TP overflow.
     ]]
     sets.midcast.Pet.WSNoFTP = {
         head = "Pitre Taj +2"
@@ -628,8 +649,8 @@ function init_gear_sets()
     }
 
     --[[
-        If we have a pet weaponskill that can benefit from WSFTP
-        then this set will be equipped
+        Pet weaponskill set used when state.SetFTP is true.
+        Used for pet weaponskills that can benefit from TP overflow (WSFTP).
     ]]
     sets.midcast.Pet.WSFTP = {
         head = Empy_Karagoz.Head_PTPBonus
@@ -697,4 +718,3 @@ function select_default_macro_book()
         set_macro_page(3, 1)
     end
 end
-
